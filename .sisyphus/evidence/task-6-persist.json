@@ -1,0 +1,29 @@
+{
+  "test": "Task 6 - State Persistence",
+  "date": "2026-03-06",
+  "actions": [
+    "Modified basicInfo[0].value from '138-xxxx-xxxx' to '139-1234-5678'",
+    "Switched basicInfo[1].iconMode from 'preset' to 'custom'",
+    "Set basicInfo[1].customIcon to 'fas fa-gem'",
+    "Moved basicInfo items: 邮箱 moved to position 0, 手机 to position 1"
+  ],
+  "beforeReload": {
+    "order": ["邮箱", "手机", "期望薪资", "出生年月", "学历"],
+    "firstTwo": [
+      {"label": "邮箱", "value": "zhangsan@example.com", "iconMode": "preset", "customIcon": ""},
+      {"label": "手机", "value": "139-1234-5678", "iconMode": "custom", "customIcon": "fas fa-gem"}
+    ]
+  },
+  "afterReload": {
+    "order": ["邮箱", "手机", "期望薪资", "出生年月", "学历"],
+    "firstTwo": [
+      {"label": "邮箱", "value": "zhangsan@example.com", "iconMode": "preset", "customIcon": ""},
+      {"label": "手机", "value": "139-1234-5678", "iconMode": "custom", "customIcon": "fas fa-gem"}
+    ]
+  },
+  "result": "PASS - All changes persisted correctly after reload",
+  "localStorage": {
+    "key": "resume-generator-draft-v1",
+    "verified": true
+  }
+}
