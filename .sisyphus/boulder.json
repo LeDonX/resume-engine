@@ -1,10 +1,10 @@
 {
-  "active_plan": "E:\\aispace\\myresume\\.sisyphus\\plans\\ats-ux-short-batch.md",
-  "started_at": "2026-03-06T03:23:08.514Z",
+  "active_plan": "D:\\Project\\resume-engine\\.sisyphus\\plans\\avatar-local-upload-basicinfo-text-only.md",
+  "started_at": "2026-03-08T17:12:01Z",
   "session_ids": [
-    "ses_347f86f9effeUJQXNuHVU3EGfK"
+    "ses_3322bdf2effeGjw9n4Wn87uGsG"
   ],
-  "plan_name": "ats-ux-short-batch",
+  "plan_name": "avatar-local-upload-basicinfo-text-only",
   "agent": "atlas",
-  "worktree_path": "E:\\aispace\\myresume"
+  "worktree_path": "D:\\Project\\resume-engine"
 }

@@ -1,0 +1,5 @@
+保存草稿失败： Error: forced failure
+    at localStorage.setItem (D:\Project\resume-engine\tmp\verify-avatar.js:326:11)
+    at saveDraft (简历.html:inline-script:450:30)
+    at Object.handleAvatarUpload (简历.html:inline-script:1361:22)
+    at async main (D:\Project\resume-engine\tmp\verify-avatar.js:328:3)

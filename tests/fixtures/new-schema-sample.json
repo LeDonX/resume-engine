@@ -1,0 +1,93 @@
+{
+  "documentTitle": "新架构简历",
+  "profileImage": "",
+  "avatarFrame": {
+    "zoom": 1.35,
+    "offsetX": 12,
+    "offsetY": -18
+  },
+  "name": "李四",
+  "role": "产品设计工程师",
+  "summary": "用于导入验证的新 schema 样例。",
+  "basicInfo": [
+    {
+      "id": "phone",
+      "label": "手机",
+      "value": "139-0000-0000",
+      "iconPreset": "phone",
+      "iconMode": "preset",
+      "customIcon": ""
+    },
+    {
+      "id": "email",
+      "label": "邮箱",
+      "value": "lisi@example.com",
+      "iconPreset": "email",
+      "iconMode": "preset",
+      "customIcon": ""
+    },
+    {
+      "id": "salary",
+      "label": "期望薪资",
+      "value": "30K-40K",
+      "iconPreset": "salary",
+      "iconMode": "preset",
+      "customIcon": ""
+    },
+    {
+      "id": "birth",
+      "label": "出生年月",
+      "value": "1996.02",
+      "iconPreset": "birth",
+      "iconMode": "preset",
+      "customIcon": ""
+    },
+    {
+      "id": "education",
+      "label": "学历",
+      "value": "本科",
+      "iconPreset": "education",
+      "iconMode": "preset",
+      "customIcon": ""
+    }
+  ],
+  "education": [
+    {
+      "degree": "工业设计 - 本科",
+      "school": "示例大学",
+      "period": "2014.09 - 2018.06"
+    }
+  ],
+  "skills": [
+    {
+      "name": "设计工具",
+      "items": [
+        "Figma",
+        "Illustrator"
+      ]
+    }
+  ],
+  "experiences": [
+    {
+      "title": "设计师",
+      "company": "示例公司",
+      "period": "2020.01 - 至今",
+      "highlight": true,
+      "bullets": [
+        "负责核心体验设计"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "新零售体验升级",
+      "badge": "负责人",
+      "badgeStyle": "primary",
+      "description": "验证导入导出结构。",
+      "techs": [
+        "Figma",
+        "HTML"
+      ]
+    }
+  ]
+}

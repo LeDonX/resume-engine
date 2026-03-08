@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Avatar Browser Verification</title>
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    #app { width: 1280px; height: 2400px; border: 0; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <p id="status">running</p>
+  <iframe id="app" src="/%E7%AE%80%E5%8E%86.html" title="resume app verification frame"></iframe>
+  <pre id="result"></pre>
+  <script>
+    const resultNode = document.getElementById('result');
+    const statusNode = document.getElementById('status');
+    const frame = document.getElementById('app');
+
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message);
+      }
+    }
+
+    async function report(payload) {
+      try {
+        await fetch('/__report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (_error) {
+        // ignore reporting failure in page UI path
+      }
+    }
+
+    async function waitForFrameLoad() {
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('iframe load timeout')), 15000);
+        frame.onload = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+      });
+    }
+
+    async function loadFixture(path, type) {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`fixture fetch failed: ${path}`);
+      }
+      const blob = await response.blob();
+      const name = path.split('/').pop();
+      return new File([blob], name, { type });
+    }
+
+    async function run() {
+      await waitForFrameLoad();
+      const win = frame.contentWindow;
+      const doc = win.document;
+      const app = win.__resumeApp__;
+      assert(app, 'resume app not available');
+
+      const evidence = {};
+
+      const uploadFile = await loadFixture('/tests/fixtures/avatar-ok.png', 'image/png');
+      await win.handleAvatarUpload(uploadFile);
+      evidence.uploadStatus = app.getStatusText();
+      assert(evidence.uploadStatus.includes('头像已上传并保存'), 'upload success status missing');
+
+      win.applyFieldUpdate({ dataset: { section: 'avatarFrame', field: 'zoom' }, type: 'range', value: '1.72' });
+      app.dragAvatarFrame(24, -30, 136, 136);
+      const frameAfterDrag = app.getResumeData().avatarFrame;
+      evidence.frameAfterDrag = frameAfterDrag;
+      assert(frameAfterDrag.zoom >= 1.7, 'zoom not applied');
+      assert(frameAfterDrag.offsetX !== 0 || frameAfterDrag.offsetY !== 0, 'drag did not update frame offsets');
+      assert(doc.querySelector('[data-testid="avatar-drag-surface"]'), 'drag surface missing');
+
+      win.location.reload();
+      await waitForFrameLoad();
+      const reloadedApp = frame.contentWindow.__resumeApp__;
+      const frameAfterReload = reloadedApp.getResumeData().avatarFrame;
+      evidence.frameAfterReload = frameAfterReload;
+      assert(JSON.stringify(frameAfterReload) === JSON.stringify(frameAfterDrag), 'frame did not survive reload');
+
+      const reloadedDoc = frame.contentWindow.document;
+      const anchorCount = reloadedDoc.querySelectorAll('.resume-left ul a').length;
+      evidence.basicInfoAnchors = anchorCount;
+      assert(anchorCount === 0, 'basicInfo still renders anchors');
+
+      const oversizeFile = await loadFixture('/tests/fixtures/avatar-oversize.jpg', 'image/jpeg');
+      await frame.contentWindow.handleAvatarUpload(oversizeFile);
+      evidence.oversizeStatus = reloadedApp.getStatusText();
+      assert(evidence.oversizeStatus.includes('文件不能超过 2 MB'), 'oversize status missing');
+
+      frame.contentWindow.document.getElementById('export-data').click();
+      const exported = JSON.parse(reloadedApp.getLastExportedJson());
+      evidence.exportAvatarFrame = exported.avatarFrame;
+      assert(exported.avatarFrame, 'export missing avatarFrame');
+      assert(exported.basicInfo.every((item) => !Object.prototype.hasOwnProperty.call(item, 'url')), 'export still includes basicInfo.url');
+
+      frame.contentWindow.eval(`
+        window.__printCalled = 0;
+        const originalPrint = window.print;
+        window.print = () => { window.__printCalled += 1; };
+        window.__restorePrint = () => { window.print = originalPrint; };
+      `);
+      frame.contentWindow.document.getElementById('print-pdf').click();
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      evidence.printCalled = frame.contentWindow.__printCalled;
+      assert(evidence.printCalled === 1, 'print did not fire once');
+      frame.contentWindow.__restorePrint();
+
+      const payload = { ok: true, evidence };
+      statusNode.textContent = 'ok';
+      resultNode.textContent = JSON.stringify(payload, null, 2);
+      await report(payload);
+    }
+
+    run().catch((error) => {
+      const payload = { ok: false, error: String(error && error.stack || error) };
+      statusNode.textContent = 'error';
+      resultNode.textContent = JSON.stringify(payload, null, 2);
+      report(payload);
+    });
+  </script>
+</body>
+</html>
