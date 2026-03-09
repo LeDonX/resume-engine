@@ -287,28 +287,57 @@ async function main() {
   assert(!basicInfoHtml.includes('<a '), 'basicInfo preview still renders anchors');
   evidence.basicInfoTextOnly = true;
 
+  resumeApp.openAvatarCropper('空头像');
+  resumeApp.confirmAvatarCrop();
+  const emptyAvatarState = resumeApp.getResumeData();
+  assert(emptyAvatarState.profileImage === '', 'confirming empty avatar should not persist fallback image');
+  evidence.emptyAvatarConfirmPreserved = true;
+
   await context.handleAvatarUpload(okFile);
-  const afterUpload = resumeApp.getResumeData();
-  assert(afterUpload.profileImage.startsWith('data:image/png;base64,'), 'valid avatar upload did not persist data URL');
-  assert(resumeApp.getStatusText().includes('头像已上传并保存'), 'success upload status missing');
+  const cropState = resumeApp.getAvatarCropState();
+  assert(cropState, 'valid avatar upload did not open crop modal state');
+  assert(resumeApp.getResumeData().profileImage === '', 'upload should not commit avatar before confirm');
+  assert(resumeApp.getStatusText().includes('请在裁切框中调整后确认'), 'crop modal guidance missing after upload');
   evidence.validUploadStatus = resumeApp.getStatusText();
 
   context.applyFieldUpdate({ dataset: { section: 'avatarFrame', field: 'zoom' }, type: 'range', value: '1.72' });
-  resumeApp.dragAvatarFrame(24, -30, 136, 136);
+  const zoomReadoutAfterChange = context.renderAvatarCropModal();
+  assert(zoomReadoutAfterChange.includes('data-testid="avatar-zoom-readout"'), 'crop modal zoom readout missing');
+  assert(zoomReadoutAfterChange.includes('当前缩放 1.72x'), 'crop modal zoom readout did not update');
+  assert(!zoomReadoutAfterChange.includes('data-testid="avatar-position-readout"'), 'crop modal position block should be removed');
+  assert(!zoomReadoutAfterChange.includes('继续放大后应用'), 'confirm button label should not expand in invalid state');
+  assert(zoomReadoutAfterChange.includes('data-testid="avatar-crop-center"'), 'quick center action missing');
+  assert(zoomReadoutAfterChange.includes('data-testid="avatar-crop-show-full"'), 'quick show-full action missing');
+  assert(zoomReadoutAfterChange.includes('data-testid="avatar-crop-fill-frame"'), 'quick fill-frame action missing');
+  resumeApp.dragAvatarCropFrame(24, -30, 420, 420);
+  const cropAfterAdjust = resumeApp.getAvatarCropState();
+  assert(cropAfterAdjust.frame.zoom === 1.72, 'crop zoom not applied');
+  assert(cropAfterAdjust.frame.offsetX !== 0 || cropAfterAdjust.frame.offsetY !== 0, 'crop drag did not change offsets');
+  resumeApp.confirmAvatarCrop();
+
   const afterFrame = resumeApp.getResumeData();
-  assert(afterFrame.avatarFrame.zoom === 1.72, 'avatar zoom not applied');
-  assert(afterFrame.avatarFrame.offsetX === 18, 'avatar offsetX not applied');
-  assert(afterFrame.avatarFrame.offsetY === -22, 'avatar offsetY not applied');
+  assert(afterFrame.profileImage.startsWith('data:image/png;base64,'), 'confirmed crop did not persist data URL');
+  assert(afterFrame.avatarFrame.zoom === 1.72, 'confirmed avatar zoom not applied');
+  assert(resumeApp.getStatusText().includes('头像已更新并保存'), 'confirm success status missing');
   const reloaded = context.loadDraft();
-  assert(reloaded.avatarFrame.zoom === 1.72 && reloaded.avatarFrame.offsetX === 18 && reloaded.avatarFrame.offsetY === -22, 'avatar frame did not survive draft reload');
+  assert(reloaded.avatarFrame.zoom === 1.72, 'avatar frame did not survive draft reload');
   evidence.framingReload = reloaded.avatarFrame;
 
   const previewHtml = context.buildLeftColumnBlocks(afterFrame, context.getAvatarImageSource(afterFrame.profileImage)).join('');
   assert(previewHtml.includes('data-testid="avatar-preview-image"'), 'avatar preview selector missing');
-  assert(context.renderBasicForm().includes('data-testid="avatar-drag-surface"'), 'avatar drag surface selector missing');
+  const basicFormHtml = context.renderBasicForm();
+  assert(basicFormHtml.includes('上传头像'), 'avatar upload entry missing');
+  assert(basicFormHtml.includes('调整头像'), 'avatar adjustment entry missing');
   assert(previewHtml.includes('data-avatar-zoom="1.72"'), 'avatar preview zoom data attribute missing');
-  assert(previewHtml.includes('data-avatar-offset-y="-22"'), 'avatar preview offset data attribute missing');
+  assert(previewHtml.includes(`data-avatar-offset-y="${afterFrame.avatarFrame.offsetY}"`), 'avatar preview offset data attribute missing');
   evidence.previewDataAttributes = true;
+
+  resumeApp.openAvatarCropper('当前头像');
+  const beforeCancelFrame = JSON.stringify(resumeApp.getResumeData().avatarFrame);
+  resumeApp.dragAvatarCropFrame(-36, 18, 420, 420);
+  resumeApp.cancelAvatarCrop();
+  assert(JSON.stringify(resumeApp.getResumeData().avatarFrame) === beforeCancelFrame, 'cancel crop should not change committed avatar frame');
+  evidence.cancelPreservedCommittedAvatar = true;
 
   const beforeInvalidSrc = resumeApp.getResumeData().profileImage;
   await context.handleAvatarUpload(txtFile);
@@ -326,7 +355,9 @@ async function main() {
     throw new Error('forced failure');
   };
   await context.handleAvatarUpload(okFile);
-  assert(resumeApp.getStatusText().includes('保存草稿失败'), 'storage failure message missing');
+  assert(resumeApp.getAvatarCropState(), 'storage failure path should still open crop state before confirm');
+  resumeApp.confirmAvatarCrop();
+  assert(resumeApp.getStatusText().includes('头像保存失败'), 'storage failure message missing');
   assert(resumeApp.getResumeData().profileImage === beforeInvalidSrc, 'storage failure did not roll back avatar');
   localStorage.setItem = originalSetItem;
   evidence.storageFailureStatus = resumeApp.getStatusText();

@@ -63,20 +63,77 @@
       const app = win.__resumeApp__;
       assert(app, 'resume app not available');
 
+      win.localStorage.removeItem('resume-generator-draft-v1');
+      doc.getElementById('reset-data').click();
+
       const evidence = {};
+
+      app.openAvatarCropper('空头像');
+      app.confirmAvatarCrop();
+      assert(app.getResumeData().profileImage === '', 'confirming empty avatar should not persist fallback image');
+      evidence.emptyAvatarConfirmPreserved = true;
 
       const uploadFile = await loadFixture('/tests/fixtures/avatar-ok.png', 'image/png');
       await win.handleAvatarUpload(uploadFile);
       evidence.uploadStatus = app.getStatusText();
-      assert(evidence.uploadStatus.includes('头像已上传并保存'), 'upload success status missing');
+      assert(evidence.uploadStatus.includes('请在裁切框中调整后确认'), 'crop guidance status missing');
+      assert(app.getAvatarCropState(), 'crop state missing after upload');
+      const initialFeedback = doc.querySelector('[data-testid="avatar-crop-feedback"]');
+      const initialConfirm = doc.querySelector('[data-testid="avatar-crop-confirm"]');
+      const initialZoomControl = doc.querySelector('[data-testid="avatar-zoom-control"]');
+      assert(initialFeedback && initialFeedback.textContent.includes('还不能应用'), 'invalid crop feedback missing');
+      assert(initialConfirm && initialConfirm.disabled, 'confirm button should be disabled before crop is valid');
+      assert(initialZoomControl && Number(initialZoomControl.min) < 1, 'zoom slider min should track full-image preview zoom');
+      assert(!doc.querySelector('[data-testid="avatar-position-readout"]'), 'position block should be removed');
+      assert(initialConfirm.textContent.trim() === '应用头像', 'confirm button label should stay stable when disabled');
+      assert(initialFeedback && getComputedStyle(initialFeedback).color !== 'rgb(148, 163, 184)', 'crop feedback text should not be washed out');
+      assert(doc.querySelector('[data-testid="avatar-crop-center"]'), 'quick center action missing');
+      assert(doc.querySelector('[data-testid="avatar-crop-show-full"]'), 'quick show-full action missing');
+      assert(doc.querySelector('[data-testid="avatar-crop-fill-frame"]'), 'quick fill-frame action missing');
+
+      doc.querySelector('[data-testid="avatar-crop-fill-frame"]').click();
+      const frameAfterFill = app.getAvatarCropState().frame;
+      evidence.frameAfterFill = frameAfterFill;
+      assert(frameAfterFill.zoom >= 1, 'fill-frame action should restore valid zoom');
+      assert(frameAfterFill.offsetX === 0 && frameAfterFill.offsetY === 0, 'fill-frame action should center image');
+      assert(!doc.querySelector('[data-testid="avatar-crop-confirm"]').disabled, 'fill-frame action should enable confirm');
+
+      doc.querySelector('[data-testid="avatar-crop-show-full"]').click();
+      const frameAfterShowFull = app.getAvatarCropState().frame;
+      evidence.frameAfterShowFull = frameAfterShowFull;
+      assert(frameAfterShowFull.zoom <= frameAfterFill.zoom, 'show-full action should not increase zoom');
+      assert(frameAfterShowFull.offsetX === 0 && frameAfterShowFull.offsetY === 0, 'show-full action should center image');
+      assert(doc.querySelector('[data-testid="avatar-crop-confirm"]').disabled, 'show-full action should return to invalid state');
+
+      app.dragAvatarCropFrame(30, -20, 420, 420);
+      doc.querySelector('[data-testid="avatar-crop-center"]').click();
+      const frameAfterCenter = app.getAvatarCropState().frame;
+      evidence.frameAfterCenter = frameAfterCenter;
+      assert(frameAfterCenter.offsetX === 0 && frameAfterCenter.offsetY === 0, 'center action should reset offsets');
 
       win.applyFieldUpdate({ dataset: { section: 'avatarFrame', field: 'zoom' }, type: 'range', value: '1.72' });
-      app.dragAvatarFrame(24, -30, 136, 136);
-      const frameAfterDrag = app.getResumeData().avatarFrame;
+      const zoomReadout = doc.querySelector('[data-testid="avatar-zoom-readout"]');
+      assert(zoomReadout && zoomReadout.textContent.includes('1.72x'), 'zoom readout did not update');
+      assert(!doc.querySelector('[data-testid="avatar-crop-confirm"]').disabled, 'confirm button should enable after valid zoom');
+      assert(doc.querySelector('[data-testid="avatar-crop-confirm"]').textContent.trim() === '应用头像', 'confirm button label should stay stable when enabled');
+
+      const dragSurface = doc.querySelector('[data-testid="avatar-drag-surface"]');
+      dragSurface.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+      const zoomAfterWheelDown = app.getAvatarCropState().frame.zoom;
+      dragSurface.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true, cancelable: true }));
+      const zoomAfterWheelUp = app.getAvatarCropState().frame.zoom;
+      evidence.zoomAfterWheel = { down: zoomAfterWheelDown, up: zoomAfterWheelUp };
+      assert(zoomAfterWheelDown < 1.72, 'mouse wheel down should zoom out');
+      assert(zoomAfterWheelUp > zoomAfterWheelDown, 'mouse wheel up should zoom in');
+
+      app.dragAvatarCropFrame(24, -30, 420, 420);
+      const frameAfterDrag = app.getAvatarCropState().frame;
       evidence.frameAfterDrag = frameAfterDrag;
       assert(frameAfterDrag.zoom >= 1.7, 'zoom not applied');
       assert(frameAfterDrag.offsetX !== 0 || frameAfterDrag.offsetY !== 0, 'drag did not update frame offsets');
-      assert(doc.querySelector('[data-testid="avatar-drag-surface"]'), 'drag surface missing');
+      assert(doc.querySelector('[data-testid="avatar-crop-modal"]'), 'crop modal missing');
+      app.confirmAvatarCrop();
+      assert(app.getStatusText().includes('头像已更新并保存'), 'confirm success status missing');
 
       win.location.reload();
       await waitForFrameLoad();
@@ -108,7 +165,20 @@
         window.__restorePrint = () => { window.print = originalPrint; };
       `);
       frame.contentWindow.document.getElementById('print-pdf').click();
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve, reject) => {
+        const startedAt = Date.now();
+        const timer = setInterval(() => {
+          if (frame.contentWindow.__printCalled === 1) {
+            clearInterval(timer);
+            resolve();
+            return;
+          }
+          if (Date.now() - startedAt > 2000) {
+            clearInterval(timer);
+            reject(new Error('print timeout'));
+          }
+        }, 50);
+      });
       evidence.printCalled = frame.contentWindow.__printCalled;
       assert(evidence.printCalled === 1, 'print did not fire once');
       frame.contentWindow.__restorePrint();

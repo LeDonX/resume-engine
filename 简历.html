@@ -153,6 +153,249 @@
             background: #f9fafb;
         }
 
+        .avatar-crop-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 70;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(14px);
+        }
+
+        .avatar-crop-shell {
+            width: min(1040px, calc(100vw - 3rem));
+            height: min(760px, calc(100dvh - 3rem));
+            overflow: hidden;
+            border-radius: 1.75rem;
+            background:
+                radial-gradient(circle at top left, rgba(219, 234, 254, 0.95), rgba(255, 255, 255, 0.96) 42%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.06), rgba(37, 99, 235, 0.12));
+            box-shadow: 0 28px 90px rgba(15, 23, 42, 0.36);
+        }
+
+        .avatar-crop-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(280px, 340px);
+            width: 100%;
+            height: 100%;
+        }
+
+        .avatar-crop-panel-left {
+            color: #fff;
+            min-height: 0;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            background:
+                radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 34%),
+                linear-gradient(145deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.96));
+        }
+
+        .avatar-crop-panel-pad {
+            padding: clamp(1rem, 2vw, 2rem);
+        }
+
+        .avatar-crop-heading {
+            font-size: clamp(1.5rem, 2.2vw, 2rem);
+            line-height: 1.1;
+        }
+
+        .avatar-crop-description {
+            font-size: clamp(0.875rem, 1.05vw, 1rem);
+            line-height: 1.55;
+        }
+
+        .avatar-crop-stage-area {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding-top: 1.25rem;
+        }
+
+        .avatar-crop-stage-shell {
+            position: relative;
+            width: min(100%, min(420px, 46vh));
+            flex: 0 1 auto;
+            aspect-ratio: 1;
+            border-radius: 2rem;
+            background:
+                linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.82)),
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0, rgba(255, 255, 255, 0.06) 12px, transparent 12px, transparent 24px);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+            padding: 1.25rem;
+        }
+
+        .avatar-crop-stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 1.4rem;
+            overflow: hidden;
+            box-shadow: 0 22px 45px rgba(15, 23, 42, 0.28);
+            background:
+                radial-gradient(circle at center, rgba(255, 255, 255, 0.08), rgba(15, 23, 42, 0.16) 60%),
+                rgba(15, 23, 42, 0.28);
+        }
+
+        .avatar-crop-panel-right {
+            min-height: 0;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .avatar-crop-controls {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .avatar-crop-controls-card {
+            padding: clamp(0.875rem, 1.5vw, 1.25rem);
+        }
+
+        .avatar-crop-controls-body {
+            margin-top: 1rem;
+            display: grid;
+            gap: 0.875rem;
+        }
+
+        .avatar-crop-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 900px), (max-height: 760px) {
+            .avatar-crop-backdrop {
+                padding: 1rem;
+            }
+
+            .avatar-crop-shell {
+                width: min(980px, calc(100vw - 2rem));
+                height: min(680px, calc(100dvh - 2rem));
+            }
+
+            .avatar-crop-layout {
+                grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
+            }
+
+            .avatar-crop-stage-shell {
+                width: min(100%, min(340px, 42vh));
+                padding: 1rem;
+            }
+
+            .avatar-crop-stage-area {
+                gap: 0.625rem;
+                padding-top: 0.875rem;
+            }
+
+            .avatar-crop-controls-body {
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .avatar-crop-shell {
+                width: min(100vw - 1rem, 1000px);
+                height: min(100dvh - 2rem, 900px);
+            }
+
+            .avatar-crop-layout {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: minmax(0, 1fr) auto;
+            }
+
+            .avatar-crop-stage-area {
+                padding-top: 0.625rem;
+            }
+
+            .avatar-crop-stage-shell {
+                width: min(100%, min(280px, 34vh));
+            }
+
+            .avatar-crop-actions {
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-height: 660px) {
+            .avatar-crop-panel-pad {
+                padding: 0.75rem;
+            }
+
+            .avatar-crop-controls-card {
+                padding: 0.875rem;
+            }
+
+            .avatar-crop-controls-body {
+                gap: 0.5rem;
+            }
+
+            .avatar-crop-stage-area {
+                gap: 0.5rem;
+                padding-top: 0.5rem;
+            }
+
+            .avatar-crop-actions {
+                gap: 0.5rem;
+            }
+
+            .avatar-crop-actions button {
+                padding-top: 0.625rem;
+                padding-bottom: 0.625rem;
+            }
+
+            .avatar-crop-shell {
+                height: calc(100dvh - 2rem);
+            }
+
+            .avatar-crop-stage-shell {
+                width: min(100%, min(250px, 28vh));
+            }
+
+            .avatar-crop-heading {
+                font-size: clamp(1.25rem, 2vw, 1.55rem);
+            }
+
+            .avatar-crop-description {
+                font-size: 0.82rem;
+                line-height: 1.45;
+            }
+        }
+
+        .avatar-crop-mask {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .avatar-crop-mask::before {
+            content: "";
+            position: absolute;
+            inset: 12%;
+            border: 4px solid rgba(255, 255, 255, 0.96);
+            border-radius: 9999px;
+            box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.4);
+        }
+
+        .avatar-crop-mask::after {
+            content: "";
+            position: absolute;
+            top: 12%;
+            bottom: 12%;
+            left: 50%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.34);
+            transform: translateX(-50%);
+        }
+
         @media (max-width: 1024px) {
             .app-shell {
                 display: block;
@@ -287,7 +530,10 @@
         const ALLOWED_AVATAR_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
         const ALLOWED_AVATAR_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"];
         const DEFAULT_AVATAR_FRAME = Object.freeze({ zoom: 1, offsetX: 0, offsetY: 0 });
+        const DEFAULT_AVATAR_IMAGE_META = Object.freeze({ width: 0, height: 0 });
         const AVATAR_OFFSET_LIMIT = 40;
+        const AVATAR_CROP_FRAME_RATIO = 0.76;
+        const avatarImageMetaCache = new Map();
 
         const BASIC_INFO_ICON_OPTIONS = [
             { key: "phone", label: "手机", icon: "fas fa-phone" },
@@ -310,6 +556,7 @@
         const sampleResumeData = {
             documentTitle: "张三的简历",
             profileImage: "",
+            avatarImageMeta: null,
             avatarFrame: { ...DEFAULT_AVATAR_FRAME },
             basicInfo: BASIC_INFO_PRESETS,
             education: [
@@ -372,6 +619,16 @@
 
         function createDefaultAvatarFrame() {
             return { ...DEFAULT_AVATAR_FRAME };
+        }
+
+        function normalizeAvatarImageMeta(sourceValue) {
+            const source = sourceValue && typeof sourceValue === "object" ? sourceValue : {};
+            const width = Math.max(0, Math.round(clampNumber(source.width, 0, 100000, DEFAULT_AVATAR_IMAGE_META.width)));
+            const height = Math.max(0, Math.round(clampNumber(source.height, 0, 100000, DEFAULT_AVATAR_IMAGE_META.height)));
+            if (!width || !height) {
+                return null;
+            }
+            return { width, height };
         }
 
         function getBasicInfoIconByPreset(presetKey) {
@@ -438,28 +695,320 @@
             return Math.min(max, Math.max(min, parsed));
         }
 
-        function normalizeAvatarFrame(sourceValue) {
+        function getCachedAvatarImageMeta(imageSrc) {
+            const src = pickText(imageSrc, "").trim();
+            return src ? (avatarImageMetaCache.get(src) || null) : null;
+        }
+
+        async function loadAvatarImageMeta(imageSrc) {
+            const src = pickText(imageSrc, "").trim();
+            if (!src) {
+                return null;
+            }
+            if (typeof Image === "undefined") {
+                return null;
+            }
+            if (avatarImageMetaCache.has(src)) {
+                return avatarImageMetaCache.get(src);
+            }
+            const meta = await new Promise((resolve) => {
+                const image = new Image();
+                image.onload = () => resolve({ width: image.naturalWidth || 0, height: image.naturalHeight || 0 });
+                image.onerror = () => resolve(null);
+                image.src = src;
+            });
+            avatarImageMetaCache.set(src, meta);
+            return meta;
+        }
+
+        function getAvatarEditorMinZoom(imageMeta) {
+            const meta = normalizeAvatarImageMeta(imageMeta);
+            if (!meta) {
+                return 1;
+            }
+            const minDimension = Math.min(meta.width, meta.height);
+            const maxDimension = Math.max(meta.width, meta.height);
+            const fitZoom = minDimension / (maxDimension * AVATAR_CROP_FRAME_RATIO);
+            return Math.min(1, Math.max(0.2, Number(fitZoom.toFixed(2))));
+        }
+
+        function createInitialAvatarCropFrame(imageMeta) {
+            const frame = createDefaultAvatarFrame();
+            frame.zoom = getAvatarEditorMinZoom(imageMeta);
+            return frame;
+        }
+
+        function getAvatarOffsetLimits(zoom, imageMeta) {
+            if (imageMeta?.width && imageMeta?.height) {
+                const baseScale = 1 / Math.min(imageMeta.width, imageMeta.height);
+                const renderedWidthRatio = imageMeta.width * baseScale * zoom;
+                const renderedHeightRatio = imageMeta.height * baseScale * zoom;
+                return {
+                    x: Math.max(0, ((renderedWidthRatio - 1) / 2) * 100),
+                    y: Math.max(0, ((renderedHeightRatio - 1) / 2) * 100)
+                };
+            }
+            const genericLimit = Math.max(AVATAR_OFFSET_LIMIT, ((zoom - 1) / 2) * 100);
+            return { x: genericLimit, y: genericLimit };
+        }
+
+        function normalizeAvatarFrame(sourceValue, imageMeta = null, minZoom = 1) {
             const source = sourceValue && typeof sourceValue === "object" ? sourceValue : {};
+            const safeMinZoom = clampNumber(minZoom, 0.2, 1, 1);
+            const zoom = clampNumber(source.zoom, safeMinZoom, 2.5, Math.max(DEFAULT_AVATAR_FRAME.zoom, safeMinZoom));
+            const offsetLimit = getAvatarOffsetLimits(zoom, imageMeta);
             return {
-                zoom: clampNumber(source.zoom, 1, 2.5, DEFAULT_AVATAR_FRAME.zoom),
-                offsetX: clampNumber(source.offsetX, -AVATAR_OFFSET_LIMIT, AVATAR_OFFSET_LIMIT, DEFAULT_AVATAR_FRAME.offsetX),
-                offsetY: clampNumber(source.offsetY, -AVATAR_OFFSET_LIMIT, AVATAR_OFFSET_LIMIT, DEFAULT_AVATAR_FRAME.offsetY)
+                zoom,
+                offsetX: Math.round(clampNumber(source.offsetX, -offsetLimit.x, offsetLimit.x, DEFAULT_AVATAR_FRAME.offsetX)),
+                offsetY: Math.round(clampNumber(source.offsetY, -offsetLimit.y, offsetLimit.y, DEFAULT_AVATAR_FRAME.offsetY))
             };
         }
 
-        function getAvatarImageStyle(frame) {
-            const avatarFrame = normalizeAvatarFrame(frame);
+        function getAvatarImageStyle(frame, imageMeta = null, viewportRatio = 1, minZoom = 1) {
+            const avatarFrame = normalizeAvatarFrame(frame, imageMeta, minZoom);
+            const normalizedMeta = normalizeAvatarImageMeta(imageMeta);
+            const minDimension = normalizedMeta ? Math.min(normalizedMeta.width, normalizedMeta.height) : 1;
+            const widthRatio = normalizedMeta ? (normalizedMeta.width / minDimension) : 1;
+            const heightRatio = normalizedMeta ? (normalizedMeta.height / minDimension) : 1;
+            const safeViewportRatio = clampNumber(viewportRatio, 0.1, 1, 1);
             return [
-                "object-fit: cover",
-                `object-position: ${50 + avatarFrame.offsetX}% ${50 + avatarFrame.offsetY}%`,
-                `transform: scale(${avatarFrame.zoom})`,
-                "transform-origin: center center"
+                "position: absolute",
+                "display: block",
+                `width: ${(widthRatio * avatarFrame.zoom * safeViewportRatio * 100).toFixed(3)}%`,
+                `height: ${(heightRatio * avatarFrame.zoom * safeViewportRatio * 100).toFixed(3)}%`,
+                `left: ${(50 + (avatarFrame.offsetX * safeViewportRatio)).toFixed(3)}%`,
+                `top: ${(50 + (avatarFrame.offsetY * safeViewportRatio)).toFixed(3)}%`,
+                "transform: translate(-50%, -50%)",
+                "transform-origin: center center",
+                "max-width: none",
+                "max-height: none",
+                "will-change: transform"
             ].join("; ");
         }
 
-        function getAvatarPositionReadout(frame) {
-            const avatarFrame = normalizeAvatarFrame(frame);
-            return `X ${avatarFrame.offsetX}% / Y ${avatarFrame.offsetY}%`;
+        function createAvatarCropState(imageSrc, frame, fileName = "", imageMeta = null) {
+            const minZoom = getAvatarEditorMinZoom(imageMeta);
+            return {
+                imageSrc: pickText(imageSrc, "").trim(),
+                frame: normalizeAvatarFrame(frame, imageMeta, minZoom),
+                fileName: pickText(fileName, ""),
+                imageMeta: imageMeta && imageMeta.width && imageMeta.height ? { width: imageMeta.width, height: imageMeta.height } : null,
+                pendingQuickAction: null
+            };
+        }
+
+        function getAvatarEditorState() {
+            if (avatarCropState) {
+                return avatarCropState;
+            }
+            return {
+                imageSrc: getAvatarImageSource(resumeData.profileImage),
+                frame: normalizeAvatarFrame(resumeData.avatarFrame, resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage)),
+                fileName: "",
+                imageMeta: resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage)
+            };
+        }
+
+        function setAvatarEditorFrame(frame) {
+            if (avatarCropState) {
+                avatarCropState.frame = normalizeAvatarFrame(frame, avatarCropState.imageMeta, getAvatarEditorMinZoom(avatarCropState.imageMeta));
+                syncAvatarEditorUI();
+                return;
+            }
+            resumeData.avatarFrame = normalizeAvatarFrame(frame, resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage));
+            syncAvatarEditorUI();
+            renderResume(resumeData);
+            saveDraft();
+        }
+
+        function calculateAvatarFrameFromDrag(startFrame, deltaX, deltaY, width, height, imageMeta = null, minZoom = 1) {
+            const avatarFrame = normalizeAvatarFrame(startFrame, imageMeta, minZoom);
+            return normalizeAvatarFrame({
+                ...avatarFrame,
+                offsetX: avatarFrame.offsetX + ((deltaX / Math.max(width, 1)) * 100),
+                offsetY: avatarFrame.offsetY + ((deltaY / Math.max(height, 1)) * 100)
+            }, imageMeta, minZoom);
+        }
+
+        function openAvatarCropper(imageSrc, frame = createDefaultAvatarFrame(), fileName = "", imageMeta = null) {
+            avatarCropState = createAvatarCropState(imageSrc, frame, fileName, imageMeta || getCachedAvatarImageMeta(imageSrc));
+            renderForm();
+            syncAvatarEditorUI();
+            if (!avatarCropState.imageMeta && avatarCropState.imageSrc) {
+                loadAvatarImageMeta(avatarCropState.imageSrc).then((resolvedMeta) => {
+                    if (!resolvedMeta || !avatarCropState || avatarCropState.imageSrc !== imageSrc) {
+                        return;
+                    }
+                    avatarCropState.imageMeta = resolvedMeta;
+                    avatarCropState.frame = normalizeAvatarFrame(avatarCropState.frame, resolvedMeta, getAvatarEditorMinZoom(resolvedMeta));
+                    if (avatarCropState.pendingQuickAction) {
+                        const pendingAction = avatarCropState.pendingQuickAction;
+                        avatarCropState.pendingQuickAction = null;
+                        applyAvatarCropQuickAction(pendingAction);
+                        return;
+                    }
+                    syncAvatarEditorUI();
+                }).catch(() => {
+                    // Ignore metadata lookup failure and keep generic drag bounds.
+                });
+            }
+        }
+
+        function closeAvatarCropper() {
+            avatarCropState = null;
+            avatarDragState = null;
+            renderForm();
+        }
+
+        function applyAvatarCropQuickAction(mode) {
+            if (!avatarCropState) {
+                return;
+            }
+
+            if (mode === "show-full" && !avatarCropState.imageMeta) {
+                avatarCropState.pendingQuickAction = mode;
+                setStatus("正在读取图片尺寸，稍后会自动切换到完整预览。", "info");
+                return;
+            }
+
+            const minZoom = getAvatarEditorMinZoom(avatarCropState.imageMeta);
+            const currentFrame = normalizeAvatarFrame(avatarCropState.frame, avatarCropState.imageMeta, minZoom);
+
+            if (mode === "center") {
+                setAvatarEditorFrame({
+                    ...currentFrame,
+                    offsetX: 0,
+                    offsetY: 0
+                });
+                setStatus("已将头像重新居中。", "info");
+                return;
+            }
+
+            if (mode === "show-full") {
+                setAvatarEditorFrame({
+                    ...currentFrame,
+                    zoom: minZoom,
+                    offsetX: 0,
+                    offsetY: 0
+                });
+                setStatus("已切换为完整预览。", "info");
+                return;
+            }
+
+            if (mode === "fill-frame") {
+                setAvatarEditorFrame({
+                    ...currentFrame,
+                    zoom: 1,
+                    offsetX: 0,
+                    offsetY: 0
+                });
+                setStatus("已填满圆框，可继续微调。", "info");
+            }
+        }
+
+        function confirmAvatarCrop() {
+            if (!avatarCropState) {
+                return;
+            }
+
+            const nextCrop = createAvatarCropState(avatarCropState.imageSrc, avatarCropState.frame, avatarCropState.fileName, avatarCropState.imageMeta);
+            if (nextCrop.frame.zoom < 1) {
+                setStatus("请先放大图片，让头像范围填满白色圆框后再确认。", "info");
+                syncAvatarEditorUI();
+                return;
+            }
+            const previousProfileImage = resumeData.profileImage;
+            const previousAvatarImageMeta = cloneData(resumeData.avatarImageMeta);
+            const previousAvatarFrame = cloneData(resumeData.avatarFrame);
+
+            resumeData.profileImage = nextCrop.imageSrc;
+            resumeData.avatarImageMeta = normalizeAvatarImageMeta(nextCrop.imageMeta);
+            resumeData.avatarFrame = nextCrop.frame;
+
+            if (!saveDraft()) {
+                resumeData.profileImage = previousProfileImage;
+                resumeData.avatarImageMeta = previousAvatarImageMeta;
+                resumeData.avatarFrame = previousAvatarFrame;
+                renderAll();
+                setStatus("头像保存失败：无法写入本地草稿。", "error");
+                return;
+            }
+
+            avatarCropState = null;
+            renderAll();
+            const suffix = nextCrop.fileName ? `：${nextCrop.fileName}` : "";
+            setStatus(`头像已更新并保存${suffix}`, "success");
+        }
+
+        function renderAvatarCropModal() {
+            if (!avatarCropState) {
+                return "";
+            }
+
+            const cropImage = getAvatarImageSource(avatarCropState.imageSrc);
+            const cropMinZoom = getAvatarEditorMinZoom(avatarCropState.imageMeta);
+            const avatarFrame = normalizeAvatarFrame(avatarCropState.frame, avatarCropState.imageMeta, cropMinZoom);
+            const minZoom = cropMinZoom;
+            const canConfirmCrop = avatarFrame.zoom >= 1;
+
+            return `
+                <div class="avatar-crop-backdrop" data-testid="avatar-crop-modal" role="dialog" aria-modal="true" aria-label="头像裁切设置">
+                    <div class="avatar-crop-shell">
+                        <div class="avatar-crop-layout">
+                            <div class="avatar-crop-panel-left avatar-crop-panel-pad">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-cyan-100">Avatar Crop</p>
+                                <div class="mt-3">
+                                    <h3 class="avatar-crop-heading font-bold text-white">调整头像进入最终圆形范围</h3>
+                                    <p class="avatar-crop-description mt-2 text-slate-100">拖动图片把头部放进白色圆框内，再用缩放控制脸部比例。确认前不会覆盖当前头像。</p>
+                                </div>
+                                <div class="avatar-crop-stage-area">
+                                    <div class="avatar-crop-stage-shell">
+                                        <div class="avatar-crop-stage cursor-grab active:cursor-grabbing touch-none select-none" data-testid="avatar-drag-surface" data-avatar-drag-surface="true" aria-label="拖拽调整头像位置">
+                                            <img src="${escapeHtml(cropImage)}" alt="Avatar crop preview" class="pointer-events-none select-none" data-testid="avatar-editor-image" data-avatar-editor-image="true" style="${getAvatarImageStyle(avatarFrame, avatarCropState.imageMeta, AVATAR_CROP_FRAME_RATIO, cropMinZoom)}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
+                                            <div class="avatar-crop-mask"></div>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs leading-5 text-slate-100">方形工作区显示原图的完整移动空间，白色圆框才是最终头像范围。</p>
+                                </div>
+                            </div>
+                            <div class="avatar-crop-panel-right avatar-crop-panel-pad">
+                                <div class="avatar-crop-controls avatar-crop-controls-card rounded-3xl border border-slate-300 bg-white shadow-[0_24px_50px_rgba(15,23,42,0.08)]">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-600">调整</p>
+                                    <div class="avatar-crop-controls-body">
+                                        <label class="block text-xs font-semibold text-slate-800">
+                                            缩放
+                                            <input name="avatar-zoom" type="range" min="${escapeHtml(String(minZoom))}" max="2.5" step="0.01" value="${escapeHtml(String(avatarFrame.zoom))}" class="mt-3 w-full accent-blue-600" data-section="avatarFrame" data-field="zoom" data-testid="avatar-zoom-control">
+                                            <span class="mt-2 block text-[11px] font-medium text-slate-700" data-testid="avatar-zoom-readout">当前缩放 ${avatarFrame.zoom.toFixed(2)}x</span>
+                                        </label>
+                                        <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-600">快捷调整</p>
+                                            <div class="mt-3 grid grid-cols-2 gap-2">
+                                                <button type="button" data-action="avatar-crop-center" data-testid="avatar-crop-center" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold whitespace-nowrap text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900">居中</button>
+                                                <button type="button" data-action="avatar-crop-show-full" data-testid="avatar-crop-show-full" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold whitespace-nowrap text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900">看全图</button>
+                                                <button type="button" data-action="avatar-crop-fill-frame" data-testid="avatar-crop-fill-frame" class="col-span-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold whitespace-nowrap text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900">填满圆框</button>
+                                            </div>
+                                            <p class="mt-3 text-[11px] leading-5 text-slate-600">这三个按钮分别适合快速回到常用构图，减少反复拖拽和缩放。</p>
+                                        </div>
+                                        <div class="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs leading-5 text-slate-700">
+                                            <p class="font-semibold text-slate-900">使用方式</p>
+                                            <p class="mt-1">上传后默认先进入调整界面。拖动图片、滚轮缩放，白色圆框内就是最终头像。</p>
+                                        </div>
+                                        <div class="rounded-2xl px-4 py-3 text-xs leading-5 ${canConfirmCrop ? 'border border-emerald-100 bg-emerald-50/80 text-emerald-700' : 'border border-amber-200 bg-amber-50 text-amber-700'}" data-testid="avatar-crop-feedback">
+                                            ${canConfirmCrop
+                                                ? '<p class="font-semibold">当前范围可直接应用。</p><p class="mt-1">如果想让头像更饱满，可以继续放大或拖动后再应用。</p>'
+                                                : '<p class="font-semibold">还不能应用</p><p class="mt-1">白色圆框里还有空白区域。请继续放大，直到圆框被图片完全填满。</p>'}
+                                        </div>
+                                    </div>
+                                    <div class="avatar-crop-actions">
+                                        <button type="button" data-action="cancel-avatar-crop" class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900">取消</button>
+                                        <button type="button" data-action="confirm-avatar-crop" data-testid="avatar-crop-confirm" ${canConfirmCrop ? '' : 'disabled'} class="flex-1 rounded-2xl px-4 py-3 text-sm font-semibold whitespace-nowrap transition-transform ${canConfirmCrop ? 'bg-slate-950 text-white shadow-lg shadow-slate-900/20 hover:-translate-y-0.5' : 'cursor-not-allowed bg-slate-200 text-slate-400'}">应用头像</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // Helper to validate Font Awesome class (balance rule)
@@ -592,44 +1141,67 @@
             return /^data:image\/(png|jpeg|webp);/i.test(image) ? image : FALLBACK_AVATAR;
         }
 
+        function hasCustomAvatarImage(value) {
+            return /^data:image\/(png|jpeg|webp);/i.test(pickText(value, "").trim());
+        }
+
         function syncAvatarEditorUI() {
-            const avatarFrame = normalizeAvatarFrame(resumeData.avatarFrame);
+            const editorState = getAvatarEditorState();
+            const avatarMinZoom = avatarCropState ? getAvatarEditorMinZoom(editorState.imageMeta) : 1;
+            const avatarFrame = normalizeAvatarFrame(editorState.frame, editorState.imageMeta, avatarMinZoom);
             const dragSurface = formRoot.querySelector('[data-avatar-drag-surface="true"]');
             const editorImage = formRoot.querySelector('[data-avatar-editor-image="true"]');
-            const readout = formRoot.querySelector('[data-testid="avatar-position-readout"]');
+            const zoomReadout = formRoot.querySelector('[data-testid="avatar-zoom-readout"]');
+            const zoomControl = formRoot.querySelector('[data-testid="avatar-zoom-control"]');
+            const confirmButton = formRoot.querySelector('[data-testid="avatar-crop-confirm"]');
+            const feedback = formRoot.querySelector('[data-testid="avatar-crop-feedback"]');
+            const canConfirmCrop = avatarFrame.zoom >= 1;
+
+                if (avatarCropState && editorImage?.naturalWidth && editorImage?.naturalHeight) {
+                    avatarCropState.imageMeta = {
+                        width: editorImage.naturalWidth,
+                        height: editorImage.naturalHeight
+                    };
+                    if (avatarCropState.imageSrc) {
+                        avatarImageMetaCache.set(avatarCropState.imageSrc, avatarCropState.imageMeta);
+                    }
+                    avatarCropState.frame = normalizeAvatarFrame(avatarCropState.frame, avatarCropState.imageMeta, getAvatarEditorMinZoom(avatarCropState.imageMeta));
+                }
 
             if (dragSurface) {
                 dragSurface.dataset.avatarOffsetX = String(avatarFrame.offsetX);
                 dragSurface.dataset.avatarOffsetY = String(avatarFrame.offsetY);
             }
             if (editorImage) {
-                editorImage.style.cssText = getAvatarImageStyle(avatarFrame);
+                editorImage.style.cssText = getAvatarImageStyle(
+                    avatarFrame,
+                    avatarCropState?.imageMeta || editorState.imageMeta,
+                    avatarCropState ? AVATAR_CROP_FRAME_RATIO : 1,
+                    avatarMinZoom
+                );
             }
-            if (readout) {
-                readout.textContent = getAvatarPositionReadout(avatarFrame);
+            if (zoomReadout) {
+                zoomReadout.textContent = `当前缩放 ${avatarFrame.zoom.toFixed(2)}x`;
             }
-        }
-
-        function updateAvatarFrameFromDrag(deltaX, deltaY, width, height) {
-            const avatarFrame = normalizeAvatarFrame(resumeData.avatarFrame);
-            const nextOffsetX = clampNumber(
-                avatarFrame.offsetX + ((deltaX / Math.max(width, 1)) * 100),
-                -AVATAR_OFFSET_LIMIT,
-                AVATAR_OFFSET_LIMIT,
-                avatarFrame.offsetX
-            );
-            const nextOffsetY = clampNumber(
-                avatarFrame.offsetY + ((deltaY / Math.max(height, 1)) * 100),
-                -AVATAR_OFFSET_LIMIT,
-                AVATAR_OFFSET_LIMIT,
-                avatarFrame.offsetY
-            );
-
-            resumeData.avatarFrame = {
-                ...avatarFrame,
-                offsetX: Math.round(nextOffsetX),
-                offsetY: Math.round(nextOffsetY)
-            };
+            if (zoomControl) {
+                zoomControl.min = String(avatarMinZoom);
+                zoomControl.value = String(avatarFrame.zoom);
+            }
+            if (confirmButton) {
+                confirmButton.disabled = !canConfirmCrop;
+                confirmButton.textContent = "应用头像";
+                confirmButton.className = canConfirmCrop
+                    ? "flex-1 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold whitespace-nowrap text-white shadow-lg shadow-slate-900/20 transition-transform hover:-translate-y-0.5"
+                    : "flex-1 cursor-not-allowed rounded-2xl bg-slate-200 px-4 py-3 text-sm font-semibold whitespace-nowrap text-slate-400";
+            }
+            if (feedback) {
+                feedback.className = canConfirmCrop
+                    ? "rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-xs leading-5 text-emerald-700"
+                    : "rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-700";
+                feedback.innerHTML = canConfirmCrop
+                    ? '<p class="font-semibold">当前范围可直接应用。</p><p class="mt-1">如果想让头像更饱满，可以继续放大或拖动后再应用。</p>'
+                    : '<p class="font-semibold">还不能应用</p><p class="mt-1">白色圆框里还有空白区域。请继续放大，直到圆框被图片完全填满。</p>';
+            }
         }
 
         function normalizeResumeData(rawData) {
@@ -641,11 +1213,18 @@
             const skillsSource = hasOwn(raw, "skills") ? raw.skills : fallback.skills;
             const experiencesSource = hasOwn(raw, "experiences") ? raw.experiences : fallback.experiences;
             const projectsSource = hasOwn(raw, "projects") ? raw.projects : fallback.projects;
+            const avatarImageMeta = hasOwn(raw, "avatarImageMeta") ? normalizeAvatarImageMeta(raw.avatarImageMeta) : normalizeAvatarImageMeta(fallback.avatarImageMeta);
+            const profileImage = hasOwn(raw, "profileImage") ? pickText(raw.profileImage, "") : fallback.profileImage;
+
+            if (profileImage && avatarImageMeta) {
+                avatarImageMetaCache.set(profileImage, avatarImageMeta);
+            }
 
             return {
                 documentTitle: hasOwn(raw, "documentTitle") ? pickText(raw.documentTitle, "") : fallback.documentTitle,
-                profileImage: hasOwn(raw, "profileImage") ? pickText(raw.profileImage, "") : fallback.profileImage,
-                avatarFrame: hasOwn(raw, "avatarFrame") ? normalizeAvatarFrame(raw.avatarFrame) : createDefaultAvatarFrame(),
+                profileImage,
+                avatarImageMeta,
+                avatarFrame: hasOwn(raw, "avatarFrame") ? normalizeAvatarFrame(raw.avatarFrame, avatarImageMeta) : createDefaultAvatarFrame(),
                 name: hasOwn(raw, "name") ? pickText(raw.name, "") : fallback.name,
                 role: hasOwn(raw, "role") ? pickText(raw.role, "") : fallback.role,
                 summary: hasOwn(raw, "summary") ? pickText(raw.summary, "") : fallback.summary,
@@ -690,6 +1269,7 @@
         let basicInfoSortable = null;
         let lastExportedJson = "";
         let avatarDragState = null;
+        let avatarCropState = null;
 
         // Dirty state tracking
         let lastPersistedSnapshot = null;
@@ -776,8 +1356,10 @@
         }
 
         function renderBasicForm() {
-            const avatarFrame = normalizeAvatarFrame(resumeData.avatarFrame);
-            const avatarEditorImage = getAvatarImageSource(resumeData.profileImage);
+            const avatarMeta = resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage);
+            const committedAvatarFrame = normalizeAvatarFrame(resumeData.avatarFrame, avatarMeta);
+            const avatarPreviewImage = getAvatarImageSource(resumeData.profileImage);
+            const hasUploadedAvatar = hasCustomAvatarImage(resumeData.profileImage);
             return `
                 <section class="form-section">
                     <h2 class="text-sm font-bold text-gray-900">基础信息</h2>
@@ -794,29 +1376,27 @@
                             目标岗位
                             <input name="role" class="${inputClass}" data-section="basic" data-field="role" value="${escapeHtml(resumeData.role)}">
                         </label>
-                        <label class="block text-xs text-gray-600">
-                            本地头像上传
-                            <input name="profileImageUpload" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" class="${inputClass}" data-testid="avatar-upload-input">
-                            <span class="mt-1 block text-[11px] text-gray-500">支持 ${ALLOWED_AVATAR_EXTENSIONS.join(" / ")}，最大 2 MB。上传后会随草稿和 JSON 一起保存。</span>
-                        </label>
-                        <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                            <p class="text-xs font-semibold text-gray-700">头像取景</p>
-                            <div class="grid gap-4 mt-3 lg:grid-cols-[minmax(0,1fr)_150px] lg:items-start">
-                                <label class="block text-xs text-gray-600">
-                                    缩放
-                                    <input name="avatar-zoom" type="range" min="1" max="2.5" step="0.01" value="${escapeHtml(String(avatarFrame.zoom))}" class="mt-2 w-full" data-section="avatarFrame" data-field="zoom" data-testid="avatar-zoom-control">
-                                    <span class="mt-1 block text-[11px] text-gray-500">${avatarFrame.zoom.toFixed(2)}x</span>
-                                </label>
-                                <div class="space-y-2">
-                                    <div class="mx-auto w-[136px]">
-                                        <div class="w-[136px] h-[136px] rounded-full overflow-hidden border-4 border-white shadow-sm bg-white cursor-grab active:cursor-grabbing touch-none select-none" data-testid="avatar-drag-surface" data-avatar-drag-surface="true" data-avatar-offset-x="${escapeHtml(String(avatarFrame.offsetX))}" data-avatar-offset-y="${escapeHtml(String(avatarFrame.offsetY))}" aria-label="拖拽调整头像位置">
-                                            <img src="${escapeHtml(avatarEditorImage)}" alt="Avatar editor preview" class="w-full h-full pointer-events-none" data-testid="avatar-editor-image" data-avatar-editor-image="true" style="${getAvatarImageStyle(avatarFrame)}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
-                                        </div>
-                                    </div>
-                                    <p class="text-[11px] leading-5 text-gray-500">拖拽圆形预览，调整头像在裁切区域中的位置。</p>
-                                    <p class="text-[11px] text-gray-500" data-testid="avatar-position-readout">X ${avatarFrame.offsetX}% / Y ${avatarFrame.offsetY}%</p>
+                        <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-blue-50 p-4 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="relative h-24 w-24 shrink-0 rounded-full overflow-hidden border-4 border-white shadow-lg shadow-slate-200/70 bg-white">
+                                    <img src="${escapeHtml(avatarPreviewImage)}" alt="Current avatar preview" class="pointer-events-none select-none" style="${getAvatarImageStyle(committedAvatarFrame, avatarMeta)}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">头像设置</p>
+                                    <h3 class="mt-2 text-sm font-bold text-slate-900">只保留上传和调整</h3>
+                                    <p class="mt-1 text-[11px] leading-5 text-slate-500">上传新图片后会自动进入调整界面；之后如果想微调，只需要点一次“调整头像”。</p>
                                 </div>
                             </div>
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                <input id="avatar-upload-input-control" name="profileImageUpload" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" class="hidden" data-testid="avatar-upload-input">
+                                <label for="avatar-upload-input-control" class="flex cursor-pointer items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900">
+                                    上传头像
+                                </label>
+                                <button type="button" data-action="open-avatar-cropper" ${hasUploadedAvatar ? '' : 'disabled'} class="flex items-center justify-center rounded-2xl px-4 py-3 text-sm font-semibold transition-colors ${hasUploadedAvatar ? 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'}">
+                                    调整头像
+                                </button>
+                            </div>
+                            <p class="mt-3 text-[11px] leading-5 text-slate-500">支持 ${ALLOWED_AVATAR_EXTENSIONS.join(" / ")}，最大 2 MB。</p>
                         </div>
                         <label class="block text-xs text-gray-600">
                             个人简介
@@ -1083,7 +1663,8 @@
                 renderEducationForm(),
                 renderSkillsForm(),
                 renderExperiencesForm(),
-                renderProjectsForm()
+                renderProjectsForm(),
+                renderAvatarCropModal()
             ].join("");
 
             initAvatarFrameEditor();
@@ -1205,13 +1786,14 @@
 
         function buildLeftColumnBlocks(data, profileImage) {
             const basicInfoContent = renderBasicInfo(data.basicInfo);
-            const avatarFrame = normalizeAvatarFrame(data.avatarFrame);
-            const avatarStyle = getAvatarImageStyle(avatarFrame);
+            const avatarMeta = data.avatarImageMeta || getCachedAvatarImageMeta(data.profileImage);
+            const avatarFrame = normalizeAvatarFrame(data.avatarFrame, avatarMeta);
+            const avatarStyle = getAvatarImageStyle(avatarFrame, avatarMeta);
             const blocks = [
                 `
                     <div class="flex justify-center mb-8 resume-avoid-break">
-                        <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md">
-                            <img src="${escapeHtml(profileImage)}" alt="Profile Picture" class="w-full h-full" style="${avatarStyle}" data-testid="avatar-preview-image" data-avatar-zoom="${escapeHtml(String(avatarFrame.zoom))}" data-avatar-offset-x="${escapeHtml(String(avatarFrame.offsetX))}" data-avatar-offset-y="${escapeHtml(String(avatarFrame.offsetY))}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
+                        <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md">
+                            <img src="${escapeHtml(profileImage)}" alt="Profile Picture" class="pointer-events-none select-none" style="${avatarStyle}" data-testid="avatar-preview-image" data-avatar-zoom="${escapeHtml(String(avatarFrame.zoom))}" data-avatar-offset-x="${escapeHtml(String(avatarFrame.offsetX))}" data-avatar-offset-y="${escapeHtml(String(avatarFrame.offsetY))}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
                         </div>
                     </div>
                 `
@@ -1473,8 +2055,47 @@
 
         function initAvatarFrameEditor() {
             const dragSurface = formRoot.querySelector('[data-avatar-drag-surface="true"]');
+            const editorImage = formRoot.querySelector('[data-avatar-editor-image="true"]');
             if (!dragSurface) {
                 return;
+            }
+
+            const applyWheelZoom = (deltaY) => {
+                const editorState = getAvatarEditorState();
+                const minZoom = avatarCropState ? getAvatarEditorMinZoom(editorState.imageMeta) : 1;
+                const wheelStep = Math.abs(deltaY) > 80 ? 0.08 : 0.04;
+                const nextZoom = clampNumber(
+                    editorState.frame.zoom + (deltaY < 0 ? wheelStep : -wheelStep),
+                    minZoom,
+                    2.5,
+                    editorState.frame.zoom
+                );
+                if (nextZoom === editorState.frame.zoom) {
+                    return;
+                }
+                setAvatarEditorFrame({
+                    ...editorState.frame,
+                    zoom: Number(nextZoom.toFixed(2))
+                });
+            };
+
+            const syncEditorImageMeta = () => {
+                if (avatarCropState && editorImage?.naturalWidth && editorImage?.naturalHeight) {
+                    avatarCropState.imageMeta = {
+                        width: editorImage.naturalWidth,
+                        height: editorImage.naturalHeight
+                    };
+                    avatarCropState.frame = normalizeAvatarFrame(avatarCropState.frame, avatarCropState.imageMeta, getAvatarEditorMinZoom(avatarCropState.imageMeta));
+                    syncAvatarEditorUI();
+                }
+            };
+
+            if (editorImage) {
+                if (editorImage.complete) {
+                    syncEditorImageMeta();
+                } else {
+                    editorImage.addEventListener("load", syncEditorImageMeta, { once: true });
+                }
             }
 
             const stopDragging = (shouldPersist) => {
@@ -1484,7 +2105,7 @@
                 avatarDragState = null;
                 dragSurface.classList.remove("cursor-grabbing");
                 dragSurface.classList.add("cursor-grab");
-                if (shouldPersist) {
+                if (shouldPersist && !avatarCropState) {
                     saveDraft();
                 }
             };
@@ -1500,7 +2121,9 @@
                     startY: event.clientY,
                     width: rect.width,
                     height: rect.height,
-                    startFrame: normalizeAvatarFrame(resumeData.avatarFrame)
+                    startFrame: normalizeAvatarFrame(getAvatarEditorState().frame, getAvatarEditorState().imageMeta, avatarCropState ? getAvatarEditorMinZoom(getAvatarEditorState().imageMeta) : 1),
+                    imageMeta: getAvatarEditorState().imageMeta,
+                    minZoom: avatarCropState ? getAvatarEditorMinZoom(getAvatarEditorState().imageMeta) : 1
                 };
                 if (typeof dragSurface.setPointerCapture === "function" && event.pointerId !== undefined) {
                     dragSurface.setPointerCapture(event.pointerId);
@@ -1514,16 +2137,21 @@
                 if (!avatarDragState || (event.pointerId !== undefined && avatarDragState.pointerId !== undefined && event.pointerId !== avatarDragState.pointerId)) {
                     return;
                 }
-                resumeData.avatarFrame = avatarDragState.startFrame;
-                updateAvatarFrameFromDrag(
+                setAvatarEditorFrame(calculateAvatarFrameFromDrag(
+                    avatarDragState.startFrame,
                     event.clientX - avatarDragState.startX,
                     event.clientY - avatarDragState.startY,
                     avatarDragState.width,
-                    avatarDragState.height
-                );
-                syncAvatarEditorUI();
-                renderResume(resumeData);
+                    avatarDragState.height,
+                    avatarDragState.imageMeta,
+                    avatarDragState.minZoom
+                ));
             });
+
+            dragSurface.addEventListener("wheel", (event) => {
+                event.preventDefault();
+                applyWheelZoom(event.deltaY);
+            }, { passive: false });
 
             const finishDrag = (event) => {
                 if (!avatarDragState || (event.pointerId !== undefined && avatarDragState.pointerId !== undefined && event.pointerId !== avatarDragState.pointerId)) {
@@ -1543,7 +2171,9 @@
             dragSurface.addEventListener("pointercancel", () => {
                 stopDragging(false);
                 syncAvatarEditorUI();
-                renderResume(resumeData);
+                if (!avatarCropState) {
+                    renderResume(resumeData);
+                }
             });
             syncAvatarEditorUI();
         }
@@ -1637,14 +2267,12 @@
                 if (!/^data:image\/(png|jpeg|webp);/i.test(dataUrl)) {
                     throw new Error("图片格式无效");
                 }
+                const imageMeta = await loadAvatarImageMeta(dataUrl);
 
-                resumeData.profileImage = dataUrl;
-                if (!saveDraft()) {
-                    throw new Error("保存草稿失败");
-                }
-
-                renderAll();
-                setStatus(`头像已上传并保存：${file.name}`, "success");
+                resumeData.profileImage = previousProfileImage;
+                resumeData.avatarFrame = previousAvatarFrame;
+                openAvatarCropper(dataUrl, createInitialAvatarCropFrame(imageMeta), file.name, imageMeta);
+                setStatus(`已载入头像：${file.name}。请在裁切框中调整后确认。`, "info");
             } catch (error) {
                 resumeData.profileImage = previousProfileImage;
                 resumeData.avatarFrame = previousAvatarFrame;
@@ -1672,9 +2300,15 @@
             if (section === "basic") {
                 resumeData[field] = value;
             } else if (section === "avatarFrame") {
-                resumeData.avatarFrame[field] = field === "zoom"
-                    ? clampNumber(value, 1, 2.5, DEFAULT_AVATAR_FRAME.zoom)
-                    : clampNumber(value, -AVATAR_OFFSET_LIMIT, AVATAR_OFFSET_LIMIT, 0);
+                const minZoom = avatarCropState ? getAvatarEditorMinZoom(avatarCropState.imageMeta) : 1;
+                const nextFrame = {
+                    ...(avatarCropState ? avatarCropState.frame : resumeData.avatarFrame),
+                    [field]: field === "zoom"
+                        ? clampNumber(value, minZoom, 2.5, DEFAULT_AVATAR_FRAME.zoom)
+                        : clampNumber(value, -AVATAR_OFFSET_LIMIT, AVATAR_OFFSET_LIMIT, 0)
+                };
+                setAvatarEditorFrame(nextFrame);
+                return;
             } else {
                 const index = Number(target.dataset.index);
                 if (!Number.isInteger(index)) {
@@ -1743,6 +2377,42 @@
                 activeBasicInfoPickerIndex = -1;
                 renderAll();
                 saveDraft();
+                return;
+            }
+
+            if (action === "open-avatar-cropper") {
+                if (!hasCustomAvatarImage(resumeData.profileImage)) {
+                    setStatus("请先上传头像。", "info");
+                    return;
+                }
+                openAvatarCropper(resumeData.profileImage, resumeData.avatarFrame, "当前头像", resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage));
+                setStatus("已打开头像裁切框。确认后才会保存本次调整。", "info");
+                return;
+            }
+
+            if (action === "avatar-crop-center") {
+                applyAvatarCropQuickAction("center");
+                return;
+            }
+
+            if (action === "avatar-crop-show-full") {
+                applyAvatarCropQuickAction("show-full");
+                return;
+            }
+
+            if (action === "avatar-crop-fill-frame") {
+                applyAvatarCropQuickAction("fill-frame");
+                return;
+            }
+
+            if (action === "cancel-avatar-crop") {
+                closeAvatarCropper();
+                setStatus("已取消本次头像裁切。", "info");
+                return;
+            }
+
+            if (action === "confirm-avatar-crop") {
+                confirmAvatarCrop();
                 return;
             }
 
@@ -1873,15 +2543,35 @@
             getResumeData: () => cloneData(resumeData),
             getLastExportedJson: () => lastExportedJson,
             getStatusText: () => statusText.textContent,
+            getAvatarCropState: () => avatarCropState ? createAvatarCropState(avatarCropState.imageSrc, avatarCropState.frame, avatarCropState.fileName) : null,
             rerender: () => renderAll(),
+            openAvatarCropper(fileName = "当前头像") {
+                openAvatarCropper(resumeData.profileImage, resumeData.avatarFrame, fileName, resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage));
+            },
+            confirmAvatarCrop,
+            cancelAvatarCrop: closeAvatarCropper,
+            setAvatarCropFrame(frame) {
+                if (!avatarCropState) {
+                    return;
+                }
+                avatarCropState.frame = normalizeAvatarFrame({ ...avatarCropState.frame, ...frame }, avatarCropState.imageMeta, getAvatarEditorMinZoom(avatarCropState.imageMeta));
+                syncAvatarEditorUI();
+            },
+            dragAvatarCropFrame(deltaX, deltaY, width = 420, height = 420) {
+                if (!avatarCropState) {
+                    return;
+                }
+                avatarCropState.frame = calculateAvatarFrameFromDrag(avatarCropState.frame, deltaX, deltaY, width, height, avatarCropState.imageMeta, getAvatarEditorMinZoom(avatarCropState.imageMeta));
+                syncAvatarEditorUI();
+            },
             setAvatarFrame(frame) {
-                resumeData.avatarFrame = normalizeAvatarFrame({ ...resumeData.avatarFrame, ...frame });
+                resumeData.avatarFrame = normalizeAvatarFrame({ ...resumeData.avatarFrame, ...frame }, resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage));
                 syncAvatarEditorUI();
                 renderResume(resumeData);
                 saveDraft();
             },
             dragAvatarFrame(deltaX, deltaY, width = 136, height = 136) {
-                updateAvatarFrameFromDrag(deltaX, deltaY, width, height);
+                resumeData.avatarFrame = calculateAvatarFrameFromDrag(resumeData.avatarFrame, deltaX, deltaY, width, height, resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage));
                 syncAvatarEditorUI();
                 renderResume(resumeData);
                 saveDraft();
