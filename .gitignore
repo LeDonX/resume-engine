@@ -1,2 +1,4 @@
 # Local temporary/research artifacts
 tmp/
+node_modules/
+dist/
