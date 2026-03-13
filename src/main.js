@@ -42,16 +42,21 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             { id: "education", label: "学历", value: "硕士", iconPreset: "education", iconMode: "preset", customIcon: "" }
         ];
 		
-const BASIC_INFO_COLORS = [
+		// ----------------- 2. 图标原子色库 (构建调色板的积木，扩充至24种) -----------------
+        const BASIC_INFO_COLORS = [
             { key: "theme", label: "跟随主题" },
             { key: "slate", label: "石板灰", bg: "bg-slate-100", text: "text-slate-700" },
-            { key: "zinc", label: "深沉灰", bg: "bg-zinc-200", text: "text-zinc-800" },
+            { key: "stone", label: "大地灰", bg: "bg-stone-100", text: "text-stone-700" },
+            { key: "zinc", label: "锌灰", bg: "bg-zinc-100", text: "text-zinc-700" },
             { key: "red", label: "正红", bg: "bg-red-100", text: "text-red-700" },
             { key: "rose", label: "玫瑰红", bg: "bg-rose-100", text: "text-rose-700" },
+            { key: "pink", label: "芭比粉", bg: "bg-pink-100", text: "text-pink-700" },
             { key: "orange", label: "活力橙", bg: "bg-orange-100", text: "text-orange-700" },
             { key: "amber", label: "琥珀黄", bg: "bg-amber-100", text: "text-amber-700" },
+            { key: "yellow", label: "柠檬黄", bg: "bg-yellow-100", text: "text-yellow-700" },
+            { key: "lime", label: "青柠绿", bg: "bg-lime-100", text: "text-lime-700" },
             { key: "emerald", label: "翡翠绿", bg: "bg-emerald-100", text: "text-emerald-700" },
-            { key: "teal", label: "青翠蓝", bg: "bg-teal-100", text: "text-teal-700" },
+            { key: "teal", label: "水鸭青", bg: "bg-teal-100", text: "text-teal-700" },
             { key: "cyan", label: "明亮青", bg: "bg-cyan-100", text: "text-cyan-700" },
             { key: "sky", label: "天空蓝", bg: "bg-sky-100", text: "text-sky-700" },
             { key: "blue", label: "经典蓝", bg: "bg-blue-100", text: "text-blue-700" },
@@ -83,51 +88,59 @@ const BASIC_INFO_COLORS = [
         }
 
         // --- 扩充后的主题色配置 (分为单色系和多彩系) ---
+        // ----------------- 1. 全局主色调库 (20款) -----------------
         const RESUME_THEME_OPTIONS = [
-            // 🎨 单色系 (极简商务)
-            { key: "cobalt", label: "深海蓝", swatch: "#2563eb", accent: "#2563eb", accentStrong: "#1d4ed8", softBg: "#dbeafe", softText: "#1d4ed8" },
-            { key: "emerald", label: "翡翠绿", swatch: "#059669", accent: "#059669", accentStrong: "#047857", softBg: "#d1fae5", softText: "#047857" },
-            { key: "violet", label: "暮光紫", swatch: "#7c3aed", accent: "#7c3aed", accentStrong: "#6d28d9", softBg: "#ede9fe", softText: "#6d28d9" },
-            { key: "amber", label: "琥珀棕", swatch: "#d97706", accent: "#d97706", accentStrong: "#b45309", softBg: "#fef3c7", softText: "#b45309" },
-            { key: "slate", label: "极简灰", swatch: "#475569", accent: "#475569", accentStrong: "#334155", softBg: "#f1f5f9", softText: "#334155" },
-            { key: "rose", label: "玫瑰粉", swatch: "#e11d48", accent: "#e11d48", accentStrong: "#be123c", softBg: "#ffe4e6", softText: "#be123c" },
-            { key: "cyan", label: "科技青", swatch: "#0891b2", accent: "#0891b2", accentStrong: "#0e7490", softBg: "#cffafe", softText: "#0e7490" },
-            { key: "noir", label: "纯粹黑", swatch: "#171717", accent: "#171717", accentStrong: "#000000", softBg: "#e5e5e5", softText: "#000000" },
+            // 🎨 纯粹单色 (12款)
+            { key: "cobalt", label: "深海蓝", type: "solid", swatch: "#2563eb", accent: "#2563eb", accentStrong: "#1d4ed8", softBg: "#dbeafe", softText: "#1d4ed8" },
+            { key: "indigo", label: "靛青蓝", type: "solid", swatch: "#4f46e5", accent: "#4f46e5", accentStrong: "#3730a3", softBg: "#e0e7ff", softText: "#3730a3" },
+            { key: "emerald", label: "翡翠绿", type: "solid", swatch: "#059669", accent: "#059669", accentStrong: "#047857", softBg: "#d1fae5", softText: "#047857" },
+            { key: "teal", label: "水鸭青", type: "solid", swatch: "#0d9488", accent: "#0d9488", accentStrong: "#0f766e", softBg: "#ccfbf1", softText: "#0f766e" },
+            { key: "violet", label: "暮光紫", type: "solid", swatch: "#7c3aed", accent: "#7c3aed", accentStrong: "#6d28d9", softBg: "#ede9fe", softText: "#6d28d9" },
+            { key: "fuchsia", label: "洋红紫", type: "solid", swatch: "#c026d3", accent: "#c026d3", accentStrong: "#a21caf", softBg: "#fae8ff", softText: "#a21caf" },
+            { key: "rose", label: "玫瑰粉", type: "solid", swatch: "#e11d48", accent: "#e11d48", accentStrong: "#be123c", softBg: "#ffe4e6", softText: "#be123c" },
+            { key: "amber", label: "琥珀棕", type: "solid", swatch: "#d97706", accent: "#d97706", accentStrong: "#b45309", softBg: "#fef3c7", softText: "#b45309" },
+            { key: "orange", label: "活力橙", type: "solid", swatch: "#ea580c", accent: "#ea580c", accentStrong: "#c2410c", softBg: "#ffedd5", softText: "#c2410c" },
+            { key: "slate", label: "极简灰", type: "solid", swatch: "#475569", accent: "#475569", accentStrong: "#334155", softBg: "#f1f5f9", softText: "#334155" },
+            { key: "stone", label: "大地灰", type: "solid", swatch: "#57534e", accent: "#57534e", accentStrong: "#44403c", softBg: "#f5f5f4", softText: "#44403c" },
+            { key: "noir", label: "纯粹黑", type: "solid", swatch: "#171717", accent: "#171717", accentStrong: "#000000", softBg: "#e5e5e5", softText: "#000000" },
 
-            // 🌈 渐变混搭系 (设计感/年轻化)
-            { key: "ocean", label: "珊瑚海", swatch: "linear-gradient(135deg, #0284c7, #14b8a6)", accent: "#0284c7", accentStrong: "#0f766e", softBg: "#e0f2fe", softText: "#0369a1" },
-            { key: "sunset", label: "日落橘", swatch: "linear-gradient(135deg, #ea580c, #e11d48)", accent: "#ea580c", accentStrong: "#be123c", softBg: "#ffe4e6", softText: "#e11d48" },
-            { key: "cyber", label: "赛博紫", swatch: "linear-gradient(135deg, #8b5cf6, #ec4899)", accent: "#8b5cf6", accentStrong: "#be185d", softBg: "#fce7f3", softText: "#db2777" },
-            { key: "berry", label: "青柠蓝", swatch: "linear-gradient(135deg, #4f46e5, #10b981)", accent: "#4f46e5", accentStrong: "#047857", softBg: "#d1fae5", softText: "#059669" }
+            // 🌈 渐变双拼混搭 (8款)
+            { key: "ocean", label: "珊瑚海", type: "gradient", swatch: "linear-gradient(135deg, #0284c7, #14b8a6)", accent: "#0284c7", accentStrong: "#0f766e", softBg: "#e0f2fe", softText: "#0369a1" },
+            { key: "sunset", label: "日落橘", type: "gradient", swatch: "linear-gradient(135deg, #ea580c, #e11d48)", accent: "#ea580c", accentStrong: "#be123c", softBg: "#ffe4e6", softText: "#e11d48" },
+            { key: "cyber", label: "赛博紫", type: "gradient", swatch: "linear-gradient(135deg, #8b5cf6, #ec4899)", accent: "#8b5cf6", accentStrong: "#be185d", softBg: "#fce7f3", softText: "#db2777" },
+            { key: "berry", label: "青柠蓝", type: "gradient", swatch: "linear-gradient(135deg, #4f46e5, #10b981)", accent: "#4f46e5", accentStrong: "#047857", softBg: "#d1fae5", softText: "#059669" },
+            { key: "peach", label: "蜜桃粉", type: "gradient", swatch: "linear-gradient(135deg, #f43f5e, #f59e0b)", accent: "#f43f5e", accentStrong: "#e11d48", softBg: "#fff1f2", softText: "#be123c" },
+            { key: "lavender", label: "薰衣草", type: "gradient", swatch: "linear-gradient(135deg, #a855f7, #6366f1)", accent: "#a855f7", accentStrong: "#4f46e5", softBg: "#f3e8ff", softText: "#6d28d9" },
+            { key: "mint", label: "薄荷冰", type: "gradient", swatch: "linear-gradient(135deg, #14b8a6, #3b82f6)", accent: "#14b8a6", accentStrong: "#1d4ed8", softBg: "#ccfbf1", softText: "#0f766e" },
+            { key: "midnight", label: "极光黑", type: "gradient", swatch: "linear-gradient(135deg, #0f172a, #3730a3)", accent: "#334155", accentStrong: "#0f172a", softBg: "#f1f5f9", softText: "#1e293b" }
         ];
 		
-		// --- 新增：预设的多彩混搭调色板 ---
+		 // ----------------- 3. 高级多色调色板组合 (8组) -----------------
         const ICON_PALETTE_OPTIONS = [
-            { key: "theme", label: "统一主色", colors: [], preview: ["#94a3b8"] }, // 跟随简历主题
-            { key: "macaron", label: "马卡龙", colors: ["blue", "emerald", "violet", "amber", "rose", "cyan"], preview: ["#3b82f6", "#10b981", "#8b5cf6"] },
-            { key: "neon", label: "赛博霓虹", colors: ["fuchsia", "cyan", "violet", "rose"], preview: ["#d946ef", "#06b6d4", "#8b5cf6"] },
-            { key: "morandi", label: "莫兰迪", colors: ["slate", "teal", "amber", "rose"], preview: ["#64748b", "#14b8a6", "#f59e0b"] },
+            { key: "theme", label: "统一主色", colors: [], preview: ["#94a3b8"] }, 
+            
+            // 🌟 1. 原版经典色：你最初版本的那组颜色！
+            { key: "classic", label: "经典原味", colors: ["sky", "indigo", "emerald", "rose", "violet", "amber"], preview: ["#0ea5e9", "#10b981", "#6366f1"] },
+            
+            // 🌟 2. 改进版马卡龙：抛弃笨重颜色，采用粉/青/鹅黄/草绿的粉嫩低饱和撞色
+            { key: "macaron", label: "马卡龙", colors: ["pink", "cyan", "yellow", "lime", "violet", "sky"], preview: ["#f472b6", "#22d3ee", "#facc15"] },
+            
+            // 🌟 3. 莫兰迪色：灰调优雅高级感，适合极简/设计岗
+            { key: "morandi", label: "莫兰迪", colors: ["slate", "stone", "teal", "rose", "indigo", "zinc"], preview: ["#64748b", "#78716c", "#14b8a6"] },
+            
+            // 🌟 4. 其他风格组
+            { key: "neon", label: "赛博霓虹", colors: ["fuchsia", "cyan", "lime", "violet", "rose"], preview: ["#d946ef", "#06b6d4", "#84cc16"] },
             { key: "ocean", label: "海蓝之吻", colors: ["blue", "sky", "cyan", "teal", "indigo"], preview: ["#3b82f6", "#0ea5e9", "#06b6d4"] },
-            { key: "warm", label: "暖阳", colors: ["amber", "orange", "rose", "red", "fuchsia"], preview: ["#f59e0b", "#f97316", "#e11d48"] }
+            { key: "forest", label: "森林大地", colors: ["emerald", "lime", "teal", "stone", "amber"], preview: ["#10b981", "#84cc16", "#78716c"] },
+            { key: "sunset", label: "黄昏暖阳", colors: ["orange", "rose", "red", "amber", "fuchsia"], preview: ["#f97316", "#f43f5e", "#f59e0b"] }
         ];
 
-        // --- 新增：智能计算图标最终颜色的算法（含冗余循环设计） ---
         function resolveIconColorTone(index, itemColorOverride, globalPaletteKey) {
-            // 1. 如果用户手动给这个图标指定了独立颜色（且不是theme），优先级最高，直接覆盖
-            if (itemColorOverride && itemColorOverride !== "theme") {
-                return itemColorOverride;
-            }
+            if (itemColorOverride && itemColorOverride !== "theme") return itemColorOverride;
+            if (!globalPaletteKey || globalPaletteKey === "theme") return "theme";
             
-            // 2. 如果全局选了“统一主色”
-            if (!globalPaletteKey || globalPaletteKey === "theme") {
-                return "theme";
-            }
-            
-            // 3. 读取用户选择的混搭调色板
             const palette = ICON_PALETTE_OPTIONS.find(p => p.key === globalPaletteKey) || ICON_PALETTE_OPTIONS[1];
             if (!palette.colors || !palette.colors.length) return "theme";
-            
-            // 🌟 4. 核心冗余设计：通过求余算法 (Modulo)，无论你新增多少个图标，颜色都会在调色板中无限安全循环！
             return palette.colors[index % palette.colors.length];
         }
 
@@ -677,12 +690,15 @@ const BASIC_INFO_COLORS = [
                                             <!-- 白色遮罩层 -->
                                             <div class="avatar-crop-mask transition-all"></div>
 
-                                            <!-- 新增：九宫格辅助线 (默认隐藏，hover时微微显现，可用于构图辅助) -->
-                                            <div class="absolute inset-[9%] pointer-events-none opacity-0 group-hover/stage:opacity-30 transition-opacity duration-300 border border-white/40 mix-blend-overlay" style="border-radius: ${maskRadius};">
-                                                <div class="absolute inset-x-0 top-1/3 border-t border-dashed border-white/50"></div>
-                                                <div class="absolute inset-x-0 top-2/3 border-t border-dashed border-white/50"></div>
-                                                <div class="absolute inset-y-0 left-1/3 border-l border-dashed border-white/50"></div>
-                                                <div class="absolute inset-y-0 left-2/3 border-l border-dashed border-white/50"></div>
+                                            <!-- 🌟 增强版：高清晰度九宫格辅助线 🌟 -->
+                                            <!-- 1. 去掉 mix-blend-overlay 防止被背景吃色 -->
+                                            <!-- 2. 提升了基础的 opacity 让它更显眼 -->
+                                            <!-- 3. 加入了一层极其轻微的 drop-shadow(黑边)，保证在纯白背景图下依然清晰可见 -->
+                                            <div class="absolute inset-[9%] pointer-events-none opacity-0 group-hover/stage:opacity-60 transition-opacity duration-300 border border-white/60 shadow-[0_0_1px_rgba(0,0,0,0.5)]" style="border-radius: ${maskRadius}; z-index: 20;">
+                                                <div class="absolute inset-x-0 top-1/3 border-t border-dashed border-white/80 shadow-[0_1px_1px_rgba(0,0,0,0.3)]"></div>
+                                                <div class="absolute inset-x-0 top-2/3 border-t border-dashed border-white/80 shadow-[0_1px_1px_rgba(0,0,0,0.3)]"></div>
+                                                <div class="absolute inset-y-0 left-1/3 border-l border-dashed border-white/80 shadow-[1px_0_1px_rgba(0,0,0,0.3)]"></div>
+                                                <div class="absolute inset-y-0 left-2/3 border-l border-dashed border-white/80 shadow-[1px_0_1px_rgba(0,0,0,0.3)]"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -1151,16 +1167,14 @@ const BASIC_INFO_COLORS = [
             const isThemeCollapsed = panelState.theme;
 
             return `
-				<!-- 1. 个人信息面板 -->
+                <!-- 1. 个人信息面板 -->
                 <section class="form-section !p-0 overflow-hidden">
-                    <!-- 扩充点击热区：加宽上下左右的 padding (p-4) -->
                     <button type="button" data-action="toggle-section" data-section-id="profile" class="flex w-full items-center justify-between p-4 transition-colors outline-none">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isProfileCollapsed ? '-rotate-90' : ''}"></i>
                             <h2 class="text-sm font-extrabold text-slate-900">个人信息</h2>
                         </div>
                     </button>
-                    <!-- 内容区增加 padding 补回缩进 -->
                     <div class="grid gap-4 px-4 pb-6 transition-all ${isProfileCollapsed ? 'hidden' : 'block'}">
                         <label class="block text-xs font-semibold text-gray-600">
                             文档标题
@@ -1181,7 +1195,7 @@ const BASIC_INFO_COLORS = [
                     </div>
                 </section>
 
-				<!-- 2. 主题与头像面板 -->
+                <!-- 2. 主题与头像面板 -->
                 <section class="form-section !p-0 overflow-hidden">
                     <button type="button" data-action="toggle-section" data-section-id="theme" class="flex w-full items-center justify-between p-4 transition-colors outline-none">
                         <div class="flex items-center gap-2">
@@ -1191,35 +1205,53 @@ const BASIC_INFO_COLORS = [
                     </button>
                     <div class="px-4 pb-6 transition-all ${isThemeCollapsed ? 'hidden' : 'block'}">
                         
-                        <!-- 极简优化的：简历主题选择与图标调色板 -->
+                        <!-- 极简分组优化的：简历主题选择与图标调色板 -->
                         <div class="rounded-xl bg-slate-50 p-4 border border-slate-100">
                             
-                            <!-- 1. 紧凑型全局主色调选择 -->
+                            <!-- 全局主色调 -->
                             <div class="mb-5">
-                                <p class="text-[12px] font-bold text-slate-700 mb-2.5">全局主色调</p>
-                                <div class="flex flex-wrap gap-2.5">
-                                    ${RESUME_THEME_OPTIONS.map((theme) => {
+                                <div class="flex items-center justify-between mb-3">
+                                    <p class="text-[13px] font-bold text-slate-700">简历主题主色</p>
+                                </div>
+                                
+                                <!-- 分组 1：纯粹单色 -->
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">纯粹单色</p>
+                                <div class="flex flex-wrap gap-2 mb-3.5">
+                                    ${RESUME_THEME_OPTIONS.filter(t => t.type === "solid").map((theme) => {
                                         const isActive = activeTheme === theme.key;
-                                        const bgStyle = theme.swatch.includes('gradient') ? `background: ${theme.swatch};` : `background: ${theme.swatch};`;
                                         return `
                                             <button type="button" data-action="set-resume-theme" data-theme="${theme.key}" 
-                                                class="h-[26px] w-[26px] rounded-full shadow-sm border border-slate-200/50 transition-all ${isActive ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-110 hover:shadow-md'}" 
-                                                style="${bgStyle}" title="${theme.label}"></button>
+                                                class="h-6 w-6 rounded-full shadow-sm border border-slate-200/50 transition-all ${isActive ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-110 hover:shadow-md'}" 
+                                                style="background: ${theme.swatch};" title="${theme.label}"></button>
+                                        `;
+                                    }).join("")}
+                                </div>
+
+                                <!-- 分组 2：双拼混搭 -->
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">设计感双拼</p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${RESUME_THEME_OPTIONS.filter(t => t.type === "gradient").map((theme) => {
+                                        const isActive = activeTheme === theme.key;
+                                        return `
+                                            <button type="button" data-action="set-resume-theme" data-theme="${theme.key}" 
+                                                class="h-6 w-6 rounded-full shadow-sm border border-slate-200/50 transition-all ${isActive ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-110 hover:shadow-md'}" 
+                                                style="background: ${theme.swatch};" title="${theme.label}"></button>
                                         `;
                                     }).join("")}
                                 </div>
                             </div>
 
-                            <!-- 2. 全新的图标色彩风格选择 -->
+                            <!-- 全新的图标色彩风格选择 (调色板) -->
                             <div class="border-t border-slate-200/60 pt-4">
                                 <div class="flex items-center justify-between mb-2.5">
-                                    <p class="text-[12px] font-bold text-slate-700">图标色彩风格</p>
-                                    <p class="text-[9px] text-slate-400 font-medium">无限智能循环取色</p>
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">基本信息图标配色</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">智能无限循环取色</p>
+                                    </div>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
                                     ${ICON_PALETTE_OPTIONS.map(palette => {
-                                        const isActive = (resumeData.iconPalette || "macaron") === palette.key;
-                                        // 渲染微型色彩预览圆点
+                                        const isActive = (resumeData.iconPalette || "theme") === palette.key;
                                         const previewDots = palette.preview.map(color => `<span class="h-2.5 w-2.5 rounded-full border border-white/50" style="background-color: ${color};"></span>`).join('');
                                         return `
                                         <button type="button" data-action="set-icon-palette" data-palette="${palette.key}" 
@@ -1230,9 +1262,22 @@ const BASIC_INFO_COLORS = [
                                     }).join("")}
                                 </div>
                             </div>
+
+                            <!-- 🌟 新增：时间轴排版细节开关 -->
+                            <div class="border-t border-slate-200/60 pt-4 mt-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">彩色时间轴竖线</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">工作经历竖线是否跟随后台主色</p>
+                                    </div>
+                                    <button type="button" data-action="toggle-theme-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.useThemeTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
+                                        <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.useThemeTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
 
-                        <!-- 头像设置保持原样 -->
                         <div class="mt-4 rounded-xl bg-slate-50 p-4 border border-slate-100">
                             <p class="text-[13px] font-bold text-slate-700">头像设置</p>
                             <div class="mt-3 grid gap-2 sm:grid-cols-2">
@@ -1280,7 +1325,6 @@ const BASIC_INFO_COLORS = [
         }
 
         function renderBasicInfoForm() {
-            const currentTheme = getResumeThemeOption(resumeData.resumeTheme);
             const isCollapsed = panelState.contact;
 
             const blocks = resumeData.basicInfo.map((item, index) => {
@@ -1288,16 +1332,13 @@ const BASIC_INFO_COLORS = [
                 const showPicker = activeBasicInfoPickerIndex === index;
                 const disableUp = index === 0;
                 const disableDown = index === resumeData.basicInfo.length - 1;
-                const currentColor = item.iconColor || "theme";
-
-                // 获取用户单独覆盖的颜色
-                const currentColorOverride = item.iconColor || "theme";
-                const globalPaletteKey = resumeData.iconPalette || "macaron";
                 
-                // 🌟 调用智能函数，算出这个图标在当前位置应该是什么颜色
+                // 🌟 新增：读取当前图标颜色覆盖和全局调色板，并算出最终颜色
+                const currentColorOverride = item.iconColor || "theme";
+                const globalPaletteKey = resumeData.iconPalette || "theme"; // 如果没有值，默认使用统一主题色
                 const finalColorKey = resolveIconColorTone(index, currentColorOverride, globalPaletteKey);
 
-                // 直接渲染最终计算出的颜色
+                // 渲染最终颜色的按钮
                 const iconBtnHtml = renderDynamicIcon(iconClass, finalColorKey, "h-7 w-7 rounded-md text-[12px]", "transition-transform group-hover/icon:scale-105");
 
                 return `
@@ -1323,10 +1364,10 @@ const BASIC_INFO_COLORS = [
                         ${showPicker ? `
                             <div class="mt-2.5 rounded-xl border border-slate-200/60 bg-slate-50 p-3 shadow-inner">
                                 <div class="mb-4">
-                                    <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">图标颜色</p>
+                                    <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">图标颜色 (单独强制覆盖此图标)</p>
                                     <div class="flex flex-wrap gap-2">
                                         ${BASIC_INFO_COLORS.map(color => {
-                                            const isActive = currentColor === color.key;
+                                            const isActive = currentColorOverride === color.key;
                                             const ring = isActive ? "ring-2 ring-offset-1 ring-blue-400" : "hover:scale-110";
                                             if (color.key === "theme") return `<button type="button" data-action="set-basic-info-color" data-index="${index}" data-color="theme" class="relative flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-all ${ring}" title="${color.label}"><div class="h-4 w-4 rounded-full bg-theme opacity-80"></div></button>`;
                                             return `<button type="button" data-action="set-basic-info-color" data-index="${index}" data-color="${color.key}" class="h-6 w-6 rounded-full ${color.bg} border border-white shadow-sm transition-all ${ring}" title="${color.label}"><div class="h-full w-full rounded-full ${color.bg}"></div></button>`;
@@ -1341,6 +1382,11 @@ const BASIC_INFO_COLORS = [
                                         <button type="button" data-action="set-basic-info-mode" data-index="${index}" data-mode="custom" class="rounded-md border px-2.5 py-1 text-[10px] font-bold transition-colors ${item.iconMode === "custom" ? "border-blue-400 bg-white text-blue-700 shadow-sm" : "border-slate-200 bg-transparent text-slate-500 hover:bg-white hover:text-slate-700"}">高级自定义</button>
                                     </div>
                                 </div>
+                                ${item.iconMode === "custom" ? `
+                                    <div class="mt-2">
+                                        <input name="basic-info-custom-icon-${index}" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] text-slate-700 shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100" data-section="basicInfo" data-index="${index}" data-field="customIcon" value="${escapeHtml(item.customIcon)}" placeholder="Font Awesome 类名，如：fas fa-star">
+                                    </div>
+                                ` : ""}
                             </div>
                         ` : ""}
                     </div>
@@ -1348,15 +1394,15 @@ const BASIC_INFO_COLORS = [
             }).join("");
 
             return `
-				<section class="form-section !p-0 overflow-hidden">
-                    <button type="button" data-action="toggle-section" data-section-id="contact" class="flex w-full items-center justify-between p-4  transition-colors outline-none">
+                <section class="form-section !p-0 overflow-hidden ${isCollapsed ? '' : 'pb-6'}">
+                    <button type="button" data-action="toggle-section" data-section-id="contact" class="flex w-full items-center justify-between p-4 outline-none text-left">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}"></i>
                             <h2 class="text-sm font-extrabold text-slate-900">联系方式</h2>
                         </div>
                         <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-400 ${isCollapsed ? 'hidden' : ''}">支持拖拽排序</span>
                     </button>
-                    <div class="px-4 pb-6 ${isCollapsed ? 'hidden' : 'block'}">
+                    <div class="px-4 ${isCollapsed ? 'hidden' : 'block'}">
                         <div id="basic-info-list" class="grid gap-3">${blocks}</div>
                     </div>
                 </section>
@@ -1556,21 +1602,19 @@ const BASIC_INFO_COLORS = [
 
             if (!list.length) return "";
 
-            // 获取当前所选的简历主题
-            const currentTheme = getResumeThemeOption(resumeData.resumeTheme);
-
-            const items = list.map((info) => {
+            // 🌟 修复报错：在这里的 map 函数里加上 index 参数！
+            const items = list.map((info, index) => {
                 const icon = escapeHtml(resolveBasicInfoIcon(info));
                 const text = escapeHtml(pickText(info.value, ""));
                 
-                // 获取独立覆盖色与全局调色板
+                // 读取覆盖色和全局色
                 const currentColorOverride = info.iconColor || "theme";
-                const globalPaletteKey = resumeData.iconPalette || "macaron";
+                const globalPaletteKey = resumeData.iconPalette || "theme"; // 默认用统一主色
 
-                // 🌟 调用智能函数算出颜色
+                // 🌟 使用智能函数计算循环颜色
                 const finalColorKey = resolveIconColorTone(index, currentColorOverride, globalPaletteKey);
-                
-                // 渲染带最终颜色的简历圆形图标
+
+                // 渲染最终带颜色的圆形图标
                 const iconHtml = renderDynamicIcon(icon, finalColorKey, "w-8 h-8 rounded-full text-[13px]", "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]");
 
                 return `
@@ -1624,9 +1668,15 @@ const BASIC_INFO_COLORS = [
         }
 
         function renderExperienceItem(item, index, total) {
+            // 🌟 读取开关状态，默认是 false (即关闭状态，使用灰色实线)
+            const isThemeLine = Boolean(resumeData.useThemeTimeline);
+            const lineClass = isThemeLine ? "resume-soft-divider" : "border-gray-200";
+
+            // 替换掉写死的连线颜色
             const wrapperClass = index === total - 1
-                ? "relative pl-6 border-l-2 resume-soft-divider resume-avoid-break"
-                : "mb-8 relative pl-6 border-l-2 resume-soft-divider resume-avoid-break";
+                ? `relative pl-6 border-l-2 ${lineClass} resume-avoid-break`
+                : `mb-8 relative pl-6 border-l-2 ${lineClass} resume-avoid-break`;
+                
             const isHighlight = Boolean(item.highlight);
             const dotClass = isHighlight ? "resume-accent-dot" : "bg-gray-300";
             const companyClass = isHighlight ? "resume-accent-company" : "text-gray-600";
@@ -2317,6 +2367,15 @@ const BASIC_INFO_COLORS = [
                 item.iconPreset = iconPreset;
                 item.iconMode = "preset";
                 activeBasicInfoPickerIndex = -1;
+                renderAll();
+                saveDraft();
+                return;
+            }
+			
+			// --- 🌟 响应时间轴开关点击 ---
+            if (action === "toggle-theme-timeline") {
+                // 如果是 true 就变 false，反之变 true
+                resumeData.useThemeTimeline = !resumeData.useThemeTimeline;
                 renderAll();
                 saveDraft();
                 return;
