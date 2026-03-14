@@ -1012,6 +1012,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 documentTitle: hasOwn(raw, "documentTitle") ? pickText(raw.documentTitle, "") : fallback.documentTitle,
                 resumeTheme: hasOwn(raw, "resumeTheme") ? normalizeResumeTheme(raw.resumeTheme) : normalizeResumeTheme(fallback.resumeTheme),
 				iconPalette: hasOwn(raw, "iconPalette") ? pickText(raw.iconPalette, "macaron") : "macaron",
+				skillBadgeColor: hasOwn(raw, "skillBadgeColor") ? pickText(raw.skillBadgeColor, "theme") : "theme",
                 profileImage,
                 avatarImageMeta,
                 avatarFrame: hasOwn(raw, "avatarFrame") ? normalizeAvatarFrame(raw.avatarFrame, avatarImageMeta) : createDefaultAvatarFrame(),
@@ -1159,186 +1160,26 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         function renderBasicForm() {
+            // 1. 头像与主题状态
             const hasUploadedAvatar = hasCustomAvatarImage(resumeData.profileImage);
             const avatarShape = normalizeAvatarShape(resumeData.avatarShape);
             const activeTheme = normalizeResumeTheme(resumeData.resumeTheme);
+            const currentTheme = getResumeThemeOption(resumeData.resumeTheme);
             
             const isProfileCollapsed = panelState.profile;
             const isThemeCollapsed = panelState.theme;
 
-            return `
-                <!-- 1. 个人信息面板 -->
-                <section class="form-section !p-0 overflow-hidden">
-                    <button type="button" data-action="toggle-section" data-section-id="profile" class="flex w-full items-center justify-between p-4 transition-colors outline-none">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isProfileCollapsed ? '-rotate-90' : ''}"></i>
-                            <h2 class="text-sm font-extrabold text-slate-900">个人信息</h2>
-                        </div>
-                    </button>
-                    <div class="grid gap-4 px-4 pb-6 transition-all ${isProfileCollapsed ? 'hidden' : 'block'}">
-                        <label class="block text-xs font-semibold text-gray-600">
-                            文档标题
-                            <input name="documentTitle" class="${inputClass}" data-section="basic" data-field="documentTitle" value="${escapeHtml(resumeData.documentTitle)}">
-                        </label>
-                        <label class="block text-xs font-semibold text-gray-600">
-                            姓名
-                            <input name="name" class="${inputClass}" data-section="basic" data-field="name" value="${escapeHtml(resumeData.name)}">
-                        </label>
-                        <label class="block text-xs font-semibold text-gray-600">
-                            目标岗位
-                            <input name="role" class="${inputClass}" data-section="basic" data-field="role" value="${escapeHtml(resumeData.role)}">
-                        </label>
-                        <label class="block text-xs font-semibold text-gray-600">
-                            个人简介
-                            <textarea name="summary" class="${textareaClass}" data-section="basic" data-field="summary">${escapeHtml(resumeData.summary)}</textarea>
-                        </label>
-                    </div>
-                </section>
-
-                <!-- 2. 主题与头像面板 -->
-                <section class="form-section !p-0 overflow-hidden">
-                    <button type="button" data-action="toggle-section" data-section-id="theme" class="flex w-full items-center justify-between p-4 transition-colors outline-none">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isThemeCollapsed ? '-rotate-90' : ''}"></i>
-                            <h2 class="text-sm font-extrabold text-slate-900">主题与头像设置</h2>
-                        </div>
-                    </button>
-                    <div class="px-4 pb-6 transition-all ${isThemeCollapsed ? 'hidden' : 'block'}">
-                        
-                        <!-- 极简分组优化的：简历主题选择与图标调色板 -->
-                        <div class="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                            
-                            <!-- 全局主色调 -->
-                            <div class="mb-5">
-                                <div class="flex items-center justify-between mb-3">
-                                    <p class="text-[13px] font-bold text-slate-700">简历主题主色</p>
-                                </div>
-                                
-                                <!-- 分组 1：纯粹单色 -->
-                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">纯粹单色</p>
-                                <div class="flex flex-wrap gap-2 mb-3.5">
-                                    ${RESUME_THEME_OPTIONS.filter(t => t.type === "solid").map((theme) => {
-                                        const isActive = activeTheme === theme.key;
-                                        return `
-                                            <button type="button" data-action="set-resume-theme" data-theme="${theme.key}" 
-                                                class="h-6 w-6 rounded-full shadow-sm border border-slate-200/50 transition-all ${isActive ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-110 hover:shadow-md'}" 
-                                                style="background: ${theme.swatch};" title="${theme.label}"></button>
-                                        `;
-                                    }).join("")}
-                                </div>
-
-                                <!-- 分组 2：双拼混搭 -->
-                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">设计感双拼</p>
-                                <div class="flex flex-wrap gap-2">
-                                    ${RESUME_THEME_OPTIONS.filter(t => t.type === "gradient").map((theme) => {
-                                        const isActive = activeTheme === theme.key;
-                                        return `
-                                            <button type="button" data-action="set-resume-theme" data-theme="${theme.key}" 
-                                                class="h-6 w-6 rounded-full shadow-sm border border-slate-200/50 transition-all ${isActive ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-110 hover:shadow-md'}" 
-                                                style="background: ${theme.swatch};" title="${theme.label}"></button>
-                                        `;
-                                    }).join("")}
-                                </div>
-                            </div>
-
-                            <!-- 全新的图标色彩风格选择 (调色板) -->
-                            <div class="border-t border-slate-200/60 pt-4">
-                                <div class="flex items-center justify-between mb-2.5">
-                                    <div>
-                                        <p class="text-[12px] font-bold text-slate-700">基本信息图标配色</p>
-                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">智能无限循环取色</p>
-                                    </div>
-                                </div>
-                                <div class="flex flex-wrap gap-2">
-                                    ${ICON_PALETTE_OPTIONS.map(palette => {
-                                        const isActive = (resumeData.iconPalette || "theme") === palette.key;
-                                        const previewDots = palette.preview.map(color => `<span class="h-2.5 w-2.5 rounded-full border border-white/50" style="background-color: ${color};"></span>`).join('');
-                                        return `
-                                        <button type="button" data-action="set-icon-palette" data-palette="${palette.key}" 
-                                            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${isActive ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300'}">
-                                            <div class="flex -space-x-1">${previewDots}</div>
-                                            ${palette.label}
-                                        </button>`;
-                                    }).join("")}
-                                </div>
-                            </div>
-
-                            <!-- 🌟 新增：时间轴排版细节开关 -->
-                            <div class="border-t border-slate-200/60 pt-4 mt-4">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-[12px] font-bold text-slate-700">彩色时间轴竖线</p>
-                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">工作经历竖线是否跟随后台主色</p>
-                                    </div>
-                                    <button type="button" data-action="toggle-theme-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.useThemeTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
-                                        <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.useThemeTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="mt-4 rounded-xl bg-slate-50 p-4 border border-slate-100">
-                            <p class="text-[13px] font-bold text-slate-700">头像设置</p>
-                            <div class="mt-3 grid gap-2 sm:grid-cols-2">
-                                <input id="avatar-upload-input-control" name="profileImageUpload" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" class="hidden" data-testid="avatar-upload-input">
-                                <label for="avatar-upload-input-control" class="flex cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition-colors hover:border-slate-300 hover:text-blue-600 hover:bg-blue-50">
-                                    <i class="fas fa-cloud-upload-alt mr-1.5"></i> 上传头像
-                                </label>
-                                <button type="button" data-action="open-avatar-cropper" ${hasUploadedAvatar ? '' : 'disabled'} class="flex items-center justify-center rounded-lg px-3 py-2 text-xs font-bold transition-all ${hasUploadedAvatar ? 'border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:text-blue-600 hover:bg-blue-50' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'}">
-                                    <i class="fas fa-crop-alt mr-1.5"></i> 调整头像
-                                </button>
-                            </div>
-                            <div class="mt-3 flex items-center justify-between border-t border-slate-200/60 pt-3">
-                                <p class="text-[11px] font-semibold text-slate-500">展示形状</p>
-                                <div class="flex gap-2">
-                                    <button type="button" data-action="set-avatar-shape" data-shape="circle" class="rounded-md border px-3 py-1 text-[11px] font-bold transition-colors ${avatarShape === AVATAR_SHAPE_CIRCLE ? 'border-blue-400 bg-blue-50 text-blue-700 ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}">圆形</button>
-                                    <button type="button" data-action="set-avatar-shape" data-shape="rectangle" class="rounded-md border px-3 py-1 text-[11px] font-bold transition-colors ${avatarShape === AVATAR_SHAPE_RECTANGLE ? 'border-blue-400 bg-blue-50 text-blue-700 ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}">矩形</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            `;
-        }
-
-        function renderBasicInfoPicker(index, selectedPreset, selectedMode) {
-            return BASIC_INFO_ICON_OPTIONS.map((option) => {
-                const isActive = selectedMode === "preset" && option.key === selectedPreset;
-                return (`
-                <button
-                    type="button"
-                    data-action="choose-basic-info-icon"
-                    data-index="${index}"
-                    data-icon-preset="${option.key}"
-                    class="group flex flex-col items-center justify-center gap-1.5 rounded-xl p-2 transition-all ${isActive ? 'bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-blue-400' : 'hover:bg-slate-200/50'}"
-                    title="${option.label}"
-                >
-                    <!-- 恢复独立的预设颜色 -->
-                    <span class="flex h-8 w-8 items-center justify-center rounded-full shadow-sm transition-transform group-hover:scale-110 ${option.chipClass}">
-                        <i class="${option.icon} text-sm"></i>
-                    </span>
-                    <span class="text-[10px] font-bold ${isActive ? 'text-blue-700' : 'text-slate-500'}">${option.label}</span>
-                </button>
-            `);
-            }).join("");
-        }
-
-        function renderBasicInfoForm() {
-            const isCollapsed = panelState.contact;
-
-            const blocks = resumeData.basicInfo.map((item, index) => {
+            // 2. 🌟 预渲染联系方式区块 (合并进来的逻辑)
+            const contactBlocks = resumeData.basicInfo.map((item, index) => {
                 const iconClass = resolveBasicInfoIcon(item);
                 const showPicker = activeBasicInfoPickerIndex === index;
                 const disableUp = index === 0;
                 const disableDown = index === resumeData.basicInfo.length - 1;
                 
-                // 🌟 新增：读取当前图标颜色覆盖和全局调色板，并算出最终颜色
                 const currentColorOverride = item.iconColor || "theme";
-                const globalPaletteKey = resumeData.iconPalette || "theme"; // 如果没有值，默认使用统一主题色
+                const globalPaletteKey = resumeData.iconPalette || "theme";
                 const finalColorKey = resolveIconColorTone(index, currentColorOverride, globalPaletteKey);
 
-                // 渲染最终颜色的按钮
                 const iconBtnHtml = renderDynamicIcon(iconClass, finalColorKey, "h-7 w-7 rounded-md text-[12px]", "transition-transform group-hover/icon:scale-105");
 
                 return `
@@ -1354,7 +1195,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                             </div>
                         </div>
                         <div class="relative flex items-center overflow-visible rounded-xl border-2 border-transparent bg-slate-100 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 hover:bg-slate-200/60 focus-within:hover:bg-white">
-                            <button type="button" data-action="toggle-basic-info-picker" data-index="${index}" class="group/icon relative flex h-11 w-14 shrink-0 items-center justify-center gap-1 transition-colors hover:bg-slate-200/60 active:bg-slate-200">
+                            <button type="button" data-action="toggle-basic-info-picker" data-index="${index}" class="group/icon relative flex h-11 w-14 shrink-0 items-center justify-center gap-1 rounded-l-[10px] transition-colors hover:bg-slate-200/60 active:bg-slate-200">
                                 ${iconBtnHtml}
                                 <i class="fas fa-caret-down text-[10px] text-slate-400 transition-colors group-hover/icon:text-slate-600"></i>
                             </button>
@@ -1394,19 +1235,187 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             }).join("");
 
             return `
-                <section class="form-section !p-0 overflow-hidden ${isCollapsed ? '' : 'pb-6'}">
-                    <button type="button" data-action="toggle-section" data-section-id="contact" class="flex w-full items-center justify-between p-4 outline-none text-left">
+                <!-- 1. 大满贯：个人信息面板 (包含基础信息、头像、联系方式) -->
+                <section class="form-section !p-0 overflow-hidden">
+                    <button type="button" data-action="toggle-section" data-section-id="profile" class="flex w-full items-center justify-between p-4 transition-colors outline-none">
                         <div class="flex items-center gap-2">
-                            <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}"></i>
-                            <h2 class="text-sm font-extrabold text-slate-900">联系方式</h2>
+                            <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isProfileCollapsed ? '-rotate-90' : ''}"></i>
+                            <h2 class="text-sm font-extrabold text-slate-900">个人信息</h2>
                         </div>
-                        <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-400 ${isCollapsed ? 'hidden' : ''}">支持拖拽排序</span>
                     </button>
-                    <div class="px-4 ${isCollapsed ? 'hidden' : 'block'}">
-                        <div id="basic-info-list" class="grid gap-3">${blocks}</div>
+                    <div class="px-4 pb-6 transition-all ${isProfileCollapsed ? 'hidden' : 'block'}">
+                        
+                        <!-- 头像设置 -->
+                        <div class="rounded-xl bg-slate-50/70 p-4 border border-slate-100 mb-4">
+                            <p class="text-[13px] font-bold text-slate-700">头像设置</p>
+                            <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                                <input id="avatar-upload-input-control" name="profileImageUpload" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" class="hidden" data-testid="avatar-upload-input">
+                                <label for="avatar-upload-input-control" class="flex cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition-colors hover:border-slate-300 hover:text-blue-600 hover:bg-blue-50">
+                                    <i class="fas fa-cloud-upload-alt mr-1.5"></i> 上传头像
+                                </label>
+                                <button type="button" data-action="open-avatar-cropper" ${hasUploadedAvatar ? '' : 'disabled'} class="flex items-center justify-center rounded-lg px-3 py-2 text-xs font-bold transition-all ${hasUploadedAvatar ? 'border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:text-blue-600 hover:bg-blue-50' : 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400'}">
+                                    <i class="fas fa-crop-alt mr-1.5"></i> 调整头像
+                                </button>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between border-t border-slate-200/60 pt-3">
+                                <p class="text-[11px] font-semibold text-slate-500">展示形状</p>
+                                <div class="flex gap-2">
+                                    <button type="button" data-action="set-avatar-shape" data-shape="circle" class="rounded-md border px-3 py-1 text-[11px] font-bold transition-colors ${avatarShape === AVATAR_SHAPE_CIRCLE ? 'border-blue-400 bg-blue-50 text-blue-700 ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}">圆形</button>
+                                    <button type="button" data-action="set-avatar-shape" data-shape="rectangle" class="rounded-md border px-3 py-1 text-[11px] font-bold transition-colors ${avatarShape === AVATAR_SHAPE_RECTANGLE ? 'border-blue-400 bg-blue-50 text-blue-700 ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}">矩形</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 基础文本输入 -->
+                        <div class="grid gap-4">
+                            <label class="block text-xs font-semibold text-gray-600">
+                                文档标题
+                                <input name="documentTitle" class="${inputClass}" data-section="basic" data-field="documentTitle" value="${escapeHtml(resumeData.documentTitle)}">
+                            </label>
+                            <label class="block text-xs font-semibold text-gray-600">
+                                姓名
+                                <input name="name" class="${inputClass}" data-section="basic" data-field="name" value="${escapeHtml(resumeData.name)}">
+                            </label>
+                            <label class="block text-xs font-semibold text-gray-600">
+                                目标岗位
+                                <input name="role" class="${inputClass}" data-section="basic" data-field="role" value="${escapeHtml(resumeData.role)}">
+                            </label>
+                            <label class="block text-xs font-semibold text-gray-600">
+                                个人简介
+                                <textarea name="summary" class="${textareaClass}" data-section="basic" data-field="summary">${escapeHtml(resumeData.summary)}</textarea>
+                            </label>
+                        </div>
+
+                        <!-- 🌟 融合进来的联系方式模块 -->
+                        <div class="mt-6 border-t border-slate-200/80 pt-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <p class="text-[13px] font-bold text-slate-700">联系方式</p>
+                                </div>
+                                <span class="rounded-full bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400 border border-slate-200/50">支持拖拽排序</span>
+                            </div>
+                            <div id="basic-info-list" class="grid gap-3">
+                                ${contactBlocks}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. 简历排版与主题面板 -->
+                <section class="form-section !p-0 overflow-hidden">
+                    <button type="button" data-action="toggle-section" data-section-id="theme" class="flex w-full items-center justify-between p-4 transition-colors outline-none">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isThemeCollapsed ? '-rotate-90' : ''}"></i>
+                            <h2 class="text-sm font-extrabold text-slate-900">简历排版与主题</h2>
+                        </div>
+                    </button>
+                    <div class="px-4 pb-6 transition-all ${isThemeCollapsed ? 'hidden' : 'block'}">
+                        <div class="rounded-xl bg-slate-50 p-4 border border-slate-100">
+                            
+                            <!-- 全局主色调 -->
+                            <div class="mb-5">
+                                <div class="flex items-center justify-between mb-3">
+                                    <p class="text-[13px] font-bold text-slate-700">简历主题主色</p>
+                                </div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">纯粹单色</p>
+                                <div class="flex flex-wrap gap-2 mb-3.5">
+                                    ${RESUME_THEME_OPTIONS.filter(t => t.type === "solid").map((theme) => {
+                                        const isActive = activeTheme === theme.key;
+                                        return `<button type="button" data-action="set-resume-theme" data-theme="${theme.key}" class="h-6 w-6 rounded-full shadow-sm border border-slate-200/50 transition-all ${isActive ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-110 hover:shadow-md'}" style="background: ${theme.swatch};" title="${theme.label}"></button>`;
+                                    }).join("")}
+                                </div>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">设计感双拼</p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${RESUME_THEME_OPTIONS.filter(t => t.type === "gradient").map((theme) => {
+                                        const isActive = activeTheme === theme.key;
+                                        return `<button type="button" data-action="set-resume-theme" data-theme="${theme.key}" class="h-6 w-6 rounded-full shadow-sm border border-slate-200/50 transition-all ${isActive ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'hover:scale-110 hover:shadow-md'}" style="background: ${theme.swatch};" title="${theme.label}"></button>`;
+                                    }).join("")}
+                                </div>
+                            </div>
+
+                            <!-- 图标色彩风格选择 -->
+                            <div class="border-t border-slate-200/60 pt-4">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">基本信息图标配色</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">智能无限循环取色</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${ICON_PALETTE_OPTIONS.map(palette => {
+                                        const isActive = (resumeData.iconPalette || "theme") === palette.key;
+                                        const previewDots = palette.preview.map(color => `<span class="h-2.5 w-2.5 rounded-full border border-white/50" style="background-color: ${color};"></span>`).join('');
+                                        return `<button type="button" data-action="set-icon-palette" data-palette="${palette.key}" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${isActive ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300'}"><div class="flex -space-x-1">${previewDots}</div>${palette.label}</button>`;
+                                    }).join("")}
+                                </div>
+                            </div>
+
+                            <!-- 技能标签色彩风格 -->
+                            <div class="border-t border-slate-200/60 pt-4 mt-4">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">专业技能标签配色</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">控制简历中技能方块的风格</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${[
+                                        { key: "theme-soft", label: "主题浅色", class: "bg-blue-50 text-blue-700 border-blue-200" }, 
+                                        { key: "theme-outline", label: "主题描边", class: "bg-white text-blue-600 border-blue-400" },
+                                        { key: "gray", label: "经典灰", class: "bg-gray-100 text-gray-700 border-gray-200" },
+                                        { key: "slate", label: "石板灰", class: "bg-slate-100 text-slate-700 border-slate-200" },
+                                        { key: "zinc", label: "深沉灰", class: "bg-zinc-100 text-zinc-700 border-zinc-200" }
+                                    ].map(color => {
+                                        const isActive = (resumeData.skillBadgeColor || "theme-soft") === color.key || (resumeData.skillBadgeColor === "theme" && color.key === "theme-soft");
+                                        return `<button type="button" data-action="set-skill-badge-color" data-color="${color.key}" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${isActive ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}"><span class="h-2.5 w-2.5 rounded-full border ${color.class}"></span>${color.label}</button>`;
+                                    }).join("")}
+                                </div>
+                            </div>
+
+                            <!-- 时间轴排版细节开关 -->
+                            <div class="border-t border-slate-200/60 pt-4 mt-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">彩色时间轴竖线</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">工作经历竖线是否跟随后台主色</p>
+                                    </div>
+                                    <button type="button" data-action="toggle-theme-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.useThemeTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
+                                        <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.useThemeTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </section>
             `;
+        }
+
+        function renderBasicInfoPicker(index, selectedPreset, selectedMode) {
+            return BASIC_INFO_ICON_OPTIONS.map((option) => {
+                const isActive = selectedMode === "preset" && option.key === selectedPreset;
+                return (`
+                <button
+                    type="button"
+                    data-action="choose-basic-info-icon"
+                    data-index="${index}"
+                    data-icon-preset="${option.key}"
+                    class="group flex flex-col items-center justify-center gap-1.5 rounded-xl p-2 transition-all ${isActive ? 'bg-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-blue-400' : 'hover:bg-slate-200/50'}"
+                    title="${option.label}"
+                >
+                    <!-- 恢复独立的预设颜色 -->
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full shadow-sm transition-transform group-hover:scale-110 ${option.chipClass}">
+                        <i class="${option.icon} text-sm"></i>
+                    </span>
+                    <span class="text-[10px] font-bold ${isActive ? 'text-blue-700' : 'text-slate-500'}">${option.label}</span>
+                </button>
+            `);
+            }).join("");
+        }
+
+        // 原来的联系方式面板已废弃，合并到了个人信息中
+        function renderBasicInfoForm() {
+            return "";
         }
 
         function renderEducationForm() {
@@ -1652,15 +1661,38 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 return '<p class="text-sm text-gray-500">可在左侧表单中填写专业技能</p>';
             }
 
+            // 获取偏好，兼容旧版的 "theme"，默认当做 "theme-soft"
+            const badgeColorPref = resumeData.skillBadgeColor || "theme-soft";
+
             return groups.map((group, index) => {
                 const groupClass = index === groups.length - 1 ? "" : "mb-3";
-                const tags = normalizeStringArray(group.items).map((item) => (
-                    `<span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">${escapeHtml(item)}</span>`
-                )).join("");
+                
+                const tags = normalizeStringArray(group.items).map((item) => {
+                    let badgeClass = "";
+                    
+                    // 1. 主题浅色：使用底层的 CSS 变量（它会自动调用非常柔和的配色）
+                    if (badgeColorPref === "theme-soft" || badgeColorPref === "theme") {
+                        badgeClass = "resume-primary-badge border border-black/5 mix-blend-multiply shadow-sm"; 
+                    } 
+                    // 🌟 2. 新增的主题描边：极简风的最爱，纯白底+主题色边框+主题色文字
+                    else if (badgeColorPref === "theme-outline") {
+                        badgeClass = "bg-white text-theme border border-theme shadow-[0_2px_8px_var(--resume-accent-glow)]";
+                    } 
+                    // 3. 经典灰色系
+                    else if (badgeColorPref === "gray") {
+                        badgeClass = "bg-gray-100 text-gray-700 border border-gray-200/50";
+                    } else if (badgeColorPref === "slate") {
+                        badgeClass = "bg-slate-100 text-slate-700 border border-slate-200/50";
+                    } else if (badgeColorPref === "zinc") {
+                        badgeClass = "bg-zinc-100 text-zinc-700 border border-zinc-200/50";
+                    }
+                    
+                    return `<span class="${badgeClass} px-3 py-1 rounded-full text-xs font-bold leading-none inline-flex items-center">${escapeHtml(item)}</span>`;
+                }).join("");
 
                 return `
                     <div class="${groupClass}">
-                        <p class="text-sm font-semibold text-gray-700 mb-2">${escapeHtml(pickText(group.name, ""))}</p>
+                        <p class="text-[13px] font-bold text-gray-800 mb-2">${escapeHtml(pickText(group.name, ""))}</p>
                         <div class="flex flex-wrap gap-2">${tags}</div>
                     </div>
                 `;
@@ -2369,6 +2401,17 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 activeBasicInfoPickerIndex = -1;
                 renderAll();
                 saveDraft();
+                return;
+            }
+			
+			// --- 🌟 响应：切换技能标签颜色 ---
+            if (action === "set-skill-badge-color") {
+                const colorKey = pickText(button?.dataset?.color, "theme");
+                if (resumeData.skillBadgeColor !== colorKey) {
+                    resumeData.skillBadgeColor = colorKey;
+                    renderAll();
+                    saveDraft();
+                }
                 return;
             }
 			
