@@ -676,9 +676,9 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                                 <p class="text-[11px] font-bold uppercase tracking-[0.32em] text-cyan-200/80">Avatar Crop</p>
                                 <div class="mt-3">
                                     <h3 class="avatar-crop-heading font-extrabold text-white tracking-tight">调整头像进入最终${frameLabel}范围</h3>
-                                    <p class="avatar-crop-description mt-2 text-slate-300/90 text-[13px] leading-relaxed max-w-lg">
-                                        拖动图片把头部放进白色${frameLabel}内，再用右侧滑块控制脸部比例。确认前不会覆盖当前简历头像。
-                                    </p>
+                                    <p class="avatar-crop-description mt-2 text-slate-300/90 text-[13px] leading-relaxed pr-4">
+										拖动图片把头部放进白色${frameLabel}内，再用右侧滑块控制脸部比例。确认前不会覆盖当前简历头像。
+									</p>
                                 </div>
                                 <div class="avatar-crop-stage-area mt-4">
                                     <div class="avatar-crop-stage-shell ring-1 ring-white/10 shadow-[0_0_40px_rgba(0,0,0,0.3)]">

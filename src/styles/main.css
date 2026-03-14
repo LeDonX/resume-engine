@@ -906,27 +906,33 @@ body {
                 display: none;
             }
         }
-		/* 1. 解除原版弹窗 700px 的封印，在大屏上允许它变得更大 */
-        .avatar-crop-shell {
+		.avatar-crop-shell {
             width: min(1100px, calc(100vw - 2.5rem)) !important;
             height: min(800px, calc(100dvh - 2rem)) !important;
         }
 
-        /* 2. 核心魔法：基于 flex 剩余空间自动计算正方形尺寸，绝不溢出遮挡文字 */
-        .avatar-crop-stage-shell {
-            width: auto !important;
-            height: 100% !important; /* 向上寻找剩余可用高度 */
-            max-height: 560px !important; /* 给个物理上限，防止 4K 下大得让人眼晕 */
-            max-width: 100% !important; /* 保证宽度不会超出左侧面板 */
-            aspect-ratio: 1 / 1 !important; /* 强制保持正方形 */
-            flex-shrink: 1 !important;
+        .avatar-crop-stage-area {
+            flex: 1 !important;
+            min-height: 0 !important;
+            /* 保证内部元素绝对垂直居中 */
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important; 
         }
 
-        /* 3. 针对竖屏、小屏的兜底处理 */
+        .avatar-crop-stage-shell {
+            width: 100% !important;
+            /* 魔法：将尺寸精确放大到 580px。800px弹窗 减去 标题和底部文字后，刚好剩 580px 左右！严丝合缝！ */
+            max-width: 580px !important;
+            aspect-ratio: 1 / 1 !important;
+            height: auto !important;
+            flex-shrink: 0 !important;
+            margin: 0 auto !important; 
+        }
+
+        /* 针对竖屏或笔记本小屏幕的兜底处理 */
         @media (max-width: 960px), (max-height: 720px) {
             .avatar-crop-stage-shell {
-                height: auto !important;
-                width: 100% !important;
-                max-width: 420px !important;
+                max-width: min(440px, 45vh) !important;
             }
         }
