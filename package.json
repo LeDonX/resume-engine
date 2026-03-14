@@ -4,10 +4,15 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Vite vanilla resume generator",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:cloudflare": "npm run build && wrangler dev",
+    "deploy:cloudflare": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@fontsource/noto-sans-sc": "^5.2.6",
@@ -18,6 +23,7 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
-    "vite": "^5.4.14"
+    "vite": "^5.4.14",
+    "wrangler": "^4.68.0"
   }
 }

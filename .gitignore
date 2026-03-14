@@ -1,4 +1,11 @@
 # Local temporary/research artifacts
+.sisyphus/
+.sisyphus_http.log
+server.log
 tmp/
 node_modules/
 dist/
+dist-static/
+.wrangler/
+.dev.vars*
+!.dev.vars.example

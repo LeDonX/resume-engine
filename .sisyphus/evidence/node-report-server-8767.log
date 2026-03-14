@@ -1,8 +1,0 @@
-GET /tmp/verify-avatar-browser.html
-GET /tmp/verify-avatar-browser.html
-GET /简历.html
-GET /tests/fixtures/avatar-ok.png
-GET /favicon.ico
-GET /简历.html
-GET /tests/fixtures/avatar-oversize.jpg
-POST /__report
