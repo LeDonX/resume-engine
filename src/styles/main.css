@@ -906,15 +906,27 @@ body {
                 display: none;
             }
         }
-		/* 🌟 放大头像裁剪区，填补左侧过多的暗色空白 🌟 */
-        .avatar-crop-stage-shell {
-            /* 将原来的 440px 极限放大到 640px，将 50vh 提升到 68vh */
-            width: min(100%, min(640px, 68vh)) !important; 
+		/* 1. 解除原版弹窗 700px 的封印，在大屏上允许它变得更大 */
+        .avatar-crop-shell {
+            width: min(1100px, calc(100vw - 2.5rem)) !important;
+            height: min(800px, calc(100dvh - 2rem)) !important;
         }
 
-        /* 针对带鱼屏或小屏幕的自适应放大 */
+        /* 2. 核心魔法：基于 flex 剩余空间自动计算正方形尺寸，绝不溢出遮挡文字 */
+        .avatar-crop-stage-shell {
+            width: auto !important;
+            height: 100% !important; /* 向上寻找剩余可用高度 */
+            max-height: 560px !important; /* 给个物理上限，防止 4K 下大得让人眼晕 */
+            max-width: 100% !important; /* 保证宽度不会超出左侧面板 */
+            aspect-ratio: 1 / 1 !important; /* 强制保持正方形 */
+            flex-shrink: 1 !important;
+        }
+
+        /* 3. 针对竖屏、小屏的兜底处理 */
         @media (max-width: 960px), (max-height: 720px) {
             .avatar-crop-stage-shell {
-                width: min(100%, min(500px, 55vh)) !important;
+                height: auto !important;
+                width: 100% !important;
+                max-width: 420px !important;
             }
         }
