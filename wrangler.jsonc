@@ -2,10 +2,5 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "resume-engine",
   "compatibility_date": "2026-03-14",
-  "observability": {
-    "enabled": true
-  },
-  "assets": {
-    "directory": "./dist-static"
-  }
+  "pages_build_output_dir": "./dist-static"
 }

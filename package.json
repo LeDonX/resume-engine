@@ -11,8 +11,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "preview:cloudflare": "npm run build && wrangler dev",
-    "deploy:cloudflare": "npm run build && wrangler deploy"
+    "preview:cloudflare": "npm run build && wrangler pages dev dist-static",
+    "deploy:cloudflare": "npm run build && wrangler pages deploy dist-static"
   },
   "dependencies": {
     "@fontsource/noto-sans-sc": "^5.2.6",
