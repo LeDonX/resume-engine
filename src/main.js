@@ -1095,19 +1095,35 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         
         const textareaClass = "mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 min-h-[100px] transition-all placeholder:text-slate-400 hover:bg-slate-200/60 focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
 
+        // 🌟 重构：极简且带有自动淡出动画的状态提示
+        let statusTimer = null;
         function setStatus(message, type = "info") {
-            let colorClass = "text-gray-500";
-            let toneClass = "status-info";
+            const statusText = document.getElementById("form-status");
+            if (!statusText) return;
+
+            let colorClass = "text-slate-500";
+            let icon = '<i class="fas fa-info-circle mr-1"></i>';
+            
             if (type === "success") {
-                colorClass = "text-green-600";
-                toneClass = "status-success";
+                colorClass = "text-emerald-600";
+                icon = '<i class="fas fa-check-circle mr-1"></i>';
+            } else if (type === "error") {
+                colorClass = "text-rose-600";
+                icon = '<i class="fas fa-exclamation-triangle mr-1"></i>';
             }
-            if (type === "error") {
-                colorClass = "text-red-600";
-                toneClass = "status-error";
-            }
-            statusText.className = `mt-3 text-xs ${colorClass} ${toneClass}`;
-            statusText.textContent = message;
+
+            // 直接用 Tailwind 赋予它极小、精致的排版，并开启透明度过渡动画
+            statusText.className = `truncate text-[10px] font-bold tracking-wide transition-opacity duration-300 ${colorClass}`;
+            statusText.innerHTML = `${icon} ${message}`;
+            
+            // 出现
+            statusText.style.opacity = '1';
+            
+            // 核心魔法：3 秒后自动淡出消失！绝不长时间占用视觉空间！
+            if (statusTimer) clearTimeout(statusTimer);
+            statusTimer = setTimeout(() => {
+                statusText.style.opacity = '0';
+            }, 3000);
         }
 
         function saveDraft() {
