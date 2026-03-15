@@ -34,6 +34,6 @@ After this change, Pages can also read the same output directory from `wrangler.
 
 ## Notes
 
-- The project is a static multi-page Vite app.
-- Public routes include `/` and `/简历.html`.
+- The project is a static Vite app.
+- Public route includes `/`.
 - The previous Workers-only `assets` config was removed because Cloudflare Pages expects `pages_build_output_dir` instead.

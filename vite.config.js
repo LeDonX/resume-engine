@@ -12,8 +12,7 @@ export default defineConfig({
     minify: false,
     rollupOptions: {
       input: {
-        index: resolve(__dirname, "index.html"),
-        简历: resolve(__dirname, "简历.html")
+        index: resolve(__dirname, "index.html")
       }
     }
   }

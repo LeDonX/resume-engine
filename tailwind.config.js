@@ -1,5 +1,5 @@
 export default {
-  content: ['./index.html', './简历.html', './src/**/*.{js,html}'],
+  content: ['./index.html', './src/**/*.{js,html}'],
   safelist: [
     'bg-theme',
     'text-theme',
