@@ -15,30 +15,42 @@ body {
             margin: 0;
         }
 
+        /* 🌟 1. 屏幕预览模式下的 A4 纸视觉 🌟 */
         .resume-sheet {
-            width: 210mm;
-            max-width: none;
-            height: 100%;
+            width: 210mm !important;
+            max-width: none !important;
+            /* 屏幕上预览时，高度跟随父级 page 的物理高度 */
+            height: 100% !important;
             margin: 0 auto;
-            display: flex;
-            flex-direction: row;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: stretch !important;
+            /* 屏幕上必须隐藏溢出，保持单张纸的美感 */
+            overflow: hidden !important; 
         }
 
         .resume-left {
-            width: 33.333333%;
+            width: 33.333333% !important;
+            flex-shrink: 0 !important;
+            height: 100% !important; 
         }
 
         .resume-right {
-            width: 66.666667%;
+            width: 66.666667% !important;
+            flex-shrink: 0 !important;
+            height: 100% !important;
         }
 
         .resume-page {
-            width: 210mm;
-            height: 297mm;
+            width: 210mm !important;
+            /* 屏幕上预览时，必须锁死 A4 物理高度 (297mm) */
+            height: 297mm !important; 
+            min-height: 297mm !important;
             box-sizing: border-box;
+            /* 恢复原版在屏幕上预览时的下边距，让它看起来像在桌面上 */
             padding: 5mm 0;
             margin: 0 auto;
-            overflow: visible;
+            position: relative;
         }
 
         .resume-page-overflow {
@@ -180,7 +192,7 @@ body {
         .resume-theme-shell .resume-section-icon {
             background: var(--resume-accent-soft);
             color: var(--resume-accent-strong);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 6px 16px var(--resume-accent-glow);
+            /* 这里不要写 box-shadow！ */
         }
 
         .resume-theme-shell .resume-accent-dot {
@@ -732,71 +744,89 @@ body {
             }
         }
 
-        /* 打印样式优化，确保导出 PDF 时完美呈现 */
+        /* 🌟 2. 极致无缝满版 PDF + 完美多页支持 🌟 */
+        /* 🌟 2. 打印模式：抛弃屏幕限制，无缝流淌满版 🌟 */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0;
+                /* 核心：干掉物理纸张四周的系统白边 */
+                margin: 0 !important; 
             }
 
-            body {
-                background-color: white;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            html, body {
+                width: 210mm !important;
+                background-color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
-            .print-shadow-none {
-                box-shadow: none;
-            }
-
-            .print-m-0 {
-                margin: 0;
-            }
-
-            .print-p-0 {
-                padding: 0;
-            }
-
-            /* 隐藏不需要打印的元素（如果有的话） */
-            .no-print {
-                display: none;
+            .no-print, .form-panel {
+                display: none !important;
             }
 
             .preview-panel {
-                padding: 0;
-                background: white;
-                overflow: visible;
+                flex: none !important;
+                width: 210mm !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: transparent !important;
+                overflow: visible !important;
             }
 
             .preview-stack {
-                gap: 0;
+                gap: 0 !important;
             }
 
+            /* --------- 核心解封开始 --------- */
+
+            /* 1. 让最外层的 .resume-page 放开高度，任由内容拉伸 */
             .resume-page {
-                margin: 0;
-                page-break-after: always;
-                break-after: page;
-                box-shadow: none;
+                width: 210mm !important;
+                height: auto !important; /* 🚨 必须是 auto，由内容撑开 */
+                min-height: 297mm !important;
+                padding: 0 !important; /* 打印时不能有白边 */
+                margin: 0 !important;
+                box-shadow: none !important;
+                /* 在两块 .resume-page 之间强行分页 */
+                page-break-after: always !important; 
+                break-after: page !important;
             }
-
             .resume-page:last-child {
-                page-break-after: auto;
-                break-after: auto;
+                page-break-after: auto !important;
+                break-after: auto !important;
             }
 
+            /* 2. 让包裹两栏的 .resume-sheet 放开高度，取消裁剪 */
             .resume-sheet {
-                border-radius: 0;
-                box-shadow: none;
+                width: 210mm !important;
+                height: auto !important; /* 🚨 必须是 auto */
+                min-height: 297mm !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                /* 打印时绝不能隐藏，要流淌下去！ */
+                overflow: visible !important; 
+                display: flex !important;
+                flex-direction: row !important;
+                /* 让左右两栏高度绝对平齐 */
+                align-items: stretch !important; 
             }
 
-            .resume-page-overflow {
-                min-height: auto;
+            /* 3. 左右栏跟随外层容器等高拉伸 */
+            .resume-left, .resume-right {
+                height: auto !important; /* 🚨 必须是 auto */
+                min-height: 297mm !important;
             }
+
+            /* --------- 解封结束 --------- */
 
             .page-split-hint {
-                display: none;
+                display: none !important;
             }
         }
+		
 		.avatar-crop-shell {
             width: min(1100px, calc(100vw - 2.5rem)) !important;
             height: min(800px, calc(100dvh - 2rem)) !important;

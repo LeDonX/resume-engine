@@ -36,7 +36,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
         const BASIC_INFO_PRESETS = [
             { id: "phone", label: "手机", value: "138-xxxx-xxxx", iconPreset: "phone", iconMode: "preset", customIcon: "" },
-            { id: "email", label: "邮箱", value: "zhangsan@example.com", iconPreset: "email", iconMode: "preset", customIcon: "" },
+            { id: "email", label: "邮箱", value: "zhangsan@qq.com", iconPreset: "email", iconMode: "preset", customIcon: "" },
             { id: "salary", label: "期望薪资", value: "25K-35K", iconPreset: "salary", iconMode: "preset", customIcon: "" },
             { id: "birth", label: "出生年月", value: "1998.08", iconPreset: "birth", iconMode: "preset", customIcon: "" },
             { id: "education", label: "学历", value: "硕士", iconPreset: "education", iconMode: "preset", customIcon: "" }
@@ -90,7 +90,9 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         // --- 扩充后的主题色配置 (分为单色系和多彩系) ---
         // ----------------- 1. 全局主色调库 (20款) -----------------
         const RESUME_THEME_OPTIONS = [
-            // 🎨 纯粹单色 (12款)
+			{ key: "pro_blue", label: "严谨商务蓝", type: "solid", swatch: "#2563eb", accent: "#2563eb", accentStrong: "#1d4ed8", softBg: "#eff6ff", softText: "#1d4ed8", leftBg: "#f4f5f8", iconMode: "strict_gray" },
+			{ key: "pro_slate", label: "严谨极简黑", type: "solid", swatch: "#334155", accent: "#475569", accentStrong: "#0f172a", softBg: "#f1f5f9", softText: "#0f172a", leftBg: "#f4f5f8", iconMode: "strict_gray" },
+            // 🎨 纯粹单色
             { key: "cobalt", label: "深海蓝", type: "solid", swatch: "#2563eb", accent: "#2563eb", accentStrong: "#1d4ed8", softBg: "#dbeafe", softText: "#1d4ed8" },
             { key: "indigo", label: "靛青蓝", type: "solid", swatch: "#4f46e5", accent: "#4f46e5", accentStrong: "#3730a3", softBg: "#e0e7ff", softText: "#3730a3" },
             { key: "emerald", label: "翡翠绿", type: "solid", swatch: "#059669", accent: "#059669", accentStrong: "#047857", softBg: "#d1fae5", softText: "#047857" },
@@ -135,18 +137,43 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             { key: "sunset", label: "黄昏暖阳", colors: ["orange", "rose", "red", "amber", "fuchsia"], preview: ["#f97316", "#f43f5e", "#f59e0b"] }
         ];
 
+        // 🌟 智能计算图标颜色的终极算法 🌟
         function resolveIconColorTone(index, itemColorOverride, globalPaletteKey) {
-            if (itemColorOverride && itemColorOverride !== "theme") return itemColorOverride;
-            if (!globalPaletteKey || globalPaletteKey === "theme") return "theme";
             
-            const palette = ICON_PALETTE_OPTIONS.find(p => p.key === globalPaletteKey) || ICON_PALETTE_OPTIONS[1];
+            // 1. 如果用户【手动强制指定】了某个图标的独立颜色（比如非要把它变成红色），绝对优先级最高！听用户的！
+            if (itemColorOverride && itemColorOverride !== "theme") {
+                return itemColorOverride;
+            }
+            
+            // 2. 读取当前全局选中的混搭调色板
+            const activeGlobalPalette = globalPaletteKey || "theme";
+
+            // 3. 读取当前简历选中的大主题 (比如 "严谨商务蓝")
+            const currentTheme = getResumeThemeOption(resumeData.resumeTheme);
+
+            // 🌟 4. 核心逻辑：如果当前全局调色板选的是“跟随主题”，并且当前主题自带“默认灰色”属性
+            // 那我们就给它渲染成灰色。
+            if (activeGlobalPalette === "theme" && currentTheme.iconMode === "strict_gray") {
+                return "slate"; // 默认呈现石板灰
+            }
+
+            // 5. 如果选了“统一主色”（且不是上面那种强制灰的商务主题）
+            if (activeGlobalPalette === "theme") {
+                return "theme";
+            }
+            
+            // 6. 如果用户开启了“马卡龙”、“海蓝之吻”等多色调色板，尊重用户的多色选择！
+            const palette = ICON_PALETTE_OPTIONS.find(p => p.key === activeGlobalPalette) || ICON_PALETTE_OPTIONS[1];
             if (!palette.colors || !palette.colors.length) return "theme";
+            
+            // 7. 无限安全循环取色
             return palette.colors[index % palette.colors.length];
         }
 
         const sampleResumeData = {
             documentTitle: "张三的简历",
-            resumeTheme: "cobalt",
+            resumeTheme: "pro_blue",
+            useFlatIcons: true,
             profileImage: "",
             avatarImageMeta: null,
             avatarFrame: { ...DEFAULT_AVATAR_FRAME },
@@ -271,29 +298,31 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         function buildResumeThemeVars(theme) {
-            const accent = pickText(theme?.accent, "#2563eb");
-            const accentStrong = pickText(theme?.accentStrong, accent);
-            const softBg = pickText(theme?.softBg, mixHexColors("#ffffff", accent, 0.14, "#dbeafe"));
-            const softText = pickText(theme?.softText, accentStrong);
+            // 如果主题配置了 leftBg (如专业商务风)，就用纯色；否则用柔和的微渐变
+            const leftBackground = theme.leftBg 
+                ? theme.leftBg 
+                : `linear-gradient(180deg, ${theme.softBg || '#f8fbff'}40, ${theme.softBg || '#f3f7fe'}80)`;
 
             return {
-                "--resume-accent": accent,
-                "--resume-accent-strong": accentStrong,
-                "--resume-accent-soft": softBg,
-                "--resume-accent-soft-strong": mixHexColors(softBg, accent, 0.18, softBg),
-                "--resume-accent-border": toRgbaString(accent, 0.28),
-                "--resume-accent-glow": toRgbaString(accent, 0.16),
-                "--resume-left-bg": `linear-gradient(180deg, ${mixHexColors("#ffffff", softBg, 0.45, "#f8fbff")}, ${mixHexColors("#f8fafc", softBg, 0.72, "#f3f7fe")})`,
-                "--resume-badge-bg": softBg,
-                "--resume-badge-text": softText,
-                "--resume-role-text": accentStrong
+                "--resume-accent": theme.accent,                   // 核心主色
+                "--resume-accent-strong": theme.accentStrong,      // 名字/标题深色
+                
+                // 🌟 修复核心：这根柔和的下划线（soft-divider），现在必须强制读取你为每个主题独家配置的软背景色 (softBg)，如果没配置就用 40% 透明度的主色！
+                "--resume-accent-soft-strong": theme.softBg || theme.accent + "40", 
+                
+                "--resume-accent-soft": theme.softBg || theme.accent + "15",
+                "--resume-badge-bg": theme.softBg || theme.accent + "20",
+                "--resume-badge-text": theme.softText || theme.accentStrong,
+                "--resume-role-text": theme.accentStrong,
+                "--resume-left-bg": leftBackground                 // 左侧背景
             };
         }
 
         function buildResumeThemeInlineStyle(theme) {
-            return Object.entries(buildResumeThemeVars(theme))
-                .map(([key, value]) => `${key}: ${value}`)
-                .join("; ");
+            const vars = buildResumeThemeVars(theme);
+            return Object.entries(vars)
+                .map(([key, value]) => `${key}: ${value};`)
+                .join(" ");
         }
 
         function normalizeAvatarShape(value) {
@@ -1011,6 +1040,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return {
                 documentTitle: hasOwn(raw, "documentTitle") ? pickText(raw.documentTitle, "") : fallback.documentTitle,
                 resumeTheme: hasOwn(raw, "resumeTheme") ? normalizeResumeTheme(raw.resumeTheme) : normalizeResumeTheme(fallback.resumeTheme),
+				useFlatIcons: hasOwn(raw, "useFlatIcons") ? Boolean(raw.useFlatIcons) : true,
 				iconPalette: hasOwn(raw, "iconPalette") ? pickText(raw.iconPalette, "macaron") : "macaron",
 				skillBadgeColor: hasOwn(raw, "skillBadgeColor") ? pickText(raw.skillBadgeColor, "theme") : "theme",
                 profileImage,
@@ -1049,13 +1079,13 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
         let resumeData = normalizeResumeData(cloneData(sampleResumeData));
 		let panelState = {
-            profile: false,      // 个人信息 (展开)
-            theme: true,         // 主题与头像 (默认折叠，节省大量空间！)
-            contact: false,      // 联系方式 (展开)
-            education: true,     // 教育背景 (默认折叠)
-            skills: true,        // 专业技能 (默认折叠)
-            experiences: false,  // 工作经历 (展开)
-            projects: false      // 项目经验 (展开)
+            profile: false,      // 个人信息
+            theme: true,         // 主题与头像
+            contact: true,       // 联系方式
+            education: true,     // 教育背景
+            skills: true,        // 专业技能
+            experiences: true,   // 工作经历
+            projects: true       // 项目经验
         };
         const formRoot = document.getElementById("form-root");
         const resumeRoot = document.getElementById("resume-root");
@@ -1302,17 +1332,26 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                             </label>
                         </div>
 
-                        <!-- 🌟 融合进来的联系方式模块 -->
+                        <!-- 🌟 融合进来且支持独立折叠的联系方式模块 -->
                         <div class="mt-6 border-t border-slate-200/80 pt-5">
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <p class="text-[13px] font-bold text-slate-700">联系方式</p>
+                            
+                            <!-- 可点击折叠的标题栏 -->
+                            <button type="button" data-action="toggle-section" data-section-id="contact" class="flex w-full items-center justify-between outline-none group/contact pb-2">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ${panelState.contact ? '-rotate-90' : ''} group-hover/contact:text-slate-600"></i>
+                                    <p class="text-[13px] font-bold text-slate-700 group-hover/contact:text-slate-900 transition-colors">联系方式</p>
                                 </div>
-                                <span class="rounded-full bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400 border border-slate-200/50">支持拖拽排序</span>
+                                <!-- 拖拽提示小徽章，只有在展开时才显示，保持折叠时极致清爽 -->
+                                <span class="rounded-full bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400 border border-slate-200/50 transition-opacity duration-200 ${panelState.contact ? 'opacity-0' : 'opacity-100'}">支持拖拽排序</span>
+                            </button>
+
+                            <!-- 🌟 联系方式列表内容 (根据状态折叠或展开) -->
+                            <div class="transition-all duration-300 overflow-hidden ${panelState.contact ? 'h-0 opacity-0 pointer-events-none mt-0' : 'h-auto opacity-100 mt-3'}">
+                                <div id="basic-info-list" class="grid gap-3 pb-2">
+                                    ${contactBlocks}
+                                </div>
                             </div>
-                            <div id="basic-info-list" class="grid gap-3">
-                                ${contactBlocks}
-                            </div>
+
                         </div>
                     </div>
                 </section>
@@ -1390,13 +1429,24 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
                             <!-- 时间轴排版细节开关 -->
                             <div class="border-t border-slate-200/60 pt-4 mt-4">
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between mb-3">
                                     <div>
                                         <p class="text-[12px] font-bold text-slate-700">彩色时间轴竖线</p>
                                         <p class="text-[9px] text-slate-400 font-medium mt-0.5">工作经历竖线是否跟随后台主色</p>
                                     </div>
                                     <button type="button" data-action="toggle-theme-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.useThemeTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
                                         <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.useThemeTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
+                                    </button>
+                                </div>
+                                
+                                <!-- 🌟 新增：立体/扁平图标开关 -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">极简扁平图标</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">开启后去除简历图标上的立体高光阴影</p>
+                                    </div>
+                                    <button type="button" data-action="toggle-flat-icons" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.useFlatIcons ? 'bg-blue-500' : 'bg-slate-300'}">
+                                        <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.useFlatIcons ? 'translate-x-4' : 'translate-x-0'}"></span>
                                     </button>
                                 </div>
                             </div>
@@ -1622,32 +1672,23 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         function renderBasicInfo(basicInfo) {
-            const list = pickArray(basicInfo)
-                .filter((item) => pickText(item?.value, "").trim() !== "");
-
+            const list = pickArray(basicInfo).filter((item) => pickText(item?.value, "").trim() !== "");
             if (!list.length) return "";
 
-            // 🌟 修复报错：在这里的 map 函数里加上 index 参数！
+            // 读取扁平开关状态
+            const shadowClass = resumeData.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]";
+
             const items = list.map((info, index) => {
                 const icon = escapeHtml(resolveBasicInfoIcon(info));
                 const text = escapeHtml(pickText(info.value, ""));
-                
-                // 读取覆盖色和全局色
                 const currentColorOverride = info.iconColor || "theme";
-                const globalPaletteKey = resumeData.iconPalette || "theme"; // 默认用统一主色
-
-                // 🌟 使用智能函数计算循环颜色
+                const globalPaletteKey = resumeData.iconPalette || "theme";
                 const finalColorKey = resolveIconColorTone(index, currentColorOverride, globalPaletteKey);
 
-                // 渲染最终带颜色的圆形图标
-                const iconHtml = renderDynamicIcon(icon, finalColorKey, "w-8 h-8 rounded-full text-[13px]", "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]");
+                // 🌟 将阴影变量传入动态渲染函数
+                const iconHtml = renderDynamicIcon(icon, finalColorKey, "w-8 h-8 rounded-full text-[13px]", shadowClass);
 
-                return `
-                    <li class="flex items-start gap-3">
-                        ${iconHtml}
-                        <span class="min-w-0 flex-1 break-words leading-8 text-sm text-gray-700">${text}</span>
-                    </li>
-                `;
+                return `<li class="flex items-start gap-3">${iconHtml}<span class="min-w-0 flex-1 break-words leading-8 text-sm text-gray-700">${text}</span></li>`;
             }).join("");
 
             return `<ul class="space-y-3.5">${items}</ul>`;
@@ -1716,11 +1757,9 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         function renderExperienceItem(item, index, total) {
-            // 🌟 读取开关状态，默认是 false (即关闭状态，使用灰色实线)
             const isThemeLine = Boolean(resumeData.useThemeTimeline);
             const lineClass = isThemeLine ? "resume-soft-divider" : "border-gray-200";
 
-            // 替换掉写死的连线颜色
             const wrapperClass = index === total - 1
                 ? `relative pl-6 border-l-2 ${lineClass} resume-avoid-break`
                 : `mb-8 relative pl-6 border-l-2 ${lineClass} resume-avoid-break`;
@@ -1736,15 +1775,22 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 <div class="${wrapperClass}">
                     <div class="absolute w-3 h-3 ${dotClass} rounded-full -left-[7px] top-1.5 ring-4 ring-white"></div>
 
-                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
-                        <div>
-                            <h4 class="text-lg font-bold text-gray-800">${escapeHtml(pickText(item.title, ""))}</h4>
-                            <p class="${companyClass} font-medium text-sm">${escapeHtml(pickText(item.company, ""))}</p>
+                    <!-- 🌟 修复核心：去掉所有的 md: 前缀，强制同行，左右两端对齐 -->
+                    <div class="flex items-start justify-between mb-2 gap-4">
+                        
+                        <!-- 左边：职位与公司。加上 min-w-0 和 flex-1 防止超长文字把右边挤掉 -->
+                        <div class="min-w-0 flex-1">
+                            <h4 class="text-lg font-bold text-gray-800 break-words leading-snug">${escapeHtml(pickText(item.title, ""))}</h4>
+                            <p class="${companyClass} font-medium text-sm mt-0.5">${escapeHtml(pickText(item.company, ""))}</p>
                         </div>
-                        <div class="text-gray-500 text-sm mt-1 md:mt-0 font-medium whitespace-nowrap">
+                        
+                        <!-- 右边：时间。加上 shrink-0 保证它即使碰上左边超长文字，也绝不换行缩水 -->
+                        <div class="text-gray-500 text-sm font-medium whitespace-nowrap shrink-0 text-right mt-[2px]">
                             ${escapeHtml(pickText(item.period, ""))}
                         </div>
+                        
                     </div>
+
                     <ul class="list-disc list-inside text-gray-600 space-y-2 text-sm leading-relaxed mt-3">${bullets}</ul>
                 </div>
             `;
@@ -1814,17 +1860,21 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         function buildRightColumnBlocks(data) {
+            // 🌟 读取扁平开关状态，生成对应阴影类名
+            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_16px_var(--resume-accent-glow)]";
+
             const blocks = [
                 `
                     <div class="mb-10 pb-8 border-b resume-soft-divider resume-avoid-break">
-                        <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-2">${escapeHtml(pickText(data.name, ""))}</h1>
-                        <h2 class="text-xl md:text-2xl resume-role-text font-medium tracking-wide">${escapeHtml(pickText(data.role, ""))}</h2>
+                        <h1 class="text-[42px] font-black text-gray-900 tracking-tight mb-2 leading-none">${escapeHtml(pickText(data.name, ""))}</h1>
+                        <h2 class="text-[22px] resume-role-text font-medium tracking-wide mt-3">${escapeHtml(pickText(data.role, ""))}</h2>
                     </div>
                 `,
                 `
                     <div class="mb-10 resume-avoid-break">
                         <div class="flex items-center mb-4">
-                            <div class="w-10 h-10 rounded-full resume-section-icon flex items-center justify-center mr-3">
+                            <!-- 应用动态阴影 -->
+                            <div class="flex w-10 h-10 shrink-0 rounded-full resume-section-icon items-center justify-center mr-3 ${iconShadowClass}">
                                 <i class="fas fa-user-tie text-lg"></i>
                             </div>
                             <h3 class="text-2xl font-bold text-gray-800">个人简介</h3>
@@ -1840,7 +1890,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 blocks.push(`
                     <div class="mb-10 resume-avoid-break">
                         <div class="flex items-center mb-6">
-                            <div class="w-10 h-10 rounded-full resume-section-icon flex items-center justify-center mr-3">
+                            <!-- 应用动态阴影 -->
+                            <div class="flex w-10 h-10 shrink-0 rounded-full resume-section-icon items-center justify-center mr-3 ${iconShadowClass}">
                                 <i class="fas fa-briefcase text-lg"></i>
                             </div>
                             <h3 class="text-2xl font-bold text-gray-800">工作经历</h3>
@@ -1852,18 +1903,6 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 for (let index = 1; index < experienceItems.length; index += 1) {
                     blocks.push(experienceItems[index]);
                 }
-            } else {
-                blocks.push(`
-                    <div class="mb-10 resume-avoid-break">
-                        <div class="flex items-center mb-6">
-                            <div class="w-10 h-10 rounded-full resume-section-icon flex items-center justify-center mr-3">
-                                <i class="fas fa-briefcase text-lg"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold text-gray-800">工作经历</h3>
-                        </div>
-                        <p class="text-sm text-gray-500">可在左侧表单中填写工作经历</p>
-                    </div>
-                `);
             }
 
             const projectList = pickArray(data.projects);
@@ -1872,7 +1911,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 blocks.push(`
                     <div class="mb-6 resume-avoid-break">
                         <div class="flex items-center mb-6">
-                            <div class="w-10 h-10 rounded-full resume-section-icon flex items-center justify-center mr-3">
+                            <!-- 应用动态阴影 -->
+                            <div class="flex w-10 h-10 shrink-0 rounded-full resume-section-icon items-center justify-center mr-3 ${iconShadowClass}">
                                 <i class="fas fa-project-diagram text-lg"></i>
                             </div>
                             <h3 class="text-2xl font-bold text-gray-800">项目经验</h3>
@@ -1885,18 +1925,6 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                     const wrapperClass = index === projectCards.length - 1 ? "resume-avoid-break" : "mb-6 resume-avoid-break";
                     blocks.push(`<div class="${wrapperClass}">${projectCards[index]}</div>`);
                 }
-            } else {
-                blocks.push(`
-                    <div class="resume-avoid-break">
-                        <div class="flex items-center mb-6">
-                            <div class="w-10 h-10 rounded-full resume-section-icon flex items-center justify-center mr-3">
-                                <i class="fas fa-project-diagram text-lg"></i>
-                            </div>
-                            <h3 class="text-2xl font-bold text-gray-800">项目经验</h3>
-                        </div>
-                        <p class="text-sm text-gray-500">可在左侧表单中填写项目经验</p>
-                    </div>
-                `);
             }
 
             return blocks;
@@ -1908,7 +1936,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             host.innerHTML = `
                 <div class="resume-sheet bg-white overflow-hidden flex flex-row">
                     <div class="resume-left bg-gray-50 p-8 border-r border-gray-200"></div>
-                    <div class="resume-right p-8 md:p-12"></div>
+                    <!-- 🌟 修复：去掉 md:p-12，焊死为统一的 p-10 (40px) -->
+                    <div class="resume-right p-10"></div>
                 </div>
             `;
             document.body.appendChild(host);
@@ -2002,7 +2031,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 <div class="${pageClass}">
                     <div class="resume-sheet ${sheetOverflowClass} bg-white shadow-2xl print-shadow-none flex flex-row print-m-0">
                         <div class="resume-left bg-gray-50 p-8 border-r border-gray-200">${leftHtml}</div>
-                        <div class="resume-right p-8 md:p-12">${rightHtml}</div>
+                        <!-- 🌟 修复：同样焊死 p-10 -->
+                        <div class="resume-right p-10">${rightHtml}</div>
                     </div>
                 </div>
                 ${separator}
@@ -2428,6 +2458,14 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                     renderAll();
                     saveDraft();
                 }
+                return;
+            }
+			
+			// --- 🌟 响应：切换扁平/立体图标 ---
+            if (action === "toggle-flat-icons") {
+                resumeData.useFlatIcons = !resumeData.useFlatIcons;
+                renderAll();
+                saveDraft();
                 return;
             }
 			
