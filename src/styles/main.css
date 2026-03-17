@@ -8,6 +8,22 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+:root {
+            --resume-page-width: 210mm;
+            --resume-page-height: 297mm;
+            --resume-page-screen-padding-y: 5mm;
+            --resume-page-screen-padding-y-cards: 4.5mm;
+            --resume-cards-gap: 4.5mm;
+            --resume-cards-padding: 5.5mm;
+            --resume-classic-left-width: 33.333333%;
+            --resume-classic-right-width: 66.666667%;
+            --resume-cards-left-ratio: 0.315;
+            --resume-cards-right-ratio: 0.685;
+            --resume-cards-columns-width: calc(var(--resume-page-width) - (var(--resume-cards-padding) * 2) - var(--resume-cards-gap));
+            --resume-cards-left-width: calc(var(--resume-cards-columns-width) * var(--resume-cards-left-ratio));
+            --resume-cards-right-width: calc(var(--resume-cards-columns-width) * var(--resume-cards-right-ratio));
+        }
+
 body {
             font-family: 'Noto Sans SC', sans-serif;
             background-color: #f3f4f6;
@@ -17,45 +33,91 @@ body {
 
         /* 🌟 1. 屏幕预览模式下的 A4 纸视觉 🌟 */
         .resume-sheet {
-            width: 210mm !important;
+            width: var(--resume-page-width) !important;
             max-width: none !important;
-            /* 屏幕上预览时，高度跟随父级 page 的物理高度 */
             height: 100% !important;
             margin: 0 auto;
             display: flex !important;
             flex-direction: row !important;
             align-items: stretch !important;
-            /* 屏幕上必须隐藏溢出，保持单张纸的美感 */
-            overflow: hidden !important; 
+            box-sizing: border-box;
         }
 
-        .resume-left {
-            width: 33.333333% !important;
-            flex-shrink: 0 !important;
-            height: 100% !important; 
-        }
-
+        .resume-left,
         .resume-right {
-            width: 66.666667% !important;
             flex-shrink: 0 !important;
             height: 100% !important;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resume-layout-classic .resume-sheet {
+            overflow: hidden !important;
+            background: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+        }
+
+        .resume-layout-classic .resume-left {
+            width: var(--resume-classic-left-width) !important;
+            padding: 2rem;
+            gap: 0;
+            border-right: 1px solid #e5e7eb;
+            background: var(--resume-left-bg);
+        }
+
+        .resume-layout-classic .resume-right {
+            width: var(--resume-classic-right-width) !important;
+            padding: 2rem 3rem;
+            gap: 0;
+            background: #ffffff;
+        }
+
+        .resume-layout-cards .resume-sheet {
+            gap: var(--resume-cards-gap);
+            padding: var(--resume-cards-padding);
+            overflow: hidden !important;
+            background: var(--resume-page-canvas, #eff1f4);
+            border: 1px solid var(--resume-page-border, #dbe1e8);
+            border-radius: 9mm;
+            box-shadow: var(--resume-page-shadow, 0 28px 64px rgba(15, 23, 42, 0.08));
+        }
+
+        .resume-layout-cards .resume-left {
+            flex: 0 0 var(--resume-cards-left-width) !important;
+            width: var(--resume-cards-left-width) !important;
+            max-width: var(--resume-cards-left-width) !important;
+            gap: 4mm;
+            background: transparent;
+        }
+
+        .resume-layout-cards .resume-right {
+            flex: 0 0 var(--resume-cards-right-width) !important;
+            width: var(--resume-cards-right-width) !important;
+            max-width: var(--resume-cards-right-width) !important;
+            gap: 4mm;
+            background: transparent;
         }
 
         .resume-page {
-            width: 210mm !important;
-            /* 屏幕上预览时，必须锁死 A4 物理高度 (297mm) */
-            height: 297mm !important; 
-            min-height: 297mm !important;
+            width: var(--resume-page-width) !important;
+            height: var(--resume-page-height) !important;
+            min-height: var(--resume-page-height) !important;
             box-sizing: border-box;
-            /* 恢复原版在屏幕上预览时的下边距，让它看起来像在桌面上 */
-            padding: 5mm 0;
+            padding: var(--resume-page-screen-padding-y) 0;
             margin: 0 auto;
             position: relative;
         }
 
+        .resume-layout-cards.resume-page,
+        .resume-layout-cards .resume-page {
+            padding: var(--resume-page-screen-padding-y-cards) 0;
+        }
+
         .resume-page-overflow {
             height: auto;
-            min-height: 297mm;
+            min-height: var(--resume-page-height);
         }
 
         .resume-sheet-overflow {
@@ -68,22 +130,22 @@ body {
             flex-direction: column;
             align-items: center;
             gap: 0;
-            min-width: 210mm;
+            min-width: var(--resume-page-width);
         }
 
         .page-split-hint {
-            width: 210mm;
+            width: var(--resume-page-width);
             height: 14mm;
             margin: 0 auto;
-            border-left: 1px dashed #d1d5db;
-            border-right: 1px dashed #d1d5db;
+            border-left: 1px dashed #cfd6df;
+            border-right: 1px dashed #cfd6df;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #9ca3af;
+            color: #98a2b3;
             font-size: 11px;
             letter-spacing: 0.08em;
-            background-image: linear-gradient(to right, rgba(229, 231, 235, 0.4) 0, rgba(229, 231, 235, 0.4) 50%, transparent 50%, transparent 100%);
+            background-image: linear-gradient(to right, rgba(207, 214, 223, 0.48) 0, rgba(207, 214, 223, 0.48) 50%, transparent 50%, transparent 100%);
             background-size: 16px 1px;
             background-repeat: repeat-x;
             background-position: center;
@@ -96,6 +158,34 @@ body {
             left: -99999px;
             top: 0;
             z-index: -1;
+        }
+
+        .resume-page[data-render-mode="print"],
+        .resume-page-measure[data-render-mode="print"] {
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .resume-page[data-render-mode="print"] .resume-sheet,
+        .resume-page-measure[data-render-mode="print"] .resume-sheet {
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .resume-page[data-render-mode="print"] .resume-sheet-overflow,
+        .resume-page-measure[data-render-mode="print"] .resume-sheet-overflow {
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        .resume-page[data-render-mode="print"][data-resume-layout="cards"] .resume-sheet,
+        .resume-page-measure[data-render-mode="print"][data-resume-layout="cards"] .resume-sheet {
+            border: 0 !important;
+            background: #ffffff !important;
+        }
+
+        .preview-stack[data-render-mode="print"] .page-split-hint {
+            display: none;
         }
 
         .resume-avoid-break {
@@ -115,10 +205,23 @@ body {
             --resume-accent-soft-strong: #bfdbfe;
             --resume-accent-border: rgba(59, 130, 246, 0.28);
             --resume-accent-glow: rgba(37, 99, 235, 0.16);
-            --resume-left-bg: linear-gradient(180deg, #f8fbff, #f3f7fe);
+            --resume-left-bg: transparent;
             --resume-badge-bg: #dbeafe;
             --resume-badge-text: #1d4ed8;
             --resume-role-text: #1d4ed8;
+            --resume-page-canvas: #eff1f4;
+            --resume-page-border: #dbe1e8;
+            --resume-page-shadow: 0 28px 64px rgba(15, 23, 42, 0.08);
+            --resume-card-bg: #ffffff;
+            --resume-card-border: #dde3ea;
+            --resume-card-shadow: 0 18px 38px rgba(15, 23, 42, 0.06), 0 4px 14px rgba(15, 23, 42, 0.04);
+            --resume-card-subtle: #f8fafc;
+            --resume-text-muted: #667085;
+            --resume-text-subtle: #98a2b3;
+            --resume-pill-bg: #f5f7fb;
+            --resume-pill-text: #475467;
+            --resume-timeline-track: #d9e0e8;
+            --resume-timeline-dot-glow: rgba(37, 99, 235, 0.22);
         }
 
         .resume-theme-shell[data-resume-theme="cobalt"] {
@@ -173,8 +276,14 @@ body {
             --resume-role-text: #92400e;
         }
 
-        .resume-theme-shell .resume-left {
+        .resume-layout-classic.resume-theme-shell .resume-left,
+        .resume-layout-classic .resume-left {
             background: var(--resume-left-bg);
+        }
+
+        .resume-layout-cards.resume-theme-shell .resume-left,
+        .resume-layout-cards .resume-left {
+            background: transparent;
         }
 
         .resume-theme-shell .resume-role-text {
@@ -192,7 +301,8 @@ body {
         .resume-theme-shell .resume-section-icon {
             background: var(--resume-accent-soft);
             color: var(--resume-accent-strong);
-            /* 这里不要写 box-shadow！ */
+            border: 1px solid rgba(255, 255, 255, 0.76);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 8px 18px rgba(15, 23, 42, 0.05);
         }
 
         .resume-theme-shell .resume-accent-dot {
@@ -206,6 +316,416 @@ body {
         .resume-theme-shell .resume-primary-badge {
             background: var(--resume-badge-bg);
             color: var(--resume-badge-text);
+        }
+
+        .resume-card {
+            position: relative;
+            background: var(--resume-card-bg);
+            border: 1px solid var(--resume-card-border);
+            border-radius: 24px;
+            box-shadow: var(--resume-card-shadow);
+            padding: 1.25rem;
+            min-width: 0;
+        }
+
+        .resume-card-lg {
+            padding: 1.5rem;
+        }
+
+        .resume-card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            min-width: 0;
+        }
+
+        .resume-card-title-row-compact {
+            margin-bottom: 0;
+        }
+
+        .resume-card-title-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            flex-shrink: 0;
+            border-radius: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .resume-card-kicker {
+            margin: 0 0 0.12rem;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--resume-text-subtle);
+        }
+
+        .resume-card-title {
+            margin: 0;
+            font-size: 1.02rem;
+            line-height: 1.15;
+            font-weight: 800;
+            color: #1d1d1f;
+            letter-spacing: -0.02em;
+        }
+
+        .resume-card-title-lg {
+            font-size: 1.18rem;
+        }
+
+        .resume-card-description,
+        .resume-summary-text,
+        .resume-project-description {
+            margin: 0;
+            color: var(--resume-text-muted);
+            line-height: 1.72;
+            text-align: justify;
+        }
+
+        .resume-profile-card {
+            padding-top: 1.55rem;
+            padding-bottom: 1.55rem;
+            text-align: center;
+        }
+
+        .resume-profile-avatar-wrap {
+            margin-bottom: 1.05rem;
+        }
+
+        .resume-profile-avatar-shell {
+            position: relative;
+            width: 7.1rem;
+            height: 7.1rem;
+            margin: 0 auto;
+            overflow: hidden;
+            border: 5px solid rgba(255, 255, 255, 0.96);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), var(--resume-accent-soft));
+            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+        }
+
+        .resume-profile-copy {
+            display: grid;
+            gap: 0.48rem;
+        }
+
+        .resume-profile-name {
+            margin: 0;
+            font-size: 1.9rem;
+            line-height: 0.98;
+            font-weight: 900;
+            color: #1d1d1f;
+            letter-spacing: -0.045em;
+        }
+
+        .resume-profile-role {
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            align-self: center;
+            padding: 0.46rem 0.95rem;
+            border-radius: 999px;
+            background: var(--resume-pill-bg);
+            border: 1px solid var(--resume-card-border);
+            color: var(--resume-role-text);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .resume-side-section-card {
+            padding: 1rem 1.05rem;
+        }
+
+        .resume-side-item-card {
+            padding: 1rem 1.05rem;
+        }
+
+        .resume-info-list {
+            display: grid;
+            gap: 0.82rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .resume-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            min-width: 0;
+            padding: 0.82rem 0.92rem;
+            border-radius: 18px;
+            background: var(--resume-card-subtle);
+        }
+
+        .resume-info-icon {
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .resume-info-label {
+            margin: 0 0 0.18rem;
+            font-size: 0.64rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--resume-text-subtle);
+        }
+
+        .resume-info-value {
+            margin: 0;
+            color: #1f2937;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .resume-meta-stack {
+            display: grid;
+            gap: 0.78rem;
+        }
+
+        .resume-meta-block {
+            display: grid;
+            gap: 0.3rem;
+            padding: 0.9rem 0.95rem;
+            border-radius: 18px;
+            background: var(--resume-card-subtle);
+        }
+
+        .resume-meta-title {
+            margin: 0;
+            color: #1f2937;
+            font-size: 0.92rem;
+            line-height: 1.35;
+            font-weight: 800;
+        }
+
+        .resume-meta-subtitle {
+            margin: 0;
+            color: var(--resume-text-muted);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .resume-empty-state {
+            margin: 0;
+            color: var(--resume-text-subtle);
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+
+        .resume-period-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            max-width: 100%;
+            padding: 0.34rem 0.72rem;
+            border-radius: 999px;
+            background: var(--resume-pill-bg);
+            border: 1px solid var(--resume-card-border);
+            color: var(--resume-pill-text);
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .resume-period-pill-tight {
+            margin-left: 1rem;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .resume-skill-group {
+            display: grid;
+            gap: 0.7rem;
+        }
+
+        .resume-skill-group + .resume-skill-group {
+            margin-top: 0.95rem;
+            padding-top: 0.95rem;
+            border-top: 1px solid var(--resume-card-border);
+        }
+
+        .resume-skill-group-name {
+            margin: 0;
+            color: #1f2937;
+            font-size: 0.84rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+        }
+
+        .resume-skill-tag-list,
+        .resume-tech-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+
+        .resume-side-item-card .resume-skill-tag-list {
+            margin-top: 0.72rem;
+        }
+
+        .resume-skill-tag,
+        .resume-tech-tag,
+        .resume-project-badge,
+        .resume-entry-flag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.42rem 0.78rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            line-height: 1;
+            border: 1px solid transparent;
+        }
+
+        .resume-project-secondary-badge {
+            background: var(--resume-pill-bg);
+            color: var(--resume-pill-text);
+            border-color: var(--resume-card-border);
+        }
+
+        .resume-tech-tag {
+            background: #ffffff;
+            border-color: var(--resume-card-border);
+            color: var(--resume-text-muted);
+        }
+
+        .resume-entry-flag {
+            margin-bottom: 0.72rem;
+        }
+
+        .resume-entry-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            min-width: 0;
+        }
+
+        .resume-entry-title {
+            margin: 0;
+            color: #1d1d1f;
+            font-size: 1.05rem;
+            line-height: 1.28;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            word-break: break-word;
+        }
+
+        .resume-entry-company {
+            margin: 0.32rem 0 0;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            font-weight: 700;
+        }
+
+        .resume-entry-company-muted {
+            color: var(--resume-text-muted);
+        }
+
+        .resume-bullet-list {
+            margin: 0.95rem 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 0.52rem;
+            color: var(--resume-text-muted);
+            font-size: 0.88rem;
+            line-height: 1.62;
+        }
+
+        .resume-bullet-list li {
+            position: relative;
+            padding-left: 1rem;
+            text-align: justify;
+        }
+
+        .resume-bullet-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.52rem;
+            width: 0.34rem;
+            height: 0.34rem;
+            border-radius: 999px;
+            background: var(--resume-accent-soft-strong);
+        }
+
+        .resume-experience-card,
+        .resume-project-card {
+            padding-left: 1.75rem;
+        }
+
+        .resume-section-lead-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), var(--resume-card-subtle));
+            padding-bottom: 1.15rem;
+        }
+
+        .resume-timeline-rail,
+        .resume-project-accent {
+            position: absolute;
+            left: 1rem;
+            top: 1.45rem;
+            bottom: 1.35rem;
+            width: 2px;
+            border-radius: 999px;
+        }
+
+        .resume-timeline-rail-accent {
+            background: linear-gradient(180deg, var(--resume-accent-soft-strong), var(--resume-timeline-track));
+        }
+
+        .resume-timeline-rail-neutral,
+        .resume-project-accent {
+            background: var(--resume-timeline-track);
+        }
+
+        .resume-timeline-dot {
+            position: absolute;
+            left: 0.59rem;
+            top: 1.4rem;
+            width: 0.86rem;
+            height: 0.86rem;
+            border-radius: 999px;
+            border: 3px solid #ffffff;
+        }
+
+        .resume-timeline-dot-accent {
+            background: linear-gradient(180deg, var(--resume-accent), var(--resume-accent-strong));
+            box-shadow: 0 8px 18px var(--resume-timeline-dot-glow);
+        }
+
+        .resume-timeline-dot-muted {
+            background: linear-gradient(180deg, #dce5ee, #bcc7d5);
+            box-shadow: none;
+        }
+
+        .resume-project-head {
+            min-width: 0;
+        }
+
+        .resume-project-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.9rem;
+            min-width: 0;
+        }
+
+        .resume-project-description {
+            margin-top: 0.72rem;
+            margin-bottom: 0.95rem;
+        }
+
+        .resume-summary-text {
+            font-size: 0.96rem;
         }
 
         .app-shell {
@@ -754,7 +1274,7 @@ body {
             }
 
             html, body {
-                width: 210mm !important;
+                width: var(--resume-page-width) !important;
                 background-color: white !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -766,9 +1286,20 @@ body {
                 display: none !important;
             }
 
+            .app-shell {
+                min-height: auto !important;
+                height: auto !important;
+                display: block !important;
+                overflow: visible !important;
+                background: transparent !important;
+            }
+
             .preview-panel {
                 flex: none !important;
-                width: 210mm !important;
+                width: var(--resume-page-width) !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                min-height: 0 !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 background: transparent !important;
@@ -776,51 +1307,146 @@ body {
             }
 
             .preview-stack {
+                display: block !important;
+                width: var(--resume-page-width) !important;
+                min-width: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 gap: 0 !important;
             }
 
-            /* --------- 核心解封开始 --------- */
-
-            /* 1. 让最外层的 .resume-page 放开高度，任由内容拉伸 */
             .resume-page {
-                width: 210mm !important;
-                height: auto !important; /* 🚨 必须是 auto，由内容撑开 */
-                min-height: 297mm !important;
-                padding: 0 !important; /* 打印时不能有白边 */
+                width: var(--resume-page-width) !important;
+                height: var(--resume-page-height) !important;
+                min-height: var(--resume-page-height) !important;
+                padding: 0 !important;
                 margin: 0 !important;
                 box-shadow: none !important;
-                /* 在两块 .resume-page 之间强行分页 */
-                page-break-after: always !important; 
+                overflow: hidden !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid-page !important;
+                page-break-after: always !important;
                 break-after: page !important;
             }
+
+            .resume-page.resume-page-overflow {
+                height: auto !important;
+                overflow: visible !important;
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+            }
+
             .resume-page:last-child {
                 page-break-after: auto !important;
                 break-after: auto !important;
             }
 
-            /* 2. 让包裹两栏的 .resume-sheet 放开高度，取消裁剪 */
-            .resume-sheet {
-                width: 210mm !important;
-                height: auto !important; /* 🚨 必须是 auto */
-                min-height: 297mm !important;
+            .resume-page[data-resume-layout="classic"] .resume-sheet {
+                width: var(--resume-page-width) !important;
+                height: 100% !important;
+                min-height: 0 !important;
                 margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                background: #ffffff !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
-                /* 打印时绝不能隐藏，要流淌下去！ */
-                overflow: visible !important; 
                 display: flex !important;
                 flex-direction: row !important;
-                /* 让左右两栏高度绝对平齐 */
-                align-items: stretch !important; 
+                align-items: stretch !important;
+                overflow: hidden !important;
             }
 
-            /* 3. 左右栏跟随外层容器等高拉伸 */
-            .resume-left, .resume-right {
-                height: auto !important; /* 🚨 必须是 auto */
-                min-height: 297mm !important;
+            .resume-page.resume-page-overflow[data-resume-layout="classic"] .resume-sheet {
+                height: auto !important;
+                min-height: var(--resume-page-height) !important;
+                overflow: visible !important;
             }
 
-            /* --------- 解封结束 --------- */
+            .resume-page[data-resume-layout="classic"] .resume-left {
+                flex: 0 0 var(--resume-classic-left-width) !important;
+                width: var(--resume-classic-left-width) !important;
+                height: 100% !important;
+                min-height: 0 !important;
+            }
+
+            .resume-page[data-resume-layout="classic"] .resume-right {
+                flex: 0 0 var(--resume-classic-right-width) !important;
+                width: var(--resume-classic-right-width) !important;
+                height: 100% !important;
+                min-height: 0 !important;
+            }
+
+            .resume-page.resume-page-overflow[data-resume-layout="classic"] .resume-left,
+            .resume-page.resume-page-overflow[data-resume-layout="classic"] .resume-right {
+                height: auto !important;
+                min-height: var(--resume-page-height) !important;
+            }
+
+            .resume-page[data-resume-layout="cards"] .resume-sheet {
+                width: var(--resume-page-width) !important;
+                height: 100% !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: var(--resume-cards-padding) !important;
+                gap: var(--resume-cards-gap) !important;
+                border: 0 !important;
+                background: #ffffff !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: stretch !important;
+                overflow: hidden !important;
+            }
+
+            .resume-page.resume-page-overflow[data-resume-layout="cards"] .resume-sheet {
+                height: auto !important;
+                min-height: var(--resume-page-height) !important;
+                overflow: visible !important;
+            }
+
+            .resume-page[data-resume-layout="cards"] .resume-left {
+                flex: 0 0 var(--resume-cards-left-width) !important;
+                width: var(--resume-cards-left-width) !important;
+                max-width: var(--resume-cards-left-width) !important;
+                height: 100% !important;
+                min-height: 0 !important;
+            }
+
+            .resume-page[data-resume-layout="cards"] .resume-right {
+                flex: 0 0 var(--resume-cards-right-width) !important;
+                width: var(--resume-cards-right-width) !important;
+                max-width: var(--resume-cards-right-width) !important;
+                height: 100% !important;
+                min-height: 0 !important;
+            }
+
+            .resume-page.resume-page-overflow[data-resume-layout="cards"] .resume-left,
+            .resume-page.resume-page-overflow[data-resume-layout="cards"] .resume-right {
+                height: auto !important;
+                min-height: var(--resume-page-height) !important;
+            }
+
+            .resume-page[data-resume-layout="cards"] .resume-card {
+                box-shadow: none !important;
+                border-color: rgba(15, 23, 42, 0.08) !important;
+            }
+
+            .resume-page[data-resume-layout="cards"] .resume-card,
+            .resume-page[data-resume-layout="cards"] .resume-skill-tag,
+            .resume-page[data-resume-layout="cards"] .resume-tech-tag,
+            .resume-page[data-resume-layout="cards"] .resume-project-badge,
+            .resume-page[data-resume-layout="cards"] .resume-period-pill,
+            .resume-page[data-resume-layout="cards"] .resume-profile-avatar-shell {
+                filter: none !important;
+            }
+
+            .resume-page[data-resume-layout="cards"] .resume-section-lead-card,
+            .resume-page[data-resume-layout="cards"] .resume-info-item,
+            .resume-page[data-resume-layout="cards"] .resume-meta-block {
+                background: #ffffff !important;
+            }
 
             .page-split-hint {
                 display: none !important;

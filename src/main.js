@@ -2,8 +2,22 @@ import Sortable from "sortablejs";
 import "./styles/main.css";
 
 const STORAGE_KEY = "resume-generator-draft-v1";
+        const DRAFT_STORAGE_VERSION = 2;
+        const DRAFT_AVATAR_SENTINEL = "__resume-avatar-sidecar__";
+        const AVATAR_SIDECAR_DB_NAME = `${STORAGE_KEY}-sidecar`;
+        const AVATAR_SIDECAR_STORE_NAME = "draft-assets";
+        const AVATAR_SIDECAR_RECORD_KEY = `${STORAGE_KEY}:profile-image`;
+        const RENDER_MODE_SCREEN = "screen";
+        const RENDER_MODE_PRINT = "print";
+        const RESUME_LAYOUT_CLASSIC = "classic";
+        const RESUME_LAYOUT_CARDS = "cards";
+        const RESUME_LAYOUT_OPTIONS = [
+            { key: RESUME_LAYOUT_CLASSIC, label: "经典版", description: "原始简历排版" },
+            { key: RESUME_LAYOUT_CARDS, label: "卡片版", description: "双栏卡片排版" }
+        ];
         const FALLBACK_AVATAR = "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20120%20120%27%3E%3Crect%20width%3D%27120%27%20height%3D%27120%27%20fill%3D%27%23e5e7eb%27/%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2745%27%20r%3D%2722%27%20fill%3D%27%239ca3af%27/%3E%3Crect%20x%3D%2726%27%20y%3D%2778%27%20width%3D%2768%27%20height%3D%2736%27%20rx%3D%2718%27%20fill%3D%27%239ca3af%27/%3E%3C/svg%3E";
         const PAGE_BREAK_BUFFER_PX = 8;
+        const PRINT_RESTORE_DELAY_MS = 400;
         const MAX_AVATAR_FILE_SIZE = 10 * 1024 * 1024;
         const MAX_AVATAR_DRAFT_DATA_URL_LENGTH = 1500000;
         const MAX_AVATAR_STORAGE_EDGE = 1600;
@@ -138,7 +152,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         ];
 
         // 🌟 智能计算图标颜色的终极算法 🌟
-        function resolveIconColorTone(index, itemColorOverride, globalPaletteKey) {
+        function resolveIconColorToneForTheme(index, itemColorOverride, globalPaletteKey, themeKey) {
             
             // 1. 如果用户【手动强制指定】了某个图标的独立颜色（比如非要把它变成红色），绝对优先级最高！听用户的！
             if (itemColorOverride && itemColorOverride !== "theme") {
@@ -149,7 +163,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const activeGlobalPalette = globalPaletteKey || "theme";
 
             // 3. 读取当前简历选中的大主题 (比如 "严谨商务蓝")
-            const currentTheme = getResumeThemeOption(resumeData.resumeTheme);
+            const currentTheme = getResumeThemeOption(themeKey);
 
             // 🌟 4. 核心逻辑：如果当前全局调色板选的是“跟随主题”，并且当前主题自带“默认灰色”属性
             // 那我们就给它渲染成灰色。
@@ -170,8 +184,13 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return palette.colors[index % palette.colors.length];
         }
 
+        function resolveIconColorTone(index, itemColorOverride, globalPaletteKey) {
+            return resolveIconColorToneForTheme(index, itemColorOverride, globalPaletteKey, resumeData.resumeTheme);
+        }
+
         const sampleResumeData = {
             documentTitle: "张三的简历",
+            resumeLayout: RESUME_LAYOUT_CLASSIC,
             resumeTheme: "pro_blue",
             useFlatIcons: true,
             profileImage: "",
@@ -249,6 +268,25 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return RESUME_THEME_OPTIONS.some((option) => option.key === normalized) ? normalized : RESUME_THEME_OPTIONS[0].key;
         }
 
+        function normalizeResumeLayout(value) {
+            const normalized = pickText(value, "").trim().toLowerCase();
+            return normalized === RESUME_LAYOUT_CARDS ? RESUME_LAYOUT_CARDS : RESUME_LAYOUT_CLASSIC;
+        }
+
+        function normalizeRenderMode(value) {
+            return value === RENDER_MODE_PRINT ? RENDER_MODE_PRINT : RENDER_MODE_SCREEN;
+        }
+
+        function getResumeLayoutClass(value) {
+            return normalizeResumeLayout(value) === RESUME_LAYOUT_CARDS
+                ? "resume-layout-cards"
+                : "resume-layout-classic";
+        }
+
+        function getResumeLayoutLabel(value) {
+            return RESUME_LAYOUT_OPTIONS.find((option) => option.key === normalizeResumeLayout(value))?.label || "经典版";
+        }
+
         function getResumeThemeOption(themeKey) {
             return RESUME_THEME_OPTIONS.find((option) => option.key === normalizeResumeTheme(themeKey)) || RESUME_THEME_OPTIONS[0];
         }
@@ -303,18 +341,45 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 ? theme.leftBg 
                 : `linear-gradient(180deg, ${theme.softBg || '#f8fbff'}40, ${theme.softBg || '#f3f7fe'}80)`;
 
+            const pageCanvas = mixHexColors(theme.softBg || "#f3f4f6", "#e5e7eb", 0.52, "#eceef2");
+            const pageBorder = mixHexColors(pageCanvas, "#cbd5e1", 0.42, "#d8dee7");
+            const cardBorder = mixHexColors(theme.softBg || "#eef2f7", "#cfd7e3", 0.72, "#dde3ea");
+            const cardSubtle = mixHexColors(theme.softBg || "#f8fafc", "#ffffff", 0.46, "#f8fafc");
+            const mutedText = mixHexColors(theme.accentStrong, "#667085", 0.8, "#667085");
+            const subtleText = mixHexColors(mutedText, "#98a2b3", 0.58, "#98a2b3");
+            const pillBg = mixHexColors(theme.softBg || "#edf2ff", "#ffffff", 0.28, "#f5f7fb");
+            const pillText = mixHexColors(theme.accentStrong, "#667085", 0.5, theme.accentStrong);
+            const timelineTrack = mixHexColors(theme.softBg || "#e5ebf3", "#cbd5e1", 0.54, "#d9e0e8");
+            const pageShadow = `0 32px 72px ${toRgbaString(theme.accentStrong, 0.08, "rgba(15, 23, 42, 0.08)")}, 0 10px 26px rgba(15, 23, 42, 0.06)`;
+            const cardShadow = `0 18px 38px ${toRgbaString(theme.accentStrong, 0.06, "rgba(15, 23, 42, 0.06)")}, 0 4px 14px rgba(15, 23, 42, 0.04)`;
+			const dividerColor = theme.iconMode === "strict_gray" 
+							? "#cbd5e1" // Tailwind 里的 slate-300，最完美的浅灰分割线
+							: (theme.accent + "66"); // 其他主题保留主色带透明度的横线
+
             return {
-                "--resume-accent": theme.accent,                   // 核心主色
-                "--resume-accent-strong": theme.accentStrong,      // 名字/标题深色
-                
-                // 🌟 修复核心：这根柔和的下划线（soft-divider），现在必须强制读取你为每个主题独家配置的软背景色 (softBg)，如果没配置就用 40% 透明度的主色！
-                "--resume-accent-soft-strong": theme.softBg || theme.accent + "40", 
-                
-                "--resume-accent-soft": theme.softBg || theme.accent + "15",
-                "--resume-badge-bg": theme.softBg || theme.accent + "20",
+                "--resume-accent": theme.accent,
+                "--resume-accent-strong": theme.accentStrong,
+                "--resume-accent-border": theme.accentBorder || toRgbaString(theme.accent, 0.28, "rgba(59, 130, 246, 0.28)"),
+                "--resume-accent-glow": theme.accentGlow || toRgbaString(theme.accentStrong || theme.accent, 0.16, "rgba(37, 99, 235, 0.16)"),
+                "--resume-accent-soft-strong": dividerColor,  
+                "--resume-accent-soft": theme.softBg || `${theme.accent}15`,
+                "--resume-badge-bg": theme.softBg || `${theme.accent}20`,
                 "--resume-badge-text": theme.softText || theme.accentStrong,
                 "--resume-role-text": theme.accentStrong,
-                "--resume-left-bg": leftBackground                 // 左侧背景
+                "--resume-left-bg": leftBackground,
+                "--resume-page-canvas": pageCanvas,
+                "--resume-page-border": pageBorder,
+                "--resume-page-shadow": pageShadow,
+                "--resume-card-bg": "#ffffff",
+                "--resume-card-border": cardBorder,
+                "--resume-card-shadow": cardShadow,
+                "--resume-card-subtle": cardSubtle,
+                "--resume-text-muted": mutedText,
+                "--resume-text-subtle": subtleText,
+                "--resume-pill-bg": pillBg,
+                "--resume-pill-text": pillText,
+                "--resume-timeline-track": timelineTrack,
+                "--resume-timeline-dot-glow": toRgbaString(theme.accent, 0.22, "rgba(37, 99, 235, 0.22)")
             };
         }
 
@@ -662,7 +727,10 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             resumeData.avatarImageMeta = normalizeAvatarImageMeta(nextCrop.imageMeta);
             resumeData.avatarFrame = nextCrop.frame;
 
-            if (!saveDraft()) {
+            if (!saveDraft({
+                showAvatarWarning: true,
+                avatarWarningMessage: "头像已更新，但浏览器未能持久化头像图片；当前预览会保留头像，但刷新后可能丢失，请及时导出 JSON 备份。"
+            })) {
                 resumeData.profileImage = previousProfileImage;
                 resumeData.avatarImageMeta = previousAvatarImageMeta;
                 resumeData.avatarFrame = previousAvatarFrame;
@@ -1032,20 +1100,25 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const projectsSource = hasOwn(raw, "projects") ? raw.projects : fallback.projects;
             const avatarImageMeta = hasOwn(raw, "avatarImageMeta") ? normalizeAvatarImageMeta(raw.avatarImageMeta) : normalizeAvatarImageMeta(fallback.avatarImageMeta);
             const profileImage = hasOwn(raw, "profileImage") ? pickText(raw.profileImage, "") : fallback.profileImage;
+            const hasProfileImage = hasCustomAvatarImage(profileImage);
+            const normalizedAvatarImageMeta = hasProfileImage ? avatarImageMeta : null;
 
-            if (profileImage && avatarImageMeta) {
-                avatarImageMetaCache.set(profileImage, avatarImageMeta);
+            if (hasProfileImage && normalizedAvatarImageMeta) {
+                avatarImageMetaCache.set(profileImage, normalizedAvatarImageMeta);
             }
 
             return {
                 documentTitle: hasOwn(raw, "documentTitle") ? pickText(raw.documentTitle, "") : fallback.documentTitle,
+                resumeLayout: hasOwn(raw, "resumeLayout") ? normalizeResumeLayout(raw.resumeLayout) : normalizeResumeLayout(fallback.resumeLayout),
                 resumeTheme: hasOwn(raw, "resumeTheme") ? normalizeResumeTheme(raw.resumeTheme) : normalizeResumeTheme(fallback.resumeTheme),
 				useFlatIcons: hasOwn(raw, "useFlatIcons") ? Boolean(raw.useFlatIcons) : true,
 				iconPalette: hasOwn(raw, "iconPalette") ? pickText(raw.iconPalette, "macaron") : "macaron",
 				skillBadgeColor: hasOwn(raw, "skillBadgeColor") ? pickText(raw.skillBadgeColor, "theme") : "theme",
-                profileImage,
-                avatarImageMeta,
-                avatarFrame: hasOwn(raw, "avatarFrame") ? normalizeAvatarFrame(raw.avatarFrame, avatarImageMeta) : createDefaultAvatarFrame(),
+                profileImage: hasProfileImage ? profileImage : "",
+                avatarImageMeta: normalizedAvatarImageMeta,
+                avatarFrame: hasProfileImage
+                    ? (hasOwn(raw, "avatarFrame") ? normalizeAvatarFrame(raw.avatarFrame, normalizedAvatarImageMeta) : createDefaultAvatarFrame())
+                    : createDefaultAvatarFrame(),
                 avatarShape: hasOwn(raw, "avatarShape") ? normalizeAvatarShape(raw.avatarShape) : normalizeAvatarShape(fallback.avatarShape),
                 name: hasOwn(raw, "name") ? pickText(raw.name, "") : fallback.name,
                 role: hasOwn(raw, "role") ? pickText(raw.role, "") : fallback.role,
@@ -1100,6 +1173,11 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         let lastExportedJson = "";
         let avatarDragState = null;
         let avatarCropState = null;
+        let activeRenderMode = RENDER_MODE_SCREEN;
+        let avatarSidecarPersistedValue = "";
+        let avatarSidecarDesiredValue = "";
+        let avatarSidecarSyncInFlight = false;
+        let avatarSidecarSyncQueue = Promise.resolve(true);
 
         // Dirty state tracking
         let lastPersistedSnapshot = null;
@@ -1156,10 +1234,268 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             }, 3000);
         }
 
-        function saveDraft() {
+        function getDraftAvatarValue(value) {
+            const image = pickText(value, "").trim();
+            return hasCustomAvatarImage(image) ? image : "";
+        }
+
+        function buildDraftStoragePayload(data) {
+            const draftData = cloneData(data);
+            const avatarValue = getDraftAvatarValue(draftData.profileImage);
+            const hasAvatarSidecar = Boolean(avatarValue);
+
+            if (hasAvatarSidecar) {
+                draftData.profileImage = DRAFT_AVATAR_SENTINEL;
+            }
+
+            return {
+                version: DRAFT_STORAGE_VERSION,
+                hasAvatarSidecar,
+                data: draftData
+            };
+        }
+
+        function parseDraftStoragePayload(raw) {
+            const parsed = JSON.parse(raw);
+
+            if (parsed && typeof parsed === "object" && typeof parsed.version === "number" && parsed.version > DRAFT_STORAGE_VERSION) {
+                throw new Error("草稿版本过新，当前版本暂不支持读取");
+            }
+
+            if (parsed && typeof parsed === "object" && parsed.version === DRAFT_STORAGE_VERSION && parsed.data && typeof parsed.data === "object") {
+                const draftData = cloneData(parsed.data);
+                const hasAvatarSidecar = Boolean(parsed.hasAvatarSidecar) || pickText(draftData.profileImage, "") === DRAFT_AVATAR_SENTINEL;
+
+                if (pickText(draftData.profileImage, "") === DRAFT_AVATAR_SENTINEL) {
+                    draftData.profileImage = "";
+                }
+
+                return {
+                    draftData,
+                    hasAvatarSidecar,
+                    needsUpgrade: false
+                };
+            }
+
+            return {
+                draftData: parsed,
+                hasAvatarSidecar: false,
+                needsUpgrade: hasCustomAvatarImage(parsed?.profileImage)
+            };
+        }
+
+        function openAvatarSidecarDatabase() {
+            return new Promise((resolve, reject) => {
+                if (typeof indexedDB === "undefined") {
+                    reject(new Error("当前浏览器不支持 IndexedDB"));
+                    return;
+                }
+
+                const request = indexedDB.open(AVATAR_SIDECAR_DB_NAME, 1);
+
+                request.onupgradeneeded = () => {
+                    const database = request.result;
+                    if (!database.objectStoreNames.contains(AVATAR_SIDECAR_STORE_NAME)) {
+                        database.createObjectStore(AVATAR_SIDECAR_STORE_NAME);
+                    }
+                };
+
+                request.onsuccess = () => {
+                    resolve(request.result);
+                };
+
+                request.onerror = () => {
+                    reject(request.error || new Error("打开头像草稿缓存失败"));
+                };
+            });
+        }
+
+        function readAvatarSidecar() {
+            return openAvatarSidecarDatabase().then((database) => new Promise((resolve, reject) => {
+                const transaction = database.transaction(AVATAR_SIDECAR_STORE_NAME, "readonly");
+                const store = transaction.objectStore(AVATAR_SIDECAR_STORE_NAME);
+                const request = store.get(AVATAR_SIDECAR_RECORD_KEY);
+
+                const closeDatabase = () => {
+                    try {
+                        database.close();
+                    } catch (_error) {
+                        // Ignore close failures.
+                    }
+                };
+
+                transaction.oncomplete = closeDatabase;
+                transaction.onabort = () => {
+                    closeDatabase();
+                    reject(transaction.error || request.error || new Error("读取头像草稿缓存失败"));
+                };
+
+                request.onsuccess = () => {
+                    const record = request.result;
+                    resolve(record && typeof record === "object"
+                        ? pickText(record.profileImage, "")
+                        : pickText(record, ""));
+                };
+
+                request.onerror = () => {
+                    closeDatabase();
+                    reject(request.error || new Error("读取头像草稿缓存失败"));
+                };
+            }));
+        }
+
+        function writeAvatarSidecar(profileImage) {
+            return openAvatarSidecarDatabase().then((database) => new Promise((resolve, reject) => {
+                const transaction = database.transaction(AVATAR_SIDECAR_STORE_NAME, "readwrite");
+                const store = transaction.objectStore(AVATAR_SIDECAR_STORE_NAME);
+                const request = store.put({ profileImage: pickText(profileImage, "") }, AVATAR_SIDECAR_RECORD_KEY);
+
+                const closeDatabase = () => {
+                    try {
+                        database.close();
+                    } catch (_error) {
+                        // Ignore close failures.
+                    }
+                };
+
+                transaction.oncomplete = () => {
+                    closeDatabase();
+                    resolve(true);
+                };
+                transaction.onabort = () => {
+                    closeDatabase();
+                    reject(transaction.error || request.error || new Error("写入头像草稿缓存失败"));
+                };
+                request.onerror = () => {
+                    closeDatabase();
+                    reject(request.error || new Error("写入头像草稿缓存失败"));
+                };
+            }));
+        }
+
+        function clearAvatarSidecar() {
+            return openAvatarSidecarDatabase().then((database) => new Promise((resolve, reject) => {
+                const transaction = database.transaction(AVATAR_SIDECAR_STORE_NAME, "readwrite");
+                const store = transaction.objectStore(AVATAR_SIDECAR_STORE_NAME);
+                const request = store.delete(AVATAR_SIDECAR_RECORD_KEY);
+
+                const closeDatabase = () => {
+                    try {
+                        database.close();
+                    } catch (_error) {
+                        // Ignore close failures.
+                    }
+                };
+
+                transaction.oncomplete = () => {
+                    closeDatabase();
+                    resolve(true);
+                };
+                transaction.onabort = () => {
+                    closeDatabase();
+                    reject(transaction.error || request.error || new Error("清理头像草稿缓存失败"));
+                };
+                request.onerror = () => {
+                    closeDatabase();
+                    reject(request.error || new Error("清理头像草稿缓存失败"));
+                };
+            }));
+        }
+
+        function primeAvatarSidecarState(persistedValue = "", desiredValue = persistedValue) {
+            avatarSidecarPersistedValue = getDraftAvatarValue(persistedValue);
+            avatarSidecarDesiredValue = getDraftAvatarValue(desiredValue);
+        }
+
+        function syncAvatarSidecar(options = {}) {
+            const nextAvatarValue = getDraftAvatarValue(resumeData.profileImage);
+            avatarSidecarDesiredValue = nextAvatarValue;
+
+            if (!avatarSidecarSyncInFlight && avatarSidecarPersistedValue === avatarSidecarDesiredValue) {
+                return avatarSidecarSyncQueue;
+            }
+
+            const saveWarningMessage = pickText(options.avatarWarningMessage, "头像已更新，但浏览器未能持久化头像图片，刷新后可能丢失；建议立即导出 JSON 备份。");
+            const clearWarningMessage = pickText(options.avatarClearWarningMessage, "头像已从当前简历移除，但浏览器未能更新头像缓存；刷新后可能仍会出现旧头像。");
+
+            avatarSidecarSyncQueue = avatarSidecarSyncQueue
+                .catch(() => false)
+                .then(async () => {
+                    if (avatarSidecarPersistedValue === avatarSidecarDesiredValue) {
+                        return true;
+                    }
+
+                    avatarSidecarSyncInFlight = true;
+                    const targetValue = avatarSidecarDesiredValue;
+
+                    try {
+                        if (targetValue) {
+                            await writeAvatarSidecar(targetValue);
+                        } else {
+                            await clearAvatarSidecar();
+                        }
+
+                        avatarSidecarPersistedValue = targetValue;
+                        return true;
+                    } catch (error) {
+                        console.warn("保存头像草稿失败：", error);
+                        if (options.showAvatarWarning !== false) {
+                            setStatus(targetValue ? saveWarningMessage : clearWarningMessage, "error");
+                        }
+                        return false;
+                    } finally {
+                        avatarSidecarSyncInFlight = false;
+                    }
+                });
+
+            return avatarSidecarSyncQueue;
+        }
+
+        async function hydrateAvatarStateIfNeeded(targetData) {
+            if (!targetData || typeof targetData !== "object") {
+                return false;
+            }
+
+            const profileImage = getDraftAvatarValue(targetData.profileImage);
+            if (!profileImage) {
+                targetData.profileImage = "";
+                targetData.avatarImageMeta = null;
+                targetData.avatarFrame = createDefaultAvatarFrame();
+                return false;
+            }
+
+            const normalizedMeta = normalizeAvatarImageMeta(targetData.avatarImageMeta);
+            if (normalizedMeta) {
+                targetData.avatarImageMeta = normalizedMeta;
+                targetData.avatarFrame = normalizeAvatarFrame(targetData.avatarFrame, normalizedMeta);
+                avatarImageMetaCache.set(profileImage, normalizedMeta);
+                return false;
+            }
+
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+                const resolvedMeta = normalizeAvatarImageMeta(await loadAvatarImageMeta(profileImage));
+                if (resolvedMeta) {
+                    targetData.avatarImageMeta = resolvedMeta;
+                    targetData.avatarFrame = normalizeAvatarFrame(targetData.avatarFrame, resolvedMeta);
+                    avatarImageMetaCache.set(profileImage, resolvedMeta);
+                    return true;
+                }
+            } catch (error) {
+                console.warn("补充头像尺寸信息失败：", error);
+            }
+
+            targetData.avatarImageMeta = null;
+            targetData.avatarFrame = createDefaultAvatarFrame();
+            return false;
+        }
+
+        function saveDraft(options = {}) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(buildDraftStoragePayload(resumeData)));
                 setCleanSnapshot(resumeData);
+                if (options.syncAvatarSidecar !== false) {
+                    syncAvatarSidecar(options);
+                }
                 return true;
             } catch (error) {
                 console.warn("保存草稿失败：", error);
@@ -1167,14 +1503,44 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             }
         }
 
-        function loadDraft() {
+        async function loadDraft() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (!raw) {
                     return null;
                 }
-                const parsed = JSON.parse(raw);
-                return normalizeResumeData(parsed);
+
+                const { draftData, hasAvatarSidecar, needsUpgrade } = parseDraftStoragePayload(raw);
+                const normalizedDraft = normalizeResumeData(draftData);
+                let avatarRestored = false;
+                let avatarRestoreWarning = "";
+
+                if (hasAvatarSidecar) {
+                    try {
+                        const avatarValue = await readAvatarSidecar();
+                        if (hasCustomAvatarImage(avatarValue)) {
+                            normalizedDraft.profileImage = avatarValue;
+                            avatarRestored = true;
+                            if (normalizedDraft.avatarImageMeta) {
+                                avatarImageMetaCache.set(avatarValue, normalizedDraft.avatarImageMeta);
+                            }
+                        } else {
+                            avatarRestoreWarning = "已恢复文本草稿，但头像缓存未找回；如需恢复头像，请重新上传或导入已导出的 JSON。";
+                        }
+                    } catch (error) {
+                        console.warn("读取头像草稿缓存失败：", error);
+                        avatarRestoreWarning = "已恢复文本草稿，但头像缓存未找回；如需恢复头像，请重新上传或导入已导出的 JSON。";
+                    }
+                }
+
+                await hydrateAvatarStateIfNeeded(normalizedDraft);
+
+                return {
+                    data: normalizedDraft,
+                    avatarRestored,
+                    avatarRestoreWarning,
+                    needsUpgrade
+                };
             } catch (error) {
                 console.warn("读取草稿失败：", error);
                 return null;
@@ -1209,8 +1575,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             // 1. 头像与主题状态
             const hasUploadedAvatar = hasCustomAvatarImage(resumeData.profileImage);
             const avatarShape = normalizeAvatarShape(resumeData.avatarShape);
+            const activeLayout = normalizeResumeLayout(resumeData.resumeLayout);
             const activeTheme = normalizeResumeTheme(resumeData.resumeTheme);
-            const currentTheme = getResumeThemeOption(resumeData.resumeTheme);
             
             const isProfileCollapsed = panelState.profile;
             const isThemeCollapsed = panelState.theme;
@@ -1366,9 +1732,25 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                     </button>
                     <div class="px-4 pb-6 transition-all ${isThemeCollapsed ? 'hidden' : 'block'}">
                         <div class="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                            
-                            <!-- 全局主色调 -->
+
+                            <!-- 预览排版 -->
                             <div class="mb-5">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">预览版式</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">使用同一份简历数据切换经典 / 卡片排版</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${RESUME_LAYOUT_OPTIONS.map((layout) => {
+                                        const isActive = activeLayout === layout.key;
+                                        return `<button type="button" data-action="set-resume-layout" data-layout="${layout.key}" class="flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px] font-bold transition-all ${isActive ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300'}"><span class="inline-flex h-2.5 w-2.5 rounded-full ${layout.key === RESUME_LAYOUT_CLASSIC ? 'bg-slate-400' : 'bg-blue-400'}"></span>${layout.label}</button>`;
+                                    }).join("")}
+                                </div>
+                            </div>
+
+                            <!-- 全局主色调 -->
+                            <div class="border-t border-slate-200/60 pt-4 mb-5">
                                 <div class="flex items-center justify-between mb-3">
                                     <p class="text-[13px] font-bold text-slate-700">简历主题主色</p>
                                 </div>
@@ -1671,30 +2053,34 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             initBasicInfoSortable();
         }
 
-        function renderBasicInfo(basicInfo) {
+        function renderClassicBasicInfo(basicInfo, renderOptions) {
             const list = pickArray(basicInfo).filter((item) => pickText(item?.value, "").trim() !== "");
-            if (!list.length) return "";
+            if (!list.length) {
+                return "";
+            }
 
-            // 读取扁平开关状态
-            const shadowClass = resumeData.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]";
+            const shadowClass = renderOptions.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]";
 
             const items = list.map((info, index) => {
                 const icon = escapeHtml(resolveBasicInfoIcon(info));
                 const text = escapeHtml(pickText(info.value, ""));
                 const currentColorOverride = info.iconColor || "theme";
-                const globalPaletteKey = resumeData.iconPalette || "theme";
-                const finalColorKey = resolveIconColorTone(index, currentColorOverride, globalPaletteKey);
-
-                // 🌟 将阴影变量传入动态渲染函数
+                const globalPaletteKey = renderOptions.iconPalette || "theme";
+                const finalColorKey = resolveIconColorToneForTheme(index, currentColorOverride, globalPaletteKey, renderOptions.resumeTheme);
                 const iconHtml = renderDynamicIcon(icon, finalColorKey, "w-8 h-8 rounded-full text-[13px]", shadowClass);
 
-                return `<li class="flex items-start gap-3">${iconHtml}<span class="min-w-0 flex-1 break-words leading-8 text-sm text-gray-700">${text}</span></li>`;
+                return `
+                    <li class="flex items-start gap-3">
+                        ${iconHtml}
+                        <span class="min-w-0 flex-1 break-words leading-8 text-sm text-gray-700">${text}</span>
+                    </li>
+                `;
             }).join("");
 
             return `<ul class="space-y-3.5">${items}</ul>`;
         }
 
-        function renderEducation(education) {
+        function renderClassicEducation(education) {
             const list = pickArray(education);
             if (!list.length) {
                 return '<p class="text-sm text-gray-500">可在左侧表单中填写教育背景</p>';
@@ -1705,67 +2091,41 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 return `
                     <div class="${blockClass}">
                         <p class="font-bold text-gray-800">${escapeHtml(pickText(item.degree, ""))}</p>
-                        <p class="resume-accent-company font-medium text-sm mt-1">${escapeHtml(pickText(item.school, ""))}</p>
-                        <p class="text-gray-500 text-xs mt-1"><i class="far fa-calendar-alt mr-1"></i> ${escapeHtml(pickText(item.period, ""))}</p>
+                        <p class="resume-accent-company mt-1 text-sm font-medium">${escapeHtml(pickText(item.school, ""))}</p>
+                        <p class="mt-1 text-xs text-gray-500"><i class="far fa-calendar-alt mr-1"></i> ${escapeHtml(pickText(item.period, ""))}</p>
                     </div>
                 `;
             }).join("");
         }
 
-        function renderSkills(skills) {
+        function renderClassicSkills(skills) {
             const groups = pickArray(skills);
             if (!groups.length) {
                 return '<p class="text-sm text-gray-500">可在左侧表单中填写专业技能</p>';
             }
 
-            // 获取偏好，兼容旧版的 "theme"，默认当做 "theme-soft"
-            const badgeColorPref = resumeData.skillBadgeColor || "theme-soft";
-
             return groups.map((group, index) => {
                 const groupClass = index === groups.length - 1 ? "" : "mb-3";
-                
-                const tags = normalizeStringArray(group.items).map((item) => {
-                    let badgeClass = "";
-                    
-                    // 1. 主题浅色：使用底层的 CSS 变量（它会自动调用非常柔和的配色）
-                    if (badgeColorPref === "theme-soft" || badgeColorPref === "theme") {
-                        badgeClass = "resume-primary-badge border border-black/5 mix-blend-multiply shadow-sm"; 
-                    } 
-                    // 🌟 2. 新增的主题描边：极简风的最爱，纯白底+主题色边框+主题色文字
-                    else if (badgeColorPref === "theme-outline") {
-                        badgeClass = "bg-white text-theme border border-theme shadow-[0_2px_8px_var(--resume-accent-glow)]";
-                    } 
-                    // 3. 经典灰色系
-                    else if (badgeColorPref === "gray") {
-                        badgeClass = "bg-gray-100 text-gray-700 border border-gray-200/50";
-                    } else if (badgeColorPref === "slate") {
-                        badgeClass = "bg-slate-100 text-slate-700 border border-slate-200/50";
-                    } else if (badgeColorPref === "zinc") {
-                        badgeClass = "bg-zinc-100 text-zinc-700 border border-zinc-200/50";
-                    }
-                    
-                    return `<span class="${badgeClass} px-3 py-1 rounded-full text-xs font-bold leading-none inline-flex items-center">${escapeHtml(item)}</span>`;
-                }).join("");
+                const tags = normalizeStringArray(group.items).map((item) => (
+                    `<span class="rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-700">${escapeHtml(item)}</span>`
+                )).join("");
 
                 return `
                     <div class="${groupClass}">
-                        <p class="text-[13px] font-bold text-gray-800 mb-2">${escapeHtml(pickText(group.name, ""))}</p>
+                        <p class="mb-2 text-sm font-semibold text-gray-700">${escapeHtml(pickText(group.name, ""))}</p>
                         <div class="flex flex-wrap gap-2">${tags}</div>
                     </div>
                 `;
             }).join("");
         }
 
-        function renderExperienceItem(item, index, total) {
-            const isThemeLine = Boolean(resumeData.useThemeTimeline);
-            const lineClass = isThemeLine ? "resume-soft-divider" : "border-gray-200";
-
+        function renderClassicExperienceItem(item, index, total, renderOptions) {
+            const lineClass = renderOptions.useThemeTimeline ? "resume-section-divider" : "resume-soft-divider";
             const wrapperClass = index === total - 1
                 ? `relative pl-6 border-l-2 ${lineClass} resume-avoid-break`
                 : `mb-8 relative pl-6 border-l-2 ${lineClass} resume-avoid-break`;
-                
             const isHighlight = Boolean(item.highlight);
-            const dotClass = isHighlight ? "resume-accent-dot" : "bg-gray-300";
+            const dotClass = (renderOptions.useThemeTimeline || isHighlight) ? "resume-accent-dot" : "bg-gray-300";
             const companyClass = isHighlight ? "resume-accent-company" : "text-gray-600";
             const bullets = normalizeStringArray(item.bullets)
                 .map((bullet) => (`<li>${escapeHtml(bullet)}</li>`))
@@ -1773,59 +2133,53 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
             return `
                 <div class="${wrapperClass}">
-                    <div class="absolute w-3 h-3 ${dotClass} rounded-full -left-[7px] top-1.5 ring-4 ring-white"></div>
-
-                    <!-- 🌟 修复核心：去掉所有的 md: 前缀，强制同行，左右两端对齐 -->
-                    <div class="flex items-start justify-between mb-2 gap-4">
-                        
-                        <!-- 左边：职位与公司。加上 min-w-0 和 flex-1 防止超长文字把右边挤掉 -->
-                        <div class="min-w-0 flex-1">
-                            <h4 class="text-lg font-bold text-gray-800 break-words leading-snug">${escapeHtml(pickText(item.title, ""))}</h4>
-                            <p class="${companyClass} font-medium text-sm mt-0.5">${escapeHtml(pickText(item.company, ""))}</p>
+                    <div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full ${dotClass} ring-4 ring-white"></div>
+                    <div class="mb-2 flex flex-col md:flex-row md:items-start md:justify-between">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800">${escapeHtml(pickText(item.title, ""))}</h4>
+                            <p class="text-sm font-medium ${companyClass}">${escapeHtml(pickText(item.company, ""))}</p>
                         </div>
-                        
-                        <!-- 右边：时间。加上 shrink-0 保证它即使碰上左边超长文字，也绝不换行缩水 -->
-                        <div class="text-gray-500 text-sm font-medium whitespace-nowrap shrink-0 text-right mt-[2px]">
+                        <div class="mt-1 whitespace-nowrap text-sm font-medium text-gray-500 md:mt-0">
                             ${escapeHtml(pickText(item.period, ""))}
                         </div>
-                        
                     </div>
-
-                    <ul class="list-disc list-inside text-gray-600 space-y-2 text-sm leading-relaxed mt-3">${bullets}</ul>
+                    <ul class="mt-3 list-inside list-disc space-y-2 text-sm leading-relaxed text-gray-600">${bullets}</ul>
                 </div>
             `;
         }
 
-        function renderProjectCard(project) {
+        function renderClassicProjectCard(project) {
             const badgeClass = pickText(project.badgeStyle, "secondary") === "primary"
-                ? "text-xs resume-primary-badge px-2 py-1 rounded font-semibold"
-                : "text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold";
+                ? "resume-primary-badge rounded px-2 py-1 text-xs font-semibold"
+                : "rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700";
             const techTags = normalizeStringArray(project.techs).map((tech) => (
-                `<span class="text-xs text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded">${escapeHtml(tech)}</span>`
+                `<span class="rounded border border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-500">${escapeHtml(tech)}</span>`
             )).join("");
+            const badgeText = pickText(project.badge, "").trim();
+            const badgeHtml = badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : "";
 
             return `
-                <div class="bg-gray-50 p-5 rounded-lg border border-gray-100 hover:shadow-md transition-shadow resume-avoid-break">
-                    <div class="flex justify-between items-center mb-2">
+                <div class="resume-avoid-break rounded-lg border border-gray-100 bg-gray-50 p-5 transition-shadow hover:shadow-md">
+                    <div class="mb-2 flex items-center justify-between gap-4">
                         <h4 class="font-bold text-gray-800">${escapeHtml(pickText(project.name, ""))}</h4>
-                        <span class="${badgeClass}">${escapeHtml(pickText(project.badge, ""))}</span>
+                        ${badgeHtml}
                     </div>
-                    <p class="text-sm text-gray-600 mb-3 text-justify">${escapeHtml(pickText(project.description, ""))}</p>
-                    <div class="flex flex-wrap gap-2 mt-2">${techTags}</div>
+                    <p class="mb-3 text-justify text-sm text-gray-600">${escapeHtml(pickText(project.description, ""))}</p>
+                    <div class="mt-2 flex flex-wrap gap-2">${techTags}</div>
                 </div>
             `;
         }
 
-        function buildLeftColumnBlocks(data, profileImage) {
-            const basicInfoContent = renderBasicInfo(data.basicInfo);
+        function buildClassicLeftColumnBlocks(data, profileImage) {
+            const basicInfoContent = renderClassicBasicInfo(data.basicInfo, data);
             const avatarMeta = data.avatarImageMeta || getCachedAvatarImageMeta(data.profileImage);
             const avatarFrame = normalizeAvatarFrame(data.avatarFrame, avatarMeta);
             const avatarStyle = getAvatarImageStyle(avatarFrame, avatarMeta);
             const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
             const blocks = [
                 `
-                    <div class="flex justify-center mb-8 resume-avoid-break">
-                        <div class="relative w-32 h-32 ${avatarFrameClass} overflow-hidden border-4 border-white shadow-md">
+                    <div class="resume-avoid-break mb-8 flex justify-center">
+                        <div class="relative h-32 w-32 overflow-hidden border-4 border-white shadow-md ${avatarFrameClass}">
                             <img src="${escapeHtml(profileImage)}" alt="Profile Picture" class="pointer-events-none select-none" style="${avatarStyle}" data-testid="avatar-preview-image" data-avatar-zoom="${escapeHtml(String(avatarFrame.zoom))}" data-avatar-offset-x="${escapeHtml(String(avatarFrame.offsetX))}" data-avatar-offset-y="${escapeHtml(String(avatarFrame.offsetY))}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
                         </div>
                     </div>
@@ -1834,8 +2188,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
             if (basicInfoContent) {
                 blocks.push(`
-                    <div class="mb-10 resume-avoid-break">
-                        <h3 class="text-lg font-bold text-gray-800 border-b-2 resume-section-divider pb-2 mb-4">基本信息</h3>
+                    <div class="resume-avoid-break mb-10">
+                        <h3 class="resume-section-divider mb-4 border-b-2 pb-2 text-lg font-bold text-gray-800">基本信息</h3>
                         ${basicInfoContent}
                     </div>
                 `);
@@ -1843,15 +2197,15 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
             blocks.push(
                 `
-                    <div class="mb-10 resume-avoid-break">
-                        <h3 class="text-lg font-bold text-gray-800 border-b-2 resume-section-divider pb-2 mb-4">教育背景</h3>
-                        ${renderEducation(data.education)}
+                    <div class="resume-avoid-break mb-10">
+                        <h3 class="resume-section-divider mb-4 border-b-2 pb-2 text-lg font-bold text-gray-800">教育背景</h3>
+                        ${renderClassicEducation(data.education)}
                     </div>
                 `,
                 `
-                    <div class="mb-10 resume-avoid-break">
-                        <h3 class="text-lg font-bold text-gray-800 border-b-2 resume-section-divider pb-2 mb-4">专业技能</h3>
-                        ${renderSkills(data.skills)}
+                    <div class="resume-avoid-break mb-10">
+                        <h3 class="resume-section-divider mb-4 border-b-2 pb-2 text-lg font-bold text-gray-800">专业技能</h3>
+                        ${renderClassicSkills(data.skills)}
                     </div>
                 `
             );
@@ -1859,41 +2213,33 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return blocks;
         }
 
-        function buildRightColumnBlocks(data) {
-            // 🌟 读取扁平开关状态，生成对应阴影类名
-            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_16px_var(--resume-accent-glow)]";
-
+        function buildClassicRightColumnBlocks(data) {
+            const summaryText = pickText(data.summary, "").trim() || "可在左侧表单中填写个人简介";
             const blocks = [
                 `
-                    <div class="mb-10 pb-8 border-b resume-soft-divider resume-avoid-break">
-                        <h1 class="text-[42px] font-black text-gray-900 tracking-tight mb-2 leading-none">${escapeHtml(pickText(data.name, ""))}</h1>
-                        <h2 class="text-[22px] resume-role-text font-medium tracking-wide mt-3">${escapeHtml(pickText(data.role, ""))}</h2>
+                    <div class="resume-soft-divider resume-avoid-break mb-10 border-b pb-8">
+                        <h1 class="mb-2 text-4xl font-black tracking-tight text-gray-900 md:text-5xl">${escapeHtml(pickText(data.name, ""))}</h1>
+                        <h2 class="resume-role-text text-xl font-medium tracking-wide md:text-2xl">${escapeHtml(pickText(data.role, ""))}</h2>
                     </div>
                 `,
                 `
-                    <div class="mb-10 resume-avoid-break">
-                        <div class="flex items-center mb-4">
-                            <!-- 应用动态阴影 -->
-                            <div class="flex w-10 h-10 shrink-0 rounded-full resume-section-icon items-center justify-center mr-3 ${iconShadowClass}">
-                                <i class="fas fa-user-tie text-lg"></i>
-                            </div>
+                    <div class="resume-avoid-break mb-10">
+                        <div class="mb-4 flex items-center">
+                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-user-tie text-lg"></i></div>
                             <h3 class="text-2xl font-bold text-gray-800">个人简介</h3>
                         </div>
-                        <p class="text-gray-600 leading-relaxed text-justify">${escapeHtml(pickText(data.summary, ""))}</p>
+                        <p class="text-justify leading-relaxed text-gray-600">${escapeHtml(summaryText)}</p>
                     </div>
                 `
             ];
 
             const experienceList = pickArray(data.experiences);
             if (experienceList.length) {
-                const experienceItems = experienceList.map((item, index) => renderExperienceItem(item, index, experienceList.length));
+                const experienceItems = experienceList.map((item, index) => renderClassicExperienceItem(item, index, experienceList.length, data));
                 blocks.push(`
-                    <div class="mb-10 resume-avoid-break">
-                        <div class="flex items-center mb-6">
-                            <!-- 应用动态阴影 -->
-                            <div class="flex w-10 h-10 shrink-0 rounded-full resume-section-icon items-center justify-center mr-3 ${iconShadowClass}">
-                                <i class="fas fa-briefcase text-lg"></i>
-                            </div>
+                    <div class="resume-avoid-break mb-10">
+                        <div class="mb-6 flex items-center">
+                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
                             <h3 class="text-2xl font-bold text-gray-800">工作经历</h3>
                         </div>
                         ${experienceItems[0]}
@@ -1903,18 +2249,25 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 for (let index = 1; index < experienceItems.length; index += 1) {
                     blocks.push(experienceItems[index]);
                 }
+            } else {
+                blocks.push(`
+                    <div class="resume-avoid-break mb-10">
+                        <div class="mb-6 flex items-center">
+                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
+                            <h3 class="text-2xl font-bold text-gray-800">工作经历</h3>
+                        </div>
+                        <p class="text-sm text-gray-500">可在左侧表单中填写工作经历</p>
+                    </div>
+                `);
             }
 
             const projectList = pickArray(data.projects);
             if (projectList.length) {
-                const projectCards = projectList.map((project) => renderProjectCard(project));
+                const projectCards = projectList.map((project) => renderClassicProjectCard(project));
                 blocks.push(`
-                    <div class="mb-6 resume-avoid-break">
-                        <div class="flex items-center mb-6">
-                            <!-- 应用动态阴影 -->
-                            <div class="flex w-10 h-10 shrink-0 rounded-full resume-section-icon items-center justify-center mr-3 ${iconShadowClass}">
-                                <i class="fas fa-project-diagram text-lg"></i>
-                            </div>
+                    <div class="resume-avoid-break mb-6">
+                        <div class="mb-6 flex items-center">
+                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
                             <h3 class="text-2xl font-bold text-gray-800">项目经验</h3>
                         </div>
                         ${projectCards[0]}
@@ -1922,24 +2275,366 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 `);
 
                 for (let index = 1; index < projectCards.length; index += 1) {
-                    const wrapperClass = index === projectCards.length - 1 ? "resume-avoid-break" : "mb-6 resume-avoid-break";
+                    const wrapperClass = index === projectCards.length - 1 ? "resume-avoid-break" : "resume-avoid-break mb-6";
                     blocks.push(`<div class="${wrapperClass}">${projectCards[index]}</div>`);
+                }
+            } else {
+                blocks.push(`
+                    <div class="resume-avoid-break">
+                        <div class="mb-6 flex items-center">
+                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
+                            <h3 class="text-2xl font-bold text-gray-800">项目经验</h3>
+                        </div>
+                        <p class="text-sm text-gray-500">可在左侧表单中填写项目经验</p>
+                    </div>
+                `);
+            }
+
+            return blocks;
+        }
+
+        function renderCardBasicInfo(basicInfo, renderOptions) {
+            const list = pickArray(basicInfo).filter((item) => pickText(item?.value, "").trim() !== "");
+            if (!list.length) return "";
+
+            const shadowClass = renderOptions.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]";
+
+            const items = list.map((info, index) => {
+                const icon = escapeHtml(resolveBasicInfoIcon(info));
+                const text = escapeHtml(pickText(info.value, ""));
+                const label = escapeHtml(pickText(info.label, getBasicInfoIconTone(info.iconPreset).label));
+                const currentColorOverride = info.iconColor || "theme";
+                const globalPaletteKey = renderOptions.iconPalette || "theme";
+                const finalColorKey = resolveIconColorToneForTheme(index, currentColorOverride, globalPaletteKey, renderOptions.resumeTheme);
+                const iconHtml = renderDynamicIcon(icon, finalColorKey, "resume-info-icon h-9 w-9 rounded-full text-[13px]", shadowClass);
+
+                return `
+                    <li class="resume-info-item">
+                        <div class="shrink-0">${iconHtml}</div>
+                        <div class="min-w-0 flex-1">
+                            <p class="resume-info-label">${label}</p>
+                            <p class="resume-info-value">${text}</p>
+                        </div>
+                    </li>
+                `;
+            }).join("");
+
+            return `<ul class="resume-info-list">${items}</ul>`;
+        }
+
+        function renderCardEducationEntry(item) {
+            return `
+                <article class="resume-card resume-side-item-card resume-avoid-break">
+                    <h4 class="resume-meta-title">${escapeHtml(pickText(item.school, ""))}</h4>
+                    <p class="resume-meta-subtitle">${escapeHtml(pickText(item.degree, ""))}</p>
+                    <span class="resume-period-pill">${escapeHtml(pickText(item.period, ""))}</span>
+                </article>
+            `;
+        }
+
+        function buildCardEducationBlocks(education, iconShadowClass) {
+            const list = pickArray(education);
+            if (!list.length) {
+                return [
+                    `
+                        <article class="resume-card resume-side-section-card resume-avoid-break">
+                            <div class="resume-card-title-row resume-card-title-row-compact">
+                                <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-user-graduate text-sm"></i></div>
+                                <div>
+                                    <p class="resume-card-kicker">Education</p>
+                                    <h3 class="resume-card-title">教育背景</h3>
+                                </div>
+                            </div>
+                            <p class="resume-empty-state">可在左侧表单中填写教育背景</p>
+                        </article>
+                    `
+                ];
+            }
+
+            return [
+                `
+                    <article class="resume-card resume-side-section-card resume-avoid-break">
+                        <div class="resume-card-title-row resume-card-title-row-compact">
+                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-user-graduate text-sm"></i></div>
+                            <div>
+                                <p class="resume-card-kicker">Education</p>
+                                <h3 class="resume-card-title">教育背景</h3>
+                            </div>
+                        </div>
+                    </article>
+                `,
+                ...list.map((item) => renderCardEducationEntry(item))
+            ];
+        }
+
+        function renderSkillTags(items, badgeColorPref) {
+            return normalizeStringArray(items).map((item) => {
+                let badgeClass = "";
+                
+                // 1. 主题浅色：使用底层的 CSS 变量（它会自动调用非常柔和的配色）
+                if (badgeColorPref === "theme-soft" || badgeColorPref === "theme") {
+                    badgeClass = "resume-primary-badge border border-black/5 mix-blend-multiply shadow-sm"; 
+                } 
+                // 🌟 2. 新增的主题描边：极简风的最爱，纯白底+主题色边框+主题色文字
+                else if (badgeColorPref === "theme-outline") {
+                    badgeClass = "bg-white text-theme border border-theme shadow-[0_2px_8px_var(--resume-accent-glow)]";
+                } 
+                // 3. 经典灰色系
+                else if (badgeColorPref === "gray") {
+                    badgeClass = "bg-gray-100 text-gray-700 border border-gray-200/50";
+                } else if (badgeColorPref === "slate") {
+                    badgeClass = "bg-slate-100 text-slate-700 border border-slate-200/50";
+                } else if (badgeColorPref === "zinc") {
+                    badgeClass = "bg-zinc-100 text-zinc-700 border border-zinc-200/50";
+                }
+                
+                return `<span class="${badgeClass} resume-skill-tag">${escapeHtml(item)}</span>`;
+            }).join("");
+        }
+
+        function renderCardSkillGroupCard(group, badgeColorPref) {
+            return `
+                <article class="resume-card resume-side-item-card resume-avoid-break">
+                    <p class="resume-skill-group-name">${escapeHtml(pickText(group.name, ""))}</p>
+                    <div class="resume-skill-tag-list">${renderSkillTags(group.items, badgeColorPref)}</div>
+                </article>
+            `;
+        }
+
+        function buildCardSkillBlocks(skills, iconShadowClass, badgeColorPref) {
+            const groups = pickArray(skills);
+
+            if (!groups.length) {
+                return [
+                    `
+                        <article class="resume-card resume-side-section-card resume-avoid-break">
+                            <div class="resume-card-title-row resume-card-title-row-compact">
+                                <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-layer-group text-sm"></i></div>
+                                <div>
+                                    <p class="resume-card-kicker">Skills</p>
+                                    <h3 class="resume-card-title">专业技能</h3>
+                                </div>
+                            </div>
+                            <p class="resume-empty-state">可在左侧表单中填写专业技能</p>
+                        </article>
+                    `
+                ];
+            }
+
+            return [
+                `
+                    <article class="resume-card resume-side-section-card resume-avoid-break">
+                        <div class="resume-card-title-row resume-card-title-row-compact">
+                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-layer-group text-sm"></i></div>
+                            <div>
+                                <p class="resume-card-kicker">Skills</p>
+                                <h3 class="resume-card-title">专业技能</h3>
+                            </div>
+                        </div>
+                    </article>
+                `,
+                ...groups.map((group) => renderCardSkillGroupCard(group, badgeColorPref))
+            ];
+        }
+
+        function renderCardExperienceItem(item, index, total, useThemeTimeline) {
+            const isThemeLine = Boolean(useThemeTimeline);
+            const lineClass = isThemeLine ? "resume-timeline-rail-accent" : "resume-timeline-rail-neutral";
+            const isHighlight = Boolean(item.highlight);
+            const dotClass = isHighlight ? "resume-timeline-dot-accent" : "resume-timeline-dot-muted";
+            const companyClass = isHighlight ? "resume-accent-company" : "resume-entry-company-muted";
+            const bullets = normalizeStringArray(item.bullets)
+                .map((bullet) => (`<li>${escapeHtml(bullet)}</li>`))
+                .join("");
+            const bulletList = bullets ? `<ul class="resume-bullet-list">${bullets}</ul>` : "";
+            const highlightBadge = isHighlight
+                ? '<span class="resume-primary-badge resume-entry-flag">重点经历</span>'
+                : '';
+
+            return `
+                <article class="resume-card resume-card-lg resume-experience-card resume-avoid-break" data-resume-item-index="${index}" data-resume-item-total="${total}">
+                    <div class="resume-timeline-rail ${lineClass}" aria-hidden="true"></div>
+                    <div class="resume-timeline-dot ${dotClass}" aria-hidden="true"></div>
+                    <div class="resume-entry-head">
+                        <div class="min-w-0 flex-1">
+                            ${highlightBadge}
+                            <h4 class="resume-entry-title">${escapeHtml(pickText(item.title, ""))}</h4>
+                            <p class="resume-entry-company ${companyClass}">${escapeHtml(pickText(item.company, ""))}</p>
+                        </div>
+                        <span class="resume-period-pill resume-period-pill-tight">${escapeHtml(pickText(item.period, ""))}</span>
+                    </div>
+                    ${bulletList}
+                </article>
+            `;
+        }
+
+        function renderCardProjectCard(project) {
+            const badgeClass = pickText(project.badgeStyle, "secondary") === "primary"
+                ? "resume-primary-badge resume-project-badge"
+                : "resume-project-secondary-badge resume-project-badge";
+            const techTags = normalizeStringArray(project.techs).map((tech) => (
+                `<span class="resume-tech-tag">${escapeHtml(tech)}</span>`
+            )).join("");
+            const badgeText = pickText(project.badge, "").trim();
+            const badgeHtml = badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : "";
+            const description = pickText(project.description, "").trim();
+
+            return `
+                <article class="resume-card resume-card-lg resume-project-card resume-avoid-break">
+                    <div class="resume-project-accent" aria-hidden="true"></div>
+                    <div class="resume-project-head">
+                        <div class="min-w-0 flex-1">
+                            <div class="resume-project-title-row">
+                                <h4 class="resume-entry-title">${escapeHtml(pickText(project.name, ""))}</h4>
+                                ${badgeHtml}
+                            </div>
+                            <p class="resume-project-description">${escapeHtml(description)}</p>
+                        </div>
+                    </div>
+                    <div class="resume-tech-tag-list">${techTags}</div>
+                </article>
+            `;
+        }
+
+        function buildCardLeftColumnBlocks(data, profileImage) {
+            const basicInfoContent = renderCardBasicInfo(data.basicInfo, data);
+            const avatarMeta = data.avatarImageMeta || getCachedAvatarImageMeta(data.profileImage);
+            const avatarFrame = normalizeAvatarFrame(data.avatarFrame, avatarMeta);
+            const avatarStyle = getAvatarImageStyle(avatarFrame, avatarMeta);
+            const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
+            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_10px_24px_var(--resume-accent-glow)]";
+            const roleText = pickText(data.role, "").trim();
+            const blocks = [
+                `
+                    <article class="resume-card resume-profile-card resume-avoid-break">
+                        <div class="resume-profile-avatar-wrap">
+                            <div class="resume-profile-avatar-shell ${avatarFrameClass}">
+                                <img src="${escapeHtml(profileImage)}" alt="Profile Picture" class="pointer-events-none select-none" style="${avatarStyle}" data-testid="avatar-preview-image" data-avatar-zoom="${escapeHtml(String(avatarFrame.zoom))}" data-avatar-offset-x="${escapeHtml(String(avatarFrame.offsetX))}" data-avatar-offset-y="${escapeHtml(String(avatarFrame.offsetY))}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
+                            </div>
+                        </div>
+                        <div class="resume-profile-copy">
+                            <h1 class="resume-profile-name">${escapeHtml(pickText(data.name, ""))}</h1>
+                            ${roleText ? `<p class="resume-profile-role">${escapeHtml(roleText)}</p>` : ""}
+                        </div>
+                    </article>
+                `
+            ];
+
+            if (basicInfoContent) {
+                blocks.push(`
+                    <article class="resume-card resume-avoid-break">
+                        <div class="resume-card-title-row">
+                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-address-book text-sm"></i></div>
+                            <div>
+                                <p class="resume-card-kicker">Contact</p>
+                                <h3 class="resume-card-title">联系方式</h3>
+                            </div>
+                        </div>
+                        ${basicInfoContent}
+                    </article>
+                `);
+            }
+
+            blocks.push(
+                ...buildCardEducationBlocks(data.education, iconShadowClass),
+                ...buildCardSkillBlocks(data.skills, iconShadowClass, data.skillBadgeColor || "theme-soft")
+            );
+
+            return blocks;
+        }
+
+        function buildCardRightColumnBlocks(data) {
+            // 🌟 读取扁平开关状态，生成对应阴影类名
+            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_16px_var(--resume-accent-glow)]";
+            const summaryText = pickText(data.summary, "").trim() || "可在左侧表单中填写个人简介";
+
+            const blocks = [
+                `
+                    <article class="resume-card resume-card-lg resume-summary-card resume-avoid-break">
+                        <div class="resume-card-title-row">
+                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-user-tie text-base"></i></div>
+                            <div>
+                                <p class="resume-card-kicker">Profile</p>
+                                <h3 class="resume-card-title resume-card-title-lg">个人简介</h3>
+                            </div>
+                        </div>
+                        <p class="resume-summary-text">${escapeHtml(summaryText)}</p>
+                    </article>
+                `
+            ];
+
+            const experienceList = pickArray(data.experiences);
+            if (experienceList.length) {
+                blocks.push(`
+                    <article class="resume-card resume-section-lead-card resume-avoid-break">
+                        <div class="resume-card-title-row">
+                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-briefcase text-base"></i></div>
+                            <div>
+                                <p class="resume-card-kicker">Timeline</p>
+                                <h3 class="resume-card-title resume-card-title-lg">工作经历</h3>
+                            </div>
+                        </div>
+                    </article>
+                `);
+
+                for (let index = 0; index < experienceList.length; index += 1) {
+                    blocks.push(renderCardExperienceItem(experienceList[index], index, experienceList.length, data.useThemeTimeline));
+                }
+            }
+
+            const projectList = pickArray(data.projects);
+            if (projectList.length) {
+                blocks.push(`
+                    <article class="resume-card resume-section-lead-card resume-avoid-break">
+                        <div class="resume-card-title-row">
+                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-code text-base"></i></div>
+                            <div>
+                                <p class="resume-card-kicker">Selected Work</p>
+                                <h3 class="resume-card-title resume-card-title-lg">项目经验</h3>
+                            </div>
+                        </div>
+                    </article>
+                `);
+
+                for (let index = 0; index < projectList.length; index += 1) {
+                    blocks.push(renderCardProjectCard(projectList[index]));
                 }
             }
 
             return blocks;
         }
 
-        function createMeasurePage() {
-            const host = document.createElement("div");
-            host.className = "resume-page resume-page-measure";
-            host.innerHTML = `
-                <div class="resume-sheet bg-white overflow-hidden flex flex-row">
-                    <div class="resume-left bg-gray-50 p-8 border-r border-gray-200"></div>
-                    <!-- 🌟 修复：去掉 md:p-12，焊死为统一的 p-10 (40px) -->
-                    <div class="resume-right p-10"></div>
+        function buildLayoutColumnBlocks(layout, data, profileImage) {
+            if (normalizeResumeLayout(layout) === RESUME_LAYOUT_CARDS) {
+                return {
+                    leftBlocks: buildCardLeftColumnBlocks(data, profileImage),
+                    rightBlocks: buildCardRightColumnBlocks(data)
+                };
+            }
+
+            return {
+                leftBlocks: buildClassicLeftColumnBlocks(data, profileImage),
+                rightBlocks: buildClassicRightColumnBlocks(data)
+            };
+        }
+
+        function renderResumeSheet(leftHtml, rightHtml, sheetOverflowClass = "") {
+            return `
+                <div class="resume-sheet ${sheetOverflowClass}">
+                    <div class="resume-left">${leftHtml}</div>
+                    <div class="resume-right">${rightHtml}</div>
                 </div>
             `;
+        }
+
+        function createMeasurePage(layout, themeKey, themeInlineStyle, renderMode) {
+            const host = document.createElement("div");
+            host.className = `resume-page resume-page-measure resume-theme-shell ${getResumeLayoutClass(layout)}`;
+            host.dataset.resumeTheme = escapeHtml(themeKey || "");
+            host.dataset.resumeLayout = escapeHtml(normalizeResumeLayout(layout));
+            host.dataset.renderMode = escapeHtml(normalizeRenderMode(renderMode));
+            host.setAttribute("style", themeInlineStyle || "");
+            host.innerHTML = renderResumeSheet("", "");
             document.body.appendChild(host);
 
             return {
@@ -1957,7 +2652,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return (blockRect.bottom - containerRect.top) + marginBottom;
         }
 
-        function paginateColumnBlocks(blocks, columnType) {
+        function paginateColumnBlocks(blocks, columnType, layout, themeKey, themeInlineStyle, renderMode) {
             const sourceBlocks = pickArray(blocks);
             if (!sourceBlocks.length) {
                 return {
@@ -1971,13 +2666,16 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             let cursor = 0;
 
             while (cursor < sourceBlocks.length) {
-                const { host, leftColumn, rightColumn } = createMeasurePage();
+                const { host, leftColumn, rightColumn } = createMeasurePage(layout, themeKey, themeInlineStyle, renderMode);
                 const column = columnType === "left" ? leftColumn : rightColumn;
                 const currentPage = [];
 
                 if (!column) {
                     host.remove();
-                    return [sourceBlocks];
+                    return {
+                        pages: [sourceBlocks],
+                        oversizePages: new Set()
+                    };
                 }
 
                 while (cursor < sourceBlocks.length) {
@@ -2016,34 +2714,37 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             };
         }
 
-        function renderResumePage(leftHtml, rightHtml, pageNumber, totalPages, isOverflowPage) {
+        function renderResumePage(layout, leftHtml, rightHtml, pageNumber, totalPages, isOverflowPage, renderMode) {
+            const normalizedLayout = normalizeResumeLayout(layout);
+            const normalizedRenderMode = normalizeRenderMode(renderMode);
             const pageClass = isOverflowPage
                 ? "resume-page resume-page-overflow print-shadow-none"
                 : "resume-page print-shadow-none";
             const sheetOverflowClass = isOverflowPage
-                ? "resume-sheet-overflow overflow-visible sm:rounded-none"
-                : "overflow-hidden sm:rounded-lg";
+                ? "resume-sheet-overflow"
+                : "";
+            const layoutClass = getResumeLayoutClass(normalizedLayout);
             const separator = pageNumber < totalPages
                 ? `<div class="page-split-hint no-print">分页分割区域 · 第 ${pageNumber}/${totalPages} 页</div>`
                 : "";
 
             return `
-                <div class="${pageClass}">
-                    <div class="resume-sheet ${sheetOverflowClass} bg-white shadow-2xl print-shadow-none flex flex-row print-m-0">
-                        <div class="resume-left bg-gray-50 p-8 border-r border-gray-200">${leftHtml}</div>
-                        <!-- 🌟 修复：同样焊死 p-10 -->
-                        <div class="resume-right p-10">${rightHtml}</div>
-                    </div>
+                <div class="${pageClass} ${layoutClass}" data-resume-layout="${escapeHtml(normalizedLayout)}" data-render-mode="${escapeHtml(normalizedRenderMode)}">
+                    ${renderResumeSheet(leftHtml, rightHtml, sheetOverflowClass)}
                 </div>
                 ${separator}
             `;
         }
 
-        function renderResume(data) {
+        function renderResume(data, renderMode = activeRenderMode) {
             const documentTitle = pickText(data.documentTitle, "简历") || "简历";
+            const layout = normalizeResumeLayout(data.resumeLayout);
             const profileImage = getAvatarImageSource(data.profileImage);
             const theme = getResumeThemeOption(data.resumeTheme);
             const themeInlineStyle = buildResumeThemeInlineStyle(theme);
+            const normalizedRenderMode = normalizeRenderMode(renderMode);
+
+            activeRenderMode = normalizedRenderMode;
 
             document.title = documentTitle;
 			// 🌟 动态注入丰富的主题变量（支持单色和混搭色）
@@ -2051,12 +2752,11 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const themeVars = buildResumeThemeVars(theme);
             Object.entries(themeVars).forEach(([key, value]) => {
                 rootStyle.setProperty(key, value);
-            });
+			});
 
-            const leftBlocks = buildLeftColumnBlocks(data, profileImage);
-            const rightBlocks = buildRightColumnBlocks(data);
-            const leftResult = paginateColumnBlocks(leftBlocks, "left");
-            const rightResult = paginateColumnBlocks(rightBlocks, "right");
+            const { leftBlocks, rightBlocks } = buildLayoutColumnBlocks(layout, data, profileImage);
+            const leftResult = paginateColumnBlocks(leftBlocks, "left", layout, theme.key, themeInlineStyle, normalizedRenderMode);
+            const rightResult = paginateColumnBlocks(rightBlocks, "right", layout, theme.key, themeInlineStyle, normalizedRenderMode);
             const leftPages = leftResult.pages;
             const rightPages = rightResult.pages;
             const totalPages = Math.max(leftPages.length, rightPages.length, 1);
@@ -2067,15 +2767,15 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 const rightHtml = (rightPages[pageIndex] || []).join("");
                 const isOverflowPage = leftResult.oversizePages.has(pageIndex)
                     || rightResult.oversizePages.has(pageIndex);
-                pages.push(renderResumePage(leftHtml, rightHtml, pageIndex + 1, totalPages, isOverflowPage));
+                pages.push(renderResumePage(layout, leftHtml, rightHtml, pageIndex + 1, totalPages, isOverflowPage, normalizedRenderMode));
             }
 
-            resumeRoot.innerHTML = `<div class="preview-stack resume-theme-shell" data-resume-theme="${escapeHtml(theme.key)}" style="${escapeHtml(themeInlineStyle)}">${pages.join("")}</div>`;
+            resumeRoot.innerHTML = `<div class="preview-stack resume-theme-shell ${getResumeLayoutClass(layout)}" data-resume-theme="${escapeHtml(theme.key)}" data-resume-layout="${escapeHtml(layout)}" data-render-mode="${escapeHtml(normalizedRenderMode)}" style="${escapeHtml(themeInlineStyle)}">${pages.join("")}</div>`;
         }
 
         function renderAll() {
             renderForm();
-            renderResume(resumeData);
+            renderResume(resumeData, activeRenderMode);
         }
 
         function initAvatarFrameEditor() {
@@ -2236,6 +2936,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         let repaginationTimer = null;
+        let printRestoreTimer = null;
 
         function rerenderResumeSoon() {
             if (repaginationTimer !== null) {
@@ -2244,16 +2945,31 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
             repaginationTimer = window.setTimeout(() => {
                 repaginationTimer = null;
-                renderResume(resumeData);
+                renderResume(resumeData, activeRenderMode);
             }, 120);
         }
 
-        function rerenderResumeNow() {
+        function rerenderResumeNow(renderMode = activeRenderMode) {
             if (repaginationTimer !== null) {
                 window.clearTimeout(repaginationTimer);
                 repaginationTimer = null;
             }
-            renderResume(resumeData);
+            renderResume(resumeData, renderMode);
+        }
+
+        function scheduleScreenModeRestore() {
+            if (printRestoreTimer !== null) {
+                window.clearTimeout(printRestoreTimer);
+            }
+
+            printRestoreTimer = window.setTimeout(() => {
+                printRestoreTimer = null;
+                window.requestAnimationFrame(() => {
+                    window.requestAnimationFrame(() => {
+                        rerenderResumeNow(RENDER_MODE_SCREEN);
+                    });
+                });
+            }, PRINT_RESTORE_DELAY_MS);
         }
 
         function loadImageElement(imageSrc) {
@@ -2599,6 +3315,24 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 return;
             }
 
+            if (action === "set-resume-layout") {
+                const nextLayout = normalizeResumeLayout(pickText(button?.dataset?.layout, RESUME_LAYOUT_CLASSIC));
+                if (resumeData.resumeLayout === nextLayout) {
+                    return;
+                }
+                const previousLayout = resumeData.resumeLayout;
+                resumeData.resumeLayout = nextLayout;
+                renderAll();
+                if (!saveDraft()) {
+                    resumeData.resumeLayout = previousLayout;
+                    renderAll();
+                    setStatus("版式保存失败：无法写入本地草稿。", "error");
+                    return;
+                }
+                setStatus(`简历预览已切换为${getResumeLayoutLabel(nextLayout)}。`, "success");
+                return;
+            }
+
             if (action === "set-resume-theme") {
                 const nextTheme = normalizeResumeTheme(pickText(button?.dataset?.theme, ""));
                 if (resumeData.resumeTheme === nextTheme) {
@@ -2669,11 +3403,16 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             handleAction(action, Number.isFinite(index) ? index : -1, button);
         });
 
-        resetButton.addEventListener("click", () => {
+resetButton.addEventListener("click", () => {
             resumeData = normalizeResumeData(cloneData(sampleResumeData));
             renderAll();
-            saveDraft();
-            setStatus("已重置为默认示例。", "success");
+            const didPersist = saveDraft({ showAvatarWarning: true });
+            setStatus(
+                didPersist
+                    ? "已重置为默认示例。"
+                    : "已重置当前预览，但未能保存到本地草稿；刷新后可能恢复旧内容。",
+                didPersist ? "success" : "error"
+            );
         });
 
         exportButton.addEventListener("click", () => {
@@ -2695,7 +3434,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             importFileInput.click();
         });
 
-        importFileInput.addEventListener("change", async () => {
+importFileInput.addEventListener("change", async () => {
             const file = importFileInput.files?.[0];
             if (!file) {
                 return;
@@ -2704,9 +3443,18 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 const text = await file.text();
                 const parsed = JSON.parse(text);
                 resumeData = normalizeResumeData(parsed);
+                await hydrateAvatarStateIfNeeded(resumeData);
                 renderAll();
-                saveDraft();
-                setStatus(`已导入 ${file.name}。`, "success");
+                const didPersist = saveDraft({
+                    showAvatarWarning: true,
+                    avatarWarningMessage: `已导入 ${file.name}，但头像图片未能持久化到浏览器缓存；刷新后可能丢失，请及时导出 JSON 备份。`
+                });
+                setStatus(
+                    didPersist
+                        ? `已导入 ${file.name}。`
+                        : `已导入 ${file.name}，但未能保存到本地草稿；刷新后可能回退，请及时导出 JSON。`,
+                    didPersist ? "success" : "error"
+                );
             } catch (error) {
                 setStatus(`导入失败：${error.message}`, "error");
             }
@@ -2714,9 +3462,11 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         });
 
         printButton.addEventListener("click", () => {
-            rerenderResumeNow();
+            rerenderResumeNow(RENDER_MODE_PRINT);
             window.requestAnimationFrame(() => {
-                window.print();
+                window.requestAnimationFrame(() => {
+                    window.print();
+                });
             });
         });
 
@@ -2729,17 +3479,16 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         window.addEventListener("resize", rerenderResumeSoon);
         window.addEventListener("orientationchange", rerenderResumeSoon);
         window.addEventListener("load", rerenderResumeSoon);
-
-        const draft = loadDraft();
-        if (draft) {
-            resumeData = draft;
-            setStatus("已恢复上次草稿。", "success");
-        } else {
-            setStatus("正在使用默认示例数据。", "info");
-        }
-
-        // Initialize clean snapshot for dirty-state tracking
-        setCleanSnapshot(resumeData);
+        window.addEventListener("beforeprint", () => {
+            if (printRestoreTimer !== null) {
+                window.clearTimeout(printRestoreTimer);
+                printRestoreTimer = null;
+            }
+            rerenderResumeNow(RENDER_MODE_PRINT);
+        });
+        window.addEventListener("afterprint", () => {
+            scheduleScreenModeRestore();
+        });
 
         window.__resumeApp__ = {
             getResumeData: () => cloneData(resumeData),
@@ -2769,15 +3518,41 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             setAvatarFrame(frame) {
                 resumeData.avatarFrame = normalizeAvatarFrame({ ...resumeData.avatarFrame, ...frame }, resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage));
                 syncAvatarEditorUI();
-                renderResume(resumeData);
+                renderResume(resumeData, activeRenderMode);
                 saveDraft();
             },
             dragAvatarFrame(deltaX, deltaY, width = 136, height = 136) {
                 resumeData.avatarFrame = calculateAvatarFrameFromDrag(resumeData.avatarFrame, deltaX, deltaY, width, height, resumeData.avatarImageMeta || getCachedAvatarImageMeta(resumeData.profileImage));
                 syncAvatarEditorUI();
-                renderResume(resumeData);
+                renderResume(resumeData, activeRenderMode);
                 saveDraft();
             }
         };
 
-        renderAll();
+        async function initializeApp() {
+            const draftState = await loadDraft();
+
+            if (draftState?.data) {
+                resumeData = draftState.data;
+                primeAvatarSidecarState(draftState.avatarRestored ? resumeData.profileImage : "", resumeData.profileImage);
+                setStatus(draftState.avatarRestoreWarning || "已恢复上次草稿。", draftState.avatarRestoreWarning ? "error" : "success");
+            } else {
+                primeAvatarSidecarState("", resumeData.profileImage);
+                setStatus("正在使用默认示例数据。", "info");
+            }
+
+            // Initialize clean snapshot for dirty-state tracking
+            setCleanSnapshot(resumeData);
+            renderAll();
+
+            if (draftState?.needsUpgrade && hasCustomAvatarImage(resumeData.profileImage)) {
+                const upgradeSynced = await syncAvatarSidecar({ showAvatarWarning: false });
+                if (upgradeSynced) {
+                    saveDraft({ showAvatarWarning: false, syncAvatarSidecar: false });
+                } else {
+                    setStatus("已恢复旧版草稿，但头像缓存升级失败；刷新后可能回退，请及时导出 JSON 备份。", "error");
+                }
+            }
+        }
+
+        initializeApp();
