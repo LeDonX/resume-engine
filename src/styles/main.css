@@ -105,14 +105,18 @@ body {
             height: var(--resume-page-height) !important;
             min-height: var(--resume-page-height) !important;
             box-sizing: border-box;
-            padding: var(--resume-page-screen-padding-y) 0;
             margin: 0 auto;
             position: relative;
         }
 
-        .resume-layout-cards.resume-page,
-        .resume-layout-cards .resume-page {
-            padding: var(--resume-page-screen-padding-y-cards) 0;
+        @media screen {
+            .preview-stack .resume-page {
+                margin: var(--resume-page-screen-padding-y) auto;
+            }
+
+            .preview-stack[data-resume-layout="cards"] .resume-page {
+                margin-block: var(--resume-page-screen-padding-y-cards);
+            }
         }
 
         .resume-page-overflow {
@@ -160,32 +164,24 @@ body {
             z-index: -1;
         }
 
-        .resume-page[data-render-mode="print"],
         .resume-page-measure[data-render-mode="print"] {
             padding: 0 !important;
             box-shadow: none !important;
         }
 
-        .resume-page[data-render-mode="print"] .resume-sheet,
         .resume-page-measure[data-render-mode="print"] .resume-sheet {
             border-radius: 0 !important;
             box-shadow: none !important;
         }
 
-        .resume-page[data-render-mode="print"] .resume-sheet-overflow,
         .resume-page-measure[data-render-mode="print"] .resume-sheet-overflow {
             height: auto !important;
             overflow: visible !important;
         }
 
-        .resume-page[data-render-mode="print"][data-resume-layout="cards"] .resume-sheet,
         .resume-page-measure[data-render-mode="print"][data-resume-layout="cards"] .resume-sheet {
             border: 0 !important;
             background: #ffffff !important;
-        }
-
-        .preview-stack[data-render-mode="print"] .page-split-hint {
-            display: none;
         }
 
         .resume-avoid-break {

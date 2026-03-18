@@ -2682,7 +2682,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                     column.insertAdjacentHTML("beforeend", sourceBlocks[cursor]);
                     const lastBlock = column.lastElementChild;
                     const fitsCurrentPage = !lastBlock
-                        || getOuterBottom(column, lastBlock) <= (column.clientHeight - PAGE_BREAK_BUFFER_PX);
+                        || getOuterBottom(column, lastBlock) <= (column.getBoundingClientRect().height - PAGE_BREAK_BUFFER_PX);
 
                     if (fitsCurrentPage || currentPage.length === 0) {
                         currentPage.push(sourceBlocks[cursor]);
@@ -3484,7 +3484,9 @@ importFileInput.addEventListener("change", async () => {
                 window.clearTimeout(printRestoreTimer);
                 printRestoreTimer = null;
             }
-            rerenderResumeNow(RENDER_MODE_PRINT);
+            if (activeRenderMode !== RENDER_MODE_PRINT) {
+                rerenderResumeNow(RENDER_MODE_PRINT);
+            }
         });
         window.addEventListener("afterprint", () => {
             scheduleScreenModeRestore();
