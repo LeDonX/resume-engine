@@ -90,13 +90,13 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             
             // 如果选择的是“跟随主题”，使用半透明主题色层叠效果
             if (color.key === "theme") {
-                return `<div class="relative flex items-center justify-center overflow-hidden text-theme shadow-sm ${sizeClass} ${extraClass}">
+                return `<div class="resume-dynamic-icon relative flex items-center justify-center overflow-hidden text-theme shadow-sm ${sizeClass} ${extraClass}">
                     <div class="absolute inset-0 bg-theme opacity-15"></div>
                     <i class="${escapeHtml(iconClass)} relative z-10"></i>
                 </div>`;
             }
             // 否则使用选定的独立颜色
-            return `<div class="flex items-center justify-center shadow-sm ${color.bg} ${color.text} ${sizeClass} ${extraClass}">
+            return `<div class="resume-dynamic-icon flex items-center justify-center shadow-sm ${color.bg} ${color.text} ${sizeClass} ${extraClass}">
                 <i class="${escapeHtml(iconClass)}"></i>
             </div>`;
         }
@@ -192,6 +192,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             documentTitle: "张三的简历",
             resumeLayout: RESUME_LAYOUT_CLASSIC,
             resumeTheme: "pro_blue",
+            showExperienceTimeline: false,
             useFlatIcons: true,
             profileImage: "",
             avatarImageMeta: null,
@@ -1111,6 +1112,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 documentTitle: hasOwn(raw, "documentTitle") ? pickText(raw.documentTitle, "") : fallback.documentTitle,
                 resumeLayout: hasOwn(raw, "resumeLayout") ? normalizeResumeLayout(raw.resumeLayout) : normalizeResumeLayout(fallback.resumeLayout),
                 resumeTheme: hasOwn(raw, "resumeTheme") ? normalizeResumeTheme(raw.resumeTheme) : normalizeResumeTheme(fallback.resumeTheme),
+				showExperienceTimeline: hasOwn(raw, "showExperienceTimeline") ? Boolean(raw.showExperienceTimeline) : Boolean(fallback.showExperienceTimeline),
+				useThemeTimeline: hasOwn(raw, "useThemeTimeline") ? Boolean(raw.useThemeTimeline) : Boolean(fallback.useThemeTimeline),
 				useFlatIcons: hasOwn(raw, "useFlatIcons") ? Boolean(raw.useFlatIcons) : true,
 				iconPalette: hasOwn(raw, "iconPalette") ? pickText(raw.iconPalette, "macaron") : "macaron",
 				skillBadgeColor: hasOwn(raw, "skillBadgeColor") ? pickText(raw.skillBadgeColor, "theme") : "theme",
@@ -1813,8 +1816,17 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                             <div class="border-t border-slate-200/60 pt-4 mt-4">
                                 <div class="flex items-center justify-between mb-3">
                                     <div>
+                                        <p class="text-[12px] font-bold text-slate-700">显示工作时间轴</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">关闭后隐藏工作经历左侧竖线与节点</p>
+                                    </div>
+                                    <button type="button" data-action="toggle-experience-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.showExperienceTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
+                                        <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.showExperienceTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
                                         <p class="text-[12px] font-bold text-slate-700">彩色时间轴竖线</p>
-                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">工作经历竖线是否跟随后台主色</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">仅控制显示时竖线是否跟随后台主色</p>
                                     </div>
                                     <button type="button" data-action="toggle-theme-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.useThemeTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
                                         <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.useThemeTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
@@ -2120,12 +2132,14 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         function renderClassicExperienceItem(item, index, total, renderOptions) {
-            const lineClass = renderOptions.useThemeTimeline ? "resume-section-divider" : "resume-soft-divider";
-            const wrapperClass = index === total - 1
-                ? `relative pl-6 border-l-2 ${lineClass} resume-avoid-break`
-                : `mb-8 relative pl-6 border-l-2 ${lineClass} resume-avoid-break`;
+            const showTimeline = Boolean(renderOptions.showExperienceTimeline);
+            const lineClass = renderOptions.useThemeTimeline ? "resume-soft-divider" : "resume-timeline-soft-divider";
+            const spacingClass = index === total - 1 ? "" : "mb-8";
+            const wrapperClass = showTimeline
+                ? `${spacingClass} relative pl-6 border-l-2 ${lineClass} resume-avoid-break`.trim()
+                : `${spacingClass} relative resume-avoid-break`.trim();
             const isHighlight = Boolean(item.highlight);
-            const dotClass = (renderOptions.useThemeTimeline || isHighlight) ? "resume-accent-dot" : "bg-gray-300";
+            const dotClass = isHighlight ? "resume-accent-dot" : "bg-gray-300";
             const companyClass = isHighlight ? "resume-accent-company" : "text-gray-600";
             const bullets = normalizeStringArray(item.bullets)
                 .map((bullet) => (`<li>${escapeHtml(bullet)}</li>`))
@@ -2133,7 +2147,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
             return `
                 <div class="${wrapperClass}">
-                    <div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full ${dotClass} ring-4 ring-white"></div>
+                    ${showTimeline ? `<div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full ${dotClass} ring-4 ring-white"></div>` : ""}
                     <div class="mb-2 flex flex-col md:flex-row md:items-start md:justify-between">
                         <div>
                             <h4 class="text-lg font-bold text-gray-800">${escapeHtml(pickText(item.title, ""))}</h4>
@@ -2437,7 +2451,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             ];
         }
 
-        function renderCardExperienceItem(item, index, total, useThemeTimeline) {
+        function renderCardExperienceItem(item, index, total, useThemeTimeline, showExperienceTimeline) {
+            const showTimeline = Boolean(showExperienceTimeline);
             const isThemeLine = Boolean(useThemeTimeline);
             const lineClass = isThemeLine ? "resume-timeline-rail-accent" : "resume-timeline-rail-neutral";
             const isHighlight = Boolean(item.highlight);
@@ -2450,11 +2465,14 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const highlightBadge = isHighlight
                 ? '<span class="resume-primary-badge resume-entry-flag">重点经历</span>'
                 : '';
+            const cardClass = showTimeline
+                ? "resume-card resume-card-lg resume-experience-card resume-avoid-break"
+                : "resume-card resume-card-lg resume-avoid-break";
 
             return `
-                <article class="resume-card resume-card-lg resume-experience-card resume-avoid-break" data-resume-item-index="${index}" data-resume-item-total="${total}">
-                    <div class="resume-timeline-rail ${lineClass}" aria-hidden="true"></div>
-                    <div class="resume-timeline-dot ${dotClass}" aria-hidden="true"></div>
+                <article class="${cardClass}" data-resume-item-index="${index}" data-resume-item-total="${total}">
+                    ${showTimeline ? `<div class="resume-timeline-rail ${lineClass}" aria-hidden="true"></div>
+                    <div class="resume-timeline-dot ${dotClass}" aria-hidden="true"></div>` : ""}
                     <div class="resume-entry-head">
                         <div class="min-w-0 flex-1">
                             ${highlightBadge}
@@ -2578,7 +2596,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 `);
 
                 for (let index = 0; index < experienceList.length; index += 1) {
-                    blocks.push(renderCardExperienceItem(experienceList[index], index, experienceList.length, data.useThemeTimeline));
+                    blocks.push(renderCardExperienceItem(experienceList[index], index, experienceList.length, data.useThemeTimeline, data.showExperienceTimeline));
                 }
             }
 
@@ -2770,7 +2788,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 pages.push(renderResumePage(layout, leftHtml, rightHtml, pageIndex + 1, totalPages, isOverflowPage, normalizedRenderMode));
             }
 
-            resumeRoot.innerHTML = `<div class="preview-stack resume-theme-shell ${getResumeLayoutClass(layout)}" data-resume-theme="${escapeHtml(theme.key)}" data-resume-layout="${escapeHtml(layout)}" data-render-mode="${escapeHtml(normalizedRenderMode)}" style="${escapeHtml(themeInlineStyle)}">${pages.join("")}</div>`;
+            resumeRoot.innerHTML = `<div class="preview-stack resume-theme-shell ${getResumeLayoutClass(layout)}" data-resume-theme="${escapeHtml(theme.key)}" data-resume-layout="${escapeHtml(layout)}" data-render-mode="${escapeHtml(normalizedRenderMode)}" data-flat-icons="${data.useFlatIcons ? "true" : "false"}" style="${escapeHtml(themeInlineStyle)}">${pages.join("")}</div>`;
         }
 
         function renderAll() {
@@ -3186,6 +3204,13 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             }
 			
 			// --- 🌟 响应时间轴开关点击 ---
+            if (action === "toggle-experience-timeline") {
+                resumeData.showExperienceTimeline = !resumeData.showExperienceTimeline;
+                renderAll();
+                saveDraft();
+                return;
+            }
+
             if (action === "toggle-theme-timeline") {
                 // 如果是 true 就变 false，反之变 true
                 resumeData.useThemeTimeline = !resumeData.useThemeTimeline;
@@ -3462,13 +3487,9 @@ importFileInput.addEventListener("change", async () => {
         });
 
         printButton.addEventListener("click", () => {
-            rerenderResumeNow(RENDER_MODE_PRINT);
-            window.requestAnimationFrame(() => {
-                window.requestAnimationFrame(() => {
-                    window.print();
-                });
-            });
-        });
+            // 直接调用打印！依靠强大的 @media print CSS 来控制打印样式
+            window.print();
+        }); 
 
         if (document.fonts?.ready) {
             document.fonts.ready.then(() => {

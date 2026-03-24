@@ -160,32 +160,24 @@ body {
             z-index: -1;
         }
 
-        .resume-page[data-render-mode="print"],
         .resume-page-measure[data-render-mode="print"] {
             padding: 0 !important;
             box-shadow: none !important;
         }
 
-        .resume-page[data-render-mode="print"] .resume-sheet,
         .resume-page-measure[data-render-mode="print"] .resume-sheet {
             border-radius: 0 !important;
             box-shadow: none !important;
         }
 
-        .resume-page[data-render-mode="print"] .resume-sheet-overflow,
         .resume-page-measure[data-render-mode="print"] .resume-sheet-overflow {
             height: auto !important;
             overflow: visible !important;
         }
 
-        .resume-page[data-render-mode="print"][data-resume-layout="cards"] .resume-sheet,
         .resume-page-measure[data-render-mode="print"][data-resume-layout="cards"] .resume-sheet {
             border: 0 !important;
             background: #ffffff !important;
-        }
-
-        .preview-stack[data-render-mode="print"] .page-split-hint {
-            display: none;
         }
 
         .resume-avoid-break {
@@ -298,11 +290,20 @@ body {
             border-color: var(--resume-accent-soft-strong);
         }
 
+        .resume-theme-shell .resume-timeline-soft-divider {
+            border-color: #d1d5db;
+        }
+
         .resume-theme-shell .resume-section-icon {
             background: var(--resume-accent-soft);
             color: var(--resume-accent-strong);
             border: 1px solid rgba(255, 255, 255, 0.76);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 8px 18px rgba(15, 23, 42, 0.05);
+        }
+
+        .resume-theme-shell[data-flat-icons="true"] .resume-section-icon,
+        .resume-theme-shell[data-flat-icons="true"] .resume-dynamic-icon {
+            box-shadow: none;
         }
 
         .resume-theme-shell .resume-accent-dot {
@@ -1282,6 +1283,24 @@ body {
                 padding: 0 !important;
             }
 
+            .preview-stack,
+            .resume-page,
+            .resume-sheet,
+            .resume-left,
+            .resume-right,
+            .resume-card,
+            .resume-section-lead-card,
+            .resume-info-item,
+            .resume-meta-block,
+            .resume-skill-tag,
+            .resume-tech-tag,
+            .resume-project-badge,
+            .resume-period-pill,
+            .resume-profile-avatar-shell {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
             .no-print, .form-panel {
                 display: none !important;
             }
@@ -1346,7 +1365,7 @@ body {
                 height: 100% !important;
                 min-height: 0 !important;
                 margin: 0 !important;
-                padding: 0 !important;
+                padding: 0 !important; 
                 border: 0 !important;
                 background: #ffffff !important;
                 border-radius: 0 !important;
@@ -1388,10 +1407,10 @@ body {
                 height: 100% !important;
                 min-height: 0 !important;
                 margin: 0 !important;
-                padding: var(--resume-cards-padding) !important;
+                padding: var(--resume-cards-padding) !important; 
                 gap: var(--resume-cards-gap) !important;
                 border: 0 !important;
-                background: #ffffff !important;
+                background: var(--resume-page-canvas, #eff1f4) !important; 
                 border-radius: 0 !important;
                 box-shadow: none !important;
                 display: flex !important;
