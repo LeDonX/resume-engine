@@ -1,5 +1,11 @@
 import Sortable from "sortablejs";
 import "./styles/main.css";
+import {
+    RESUME_LAYOUT_CONTROL_SETTINGS,
+    buildResumeLayoutControlVars,
+    clampResumeLayoutControl,
+    normalizeResumeLayoutControls
+} from "./resume-layout-controls.js";
 
 const STORAGE_KEY = "resume-generator-draft-v1";
         const DRAFT_STORAGE_VERSION = 2;
@@ -151,6 +157,18 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             { key: "sunset", label: "黄昏暖阳", colors: ["orange", "rose", "red", "amber", "fuchsia"], preview: ["#f97316", "#f43f5e", "#f59e0b"] }
         ];
 
+        const RESUME_LAYOUT_CONTROL_FIELDS = [
+            { key: "fontScale", label: "字号缩放", hint: "正文与基础字号", group: "typography" },
+            { key: "lineHeightScale", label: "行高缩放", hint: "整体阅读节奏", group: "typography" },
+            { key: "titleScale", label: "标题缩放", hint: "模块与条目标题", group: "typography" },
+            { key: "nameScale", label: "姓名缩放", hint: "姓名主标题大小", group: "typography" },
+            { key: "roleScale", label: "岗位缩放", hint: "岗位标题与标签", group: "typography" },
+            { key: "innerPaddingScale", label: "内边距缩放", hint: "卡片与栏位留白", group: "spacing" },
+            { key: "moduleSpacingScale", label: "全局间距缩放", hint: "模块上下距离基准", group: "spacing" },
+            { key: "classicSpacingScale", label: "经典版间距", hint: "仅作用经典版留白", group: "spacing" },
+            { key: "cardsSpacingScale", label: "卡片版间距", hint: "仅作用卡片版留白", group: "spacing" }
+        ];
+
         // 🌟 智能计算图标颜色的终极算法 🌟
         function resolveIconColorToneForTheme(index, itemColorOverride, globalPaletteKey, themeKey) {
             
@@ -192,6 +210,15 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             documentTitle: "张三的简历",
             resumeLayout: RESUME_LAYOUT_CLASSIC,
             resumeTheme: "pro_blue",
+            fontScale: 1,
+            lineHeightScale: 1,
+            innerPaddingScale: 1,
+            moduleSpacingScale: 1,
+            titleScale: 1,
+            nameScale: 1,
+            roleScale: 1,
+            classicSpacingScale: 1,
+            cardsSpacingScale: 1,
             showExperienceTimeline: false,
             useFlatIcons: true,
             profileImage: "",
@@ -336,7 +363,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${safeAlpha})`;
         }
 
-        function buildResumeThemeVars(theme) {
+        function buildResumeThemeVars(theme, data = sampleResumeData) {
+            const layoutControlVars = buildResumeLayoutControlVars(data);
             // 如果主题配置了 leftBg (如专业商务风)，就用纯色；否则用柔和的微渐变
             const leftBackground = theme.leftBg 
                 ? theme.leftBg 
@@ -380,12 +408,13 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 "--resume-pill-bg": pillBg,
                 "--resume-pill-text": pillText,
                 "--resume-timeline-track": timelineTrack,
-                "--resume-timeline-dot-glow": toRgbaString(theme.accent, 0.22, "rgba(37, 99, 235, 0.22)")
+                "--resume-timeline-dot-glow": toRgbaString(theme.accent, 0.22, "rgba(37, 99, 235, 0.22)"),
+                ...layoutControlVars
             };
         }
 
-        function buildResumeThemeInlineStyle(theme) {
-            const vars = buildResumeThemeVars(theme);
+        function buildResumeThemeInlineStyle(theme, data = sampleResumeData) {
+            const vars = buildResumeThemeVars(theme, data);
             return Object.entries(vars)
                 .map(([key, value]) => `${key}: ${value};`)
                 .join(" ");
@@ -1093,6 +1122,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         function normalizeResumeData(rawData) {
             const raw = rawData && typeof rawData === "object" ? rawData : {};
             const fallback = sampleResumeData;
+            const layoutControls = normalizeResumeLayoutControls(raw);
 
             const basicInfoSource = hasOwn(raw, "basicInfo") ? raw.basicInfo : fallback.basicInfo;
             const educationSource = hasOwn(raw, "education") ? raw.education : fallback.education;
@@ -1112,6 +1142,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 documentTitle: hasOwn(raw, "documentTitle") ? pickText(raw.documentTitle, "") : fallback.documentTitle,
                 resumeLayout: hasOwn(raw, "resumeLayout") ? normalizeResumeLayout(raw.resumeLayout) : normalizeResumeLayout(fallback.resumeLayout),
                 resumeTheme: hasOwn(raw, "resumeTheme") ? normalizeResumeTheme(raw.resumeTheme) : normalizeResumeTheme(fallback.resumeTheme),
+				...layoutControls,
 				showExperienceTimeline: hasOwn(raw, "showExperienceTimeline") ? Boolean(raw.showExperienceTimeline) : Boolean(fallback.showExperienceTimeline),
 				useThemeTimeline: hasOwn(raw, "useThemeTimeline") ? Boolean(raw.useThemeTimeline) : Boolean(fallback.useThemeTimeline),
 				useFlatIcons: hasOwn(raw, "useFlatIcons") ? Boolean(raw.useFlatIcons) : true,
@@ -1583,6 +1614,43 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             
             const isProfileCollapsed = panelState.profile;
             const isThemeCollapsed = panelState.theme;
+            const renderLayoutControl = (control) => {
+                const settings = RESUME_LAYOUT_CONTROL_SETTINGS[control.key];
+                const value = clampResumeLayoutControl(control.key, resumeData[control.key]);
+                return `
+                                    <label class="block rounded-xl border border-slate-200/70 bg-white/80 px-3 py-2.5">
+                                        <div class="mb-2 flex items-start justify-between gap-3">
+                                            <div>
+                                                <p class="text-[11px] font-bold text-slate-700">${control.label}</p>
+                                                <p class="mt-0.5 text-[9px] font-medium text-slate-400">${control.hint}</p>
+                                            </div>
+                                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">${Math.round(value * 100)}%</span>
+                                        </div>
+                                        <input type="range" min="${settings.min}" max="${settings.max}" step="${settings.step}" value="${value}" class="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-blue-600" data-section="layoutControls" data-field="${control.key}">
+                                        <div class="mt-1 flex items-center justify-between text-[9px] font-medium text-slate-400">
+                                            <span>${Math.round(settings.min * 100)}%</span>
+                                            <span>${Math.round(settings.max * 100)}%</span>
+                                        </div>
+                                    </label>
+                                `;
+            };
+            const layoutControlSections = [
+                { key: "typography", label: "字体与行高" },
+                { key: "spacing", label: "留白与间距" }
+            ].map((section) => {
+                const controls = RESUME_LAYOUT_CONTROL_FIELDS.filter((control) => control.group === section.key);
+                return `
+                                    <div class="rounded-2xl border border-slate-200/70 bg-white/55 p-3">
+                                        <div class="mb-3 flex items-center justify-between">
+                                            <p class="text-[11px] font-bold text-slate-700">${section.label}</p>
+                                            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-400">${controls.length} 项</span>
+                                        </div>
+                                        <div class="grid gap-2.5 sm:grid-cols-2">
+                                            ${controls.map(renderLayoutControl).join("")}
+                                        </div>
+                                    </div>
+                                `;
+            }).join("");
 
             // 2. 🌟 预渲染联系方式区块 (合并进来的逻辑)
             const contactBlocks = resumeData.basicInfo.map((item, index) => {
@@ -1752,6 +1820,18 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                                 </div>
                             </div>
 
+                            <div class="border-t border-slate-200/60 pt-4 mb-5">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <div>
+                                        <p class="text-[12px] font-bold text-slate-700">全局排版微调</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">统一作用于预览、测量分页与打印</p>
+                                    </div>
+                                </div>
+                                <div class="grid gap-3">
+                                    ${layoutControlSections}
+                                </div>
+                            </div>
+
                             <!-- 全局主色调 -->
                             <div class="border-t border-slate-200/60 pt-4 mb-5">
                                 <div class="flex items-center justify-between mb-3">
@@ -1816,8 +1896,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                             <div class="border-t border-slate-200/60 pt-4 mt-4">
                                 <div class="flex items-center justify-between mb-3">
                                     <div>
-                                        <p class="text-[12px] font-bold text-slate-700">显示工作时间轴</p>
-                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">关闭后隐藏工作经历左侧竖线与节点</p>
+                                        <p class="text-[12px] font-bold text-slate-700">显示经历时间轴</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">关闭后隐藏工作经历与项目经验左侧时间轴</p>
                                     </div>
                                     <button type="button" data-action="toggle-experience-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.showExperienceTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
                                         <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.showExperienceTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
@@ -1825,8 +1905,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                                 </div>
                                 <div class="flex items-center justify-between mb-3">
                                     <div>
-                                        <p class="text-[12px] font-bold text-slate-700">彩色时间轴竖线</p>
-                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">仅控制显示时竖线是否跟随后台主色</p>
+                                        <p class="text-[12px] font-bold text-slate-700">彩色工作时间轴竖线</p>
+                                        <p class="text-[9px] text-slate-400 font-medium mt-0.5">仅控制工作经历时间轴竖线是否跟随后台主色</p>
                                     </div>
                                     <button type="button" data-action="toggle-theme-timeline" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors ${resumeData.useThemeTimeline ? 'bg-blue-500' : 'bg-slate-300'}">
                                         <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${resumeData.useThemeTimeline ? 'translate-x-4' : 'translate-x-0'}"></span>
@@ -2079,32 +2159,32 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 const currentColorOverride = info.iconColor || "theme";
                 const globalPaletteKey = renderOptions.iconPalette || "theme";
                 const finalColorKey = resolveIconColorToneForTheme(index, currentColorOverride, globalPaletteKey, renderOptions.resumeTheme);
-                const iconHtml = renderDynamicIcon(icon, finalColorKey, "w-8 h-8 rounded-full text-[13px]", shadowClass);
+                const iconHtml = renderDynamicIcon(icon, finalColorKey, "resume-classic-basic-info-icon rounded-full text-[13px]", shadowClass);
 
                 return `
-                    <li class="flex items-start gap-3">
+                    <li class="resume-classic-basic-info-item flex items-start">
                         ${iconHtml}
-                        <span class="min-w-0 flex-1 break-words leading-8 text-sm text-gray-700">${text}</span>
+                        <span class="resume-classic-basic-info-text min-w-0 flex-1 break-words text-gray-700">${text}</span>
                     </li>
                 `;
             }).join("");
 
-            return `<ul class="space-y-3.5">${items}</ul>`;
+            return `<ul class="resume-classic-basic-info-list">${items}</ul>`;
         }
 
         function renderClassicEducation(education) {
             const list = pickArray(education);
             if (!list.length) {
-                return '<p class="text-sm text-gray-500">可在左侧表单中填写教育背景</p>';
+                return '<p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写教育背景</p>';
             }
 
             return list.map((item, index) => {
-                const blockClass = index === list.length - 1 ? "" : "mb-4";
+                const blockClass = index === list.length - 1 ? "resume-classic-stack-item" : "resume-classic-stack-item resume-classic-stack-item-spaced";
                 return `
                     <div class="${blockClass}">
-                        <p class="font-bold text-gray-800">${escapeHtml(pickText(item.degree, ""))}</p>
-                        <p class="resume-accent-company mt-1 text-sm font-medium">${escapeHtml(pickText(item.school, ""))}</p>
-                        <p class="mt-1 text-xs text-gray-500"><i class="far fa-calendar-alt mr-1"></i> ${escapeHtml(pickText(item.period, ""))}</p>
+                        <p class="resume-classic-item-title font-bold text-gray-800">${escapeHtml(pickText(item.degree, ""))}</p>
+                        <p class="resume-classic-item-subtitle resume-accent-company font-medium">${escapeHtml(pickText(item.school, ""))}</p>
+                        <p class="resume-classic-item-period text-gray-500"><i class="far fa-calendar-alt mr-1"></i> ${escapeHtml(pickText(item.period, ""))}</p>
                     </div>
                 `;
             }).join("");
@@ -2113,19 +2193,19 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         function renderClassicSkills(skills) {
             const groups = pickArray(skills);
             if (!groups.length) {
-                return '<p class="text-sm text-gray-500">可在左侧表单中填写专业技能</p>';
+                return '<p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写专业技能</p>';
             }
 
             return groups.map((group, index) => {
-                const groupClass = index === groups.length - 1 ? "" : "mb-3";
+                const groupClass = index === groups.length - 1 ? "resume-classic-stack-item" : "resume-classic-stack-item resume-classic-stack-item-spaced";
                 const tags = normalizeStringArray(group.items).map((item) => (
-                    `<span class="rounded-full bg-gray-200 px-3 py-1 text-xs font-medium text-gray-700">${escapeHtml(item)}</span>`
+                    `<span class="resume-classic-skill-tag rounded-full bg-gray-200 font-medium text-gray-700">${escapeHtml(item)}</span>`
                 )).join("");
 
                 return `
                     <div class="${groupClass}">
-                        <p class="mb-2 text-sm font-semibold text-gray-700">${escapeHtml(pickText(group.name, ""))}</p>
-                        <div class="flex flex-wrap gap-2">${tags}</div>
+                        <p class="resume-classic-group-title font-semibold text-gray-700">${escapeHtml(pickText(group.name, ""))}</p>
+                        <div class="resume-classic-skill-tag-list flex flex-wrap">${tags}</div>
                     </div>
                 `;
             }).join("");
@@ -2134,10 +2214,10 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         function renderClassicExperienceItem(item, index, total, renderOptions) {
             const showTimeline = Boolean(renderOptions.showExperienceTimeline);
             const lineClass = renderOptions.useThemeTimeline ? "resume-soft-divider" : "resume-timeline-soft-divider";
-            const spacingClass = index === total - 1 ? "" : "mb-8";
+            const spacingClass = index === total - 1 ? "" : "resume-classic-entry-spaced";
             const wrapperClass = showTimeline
-                ? `${spacingClass} relative pl-6 border-l-2 ${lineClass} resume-avoid-break`.trim()
-                : `${spacingClass} relative resume-avoid-break`.trim();
+                ? `${spacingClass} resume-classic-entry relative pl-6 border-l-2 ${lineClass} resume-avoid-break`.trim()
+                : `${spacingClass} resume-classic-entry relative resume-avoid-break`.trim();
             const isHighlight = Boolean(item.highlight);
             const dotClass = isHighlight ? "resume-accent-dot" : "bg-gray-300";
             const companyClass = isHighlight ? "resume-accent-company" : "text-gray-600";
@@ -2148,38 +2228,38 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return `
                 <div class="${wrapperClass}">
                     ${showTimeline ? `<div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full ${dotClass} ring-4 ring-white"></div>` : ""}
-                    <div class="mb-2 flex flex-col md:flex-row md:items-start md:justify-between">
+                    <div class="resume-classic-entry-head flex flex-col md:flex-row md:items-start md:justify-between">
                         <div>
-                            <h4 class="text-lg font-bold text-gray-800">${escapeHtml(pickText(item.title, ""))}</h4>
-                            <p class="text-sm font-medium ${companyClass}">${escapeHtml(pickText(item.company, ""))}</p>
+                            <h4 class="resume-classic-entry-title font-bold text-gray-800">${escapeHtml(pickText(item.title, ""))}</h4>
+                            <p class="resume-classic-entry-company font-medium ${companyClass}">${escapeHtml(pickText(item.company, ""))}</p>
                         </div>
-                        <div class="mt-1 whitespace-nowrap text-sm font-medium text-gray-500 md:mt-0">
+                        <div class="resume-classic-entry-period whitespace-nowrap font-medium text-gray-500">
                             ${escapeHtml(pickText(item.period, ""))}
                         </div>
                     </div>
-                    <ul class="mt-3 list-inside list-disc space-y-2 text-sm leading-relaxed text-gray-600">${bullets}</ul>
+                    <ul class="resume-classic-bullet-list list-inside list-disc text-gray-600">${bullets}</ul>
                 </div>
             `;
         }
 
         function renderClassicProjectCard(project) {
             const badgeClass = pickText(project.badgeStyle, "secondary") === "primary"
-                ? "resume-primary-badge rounded px-2 py-1 text-xs font-semibold"
-                : "rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700";
+                ? "resume-primary-badge resume-classic-project-badge rounded font-semibold"
+                : "resume-classic-project-badge rounded bg-gray-200 font-semibold text-gray-700";
             const techTags = normalizeStringArray(project.techs).map((tech) => (
-                `<span class="rounded border border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-500">${escapeHtml(tech)}</span>`
+                `<span class="resume-classic-tech-tag rounded border border-gray-200 bg-white text-gray-500">${escapeHtml(tech)}</span>`
             )).join("");
             const badgeText = pickText(project.badge, "").trim();
             const badgeHtml = badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : "";
 
             return `
-                <div class="resume-avoid-break rounded-lg border border-gray-100 bg-gray-50 p-5 transition-shadow hover:shadow-md">
-                    <div class="mb-2 flex items-center justify-between gap-4">
-                        <h4 class="font-bold text-gray-800">${escapeHtml(pickText(project.name, ""))}</h4>
+                <div class="resume-classic-project-card resume-avoid-break rounded-lg border border-gray-100 bg-gray-50 transition-shadow hover:shadow-md">
+                    <div class="resume-classic-project-head flex items-center justify-between gap-4">
+                        <h4 class="resume-classic-project-title font-bold text-gray-800">${escapeHtml(pickText(project.name, ""))}</h4>
                         ${badgeHtml}
                     </div>
-                    <p class="mb-3 text-justify text-sm text-gray-600">${escapeHtml(pickText(project.description, ""))}</p>
-                    <div class="mt-2 flex flex-wrap gap-2">${techTags}</div>
+                    <p class="resume-classic-project-description text-justify text-gray-600">${escapeHtml(pickText(project.description, ""))}</p>
+                    <div class="resume-classic-tech-list flex flex-wrap">${techTags}</div>
                 </div>
             `;
         }
@@ -2192,8 +2272,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
             const blocks = [
                 `
-                    <div class="resume-avoid-break mb-8 flex justify-center">
-                        <div class="relative h-32 w-32 overflow-hidden border-4 border-white shadow-md ${avatarFrameClass}">
+                    <div class="resume-classic-avatar-section resume-avoid-break flex justify-center">
+                        <div class="resume-classic-avatar-shell relative overflow-hidden border-4 border-white shadow-md ${avatarFrameClass}">
                             <img src="${escapeHtml(profileImage)}" alt="Profile Picture" class="pointer-events-none select-none" style="${avatarStyle}" data-testid="avatar-preview-image" data-avatar-zoom="${escapeHtml(String(avatarFrame.zoom))}" data-avatar-offset-x="${escapeHtml(String(avatarFrame.offsetX))}" data-avatar-offset-y="${escapeHtml(String(avatarFrame.offsetY))}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
                         </div>
                     </div>
@@ -2202,8 +2282,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
             if (basicInfoContent) {
                 blocks.push(`
-                    <div class="resume-avoid-break mb-10">
-                        <h3 class="resume-section-divider mb-4 border-b-2 pb-2 text-lg font-bold text-gray-800">基本信息</h3>
+                    <div class="resume-classic-section resume-avoid-break">
+                        <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">基本信息</h3>
                         ${basicInfoContent}
                     </div>
                 `);
@@ -2211,14 +2291,14 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
             blocks.push(
                 `
-                    <div class="resume-avoid-break mb-10">
-                        <h3 class="resume-section-divider mb-4 border-b-2 pb-2 text-lg font-bold text-gray-800">教育背景</h3>
+                    <div class="resume-classic-section resume-avoid-break">
+                        <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">教育背景</h3>
                         ${renderClassicEducation(data.education)}
                     </div>
                 `,
                 `
-                    <div class="resume-avoid-break mb-10">
-                        <h3 class="resume-section-divider mb-4 border-b-2 pb-2 text-lg font-bold text-gray-800">专业技能</h3>
+                    <div class="resume-classic-section resume-avoid-break">
+                        <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">专业技能</h3>
                         ${renderClassicSkills(data.skills)}
                     </div>
                 `
@@ -2231,18 +2311,18 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const summaryText = pickText(data.summary, "").trim() || "可在左侧表单中填写个人简介";
             const blocks = [
                 `
-                    <div class="resume-soft-divider resume-avoid-break mb-10 border-b pb-8">
-                        <h1 class="mb-2 text-4xl font-black tracking-tight text-gray-900 md:text-5xl">${escapeHtml(pickText(data.name, ""))}</h1>
-                        <h2 class="resume-role-text text-xl font-medium tracking-wide md:text-2xl">${escapeHtml(pickText(data.role, ""))}</h2>
+                    <div class="resume-soft-divider resume-classic-hero resume-avoid-break border-b">
+                        <h1 class="resume-classic-name font-black tracking-tight text-gray-900">${escapeHtml(pickText(data.name, ""))}</h1>
+                        <h2 class="resume-role-text resume-classic-role font-medium tracking-wide">${escapeHtml(pickText(data.role, ""))}</h2>
                     </div>
                 `,
                 `
-                    <div class="resume-avoid-break mb-10">
-                        <div class="mb-4 flex items-center">
-                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-user-tie text-lg"></i></div>
-                            <h3 class="text-2xl font-bold text-gray-800">个人简介</h3>
+                    <div class="resume-classic-section resume-avoid-break">
+                        <div class="resume-classic-section-heading flex items-center">
+                            <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-user-tie text-lg"></i></div>
+                            <h3 class="resume-classic-section-heading-title font-bold text-gray-800">个人简介</h3>
                         </div>
-                        <p class="text-justify leading-relaxed text-gray-600">${escapeHtml(summaryText)}</p>
+                        <p class="resume-classic-summary-text text-justify text-gray-600">${escapeHtml(summaryText)}</p>
                     </div>
                 `
             ];
@@ -2251,10 +2331,10 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             if (experienceList.length) {
                 const experienceItems = experienceList.map((item, index) => renderClassicExperienceItem(item, index, experienceList.length, data));
                 blocks.push(`
-                    <div class="resume-avoid-break mb-10">
-                        <div class="mb-6 flex items-center">
-                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
-                            <h3 class="text-2xl font-bold text-gray-800">工作经历</h3>
+                    <div class="resume-classic-section resume-avoid-break">
+                        <div class="resume-classic-section-heading flex items-center">
+                            <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
+                            <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
                         </div>
                         ${experienceItems[0]}
                     </div>
@@ -2265,12 +2345,12 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 }
             } else {
                 blocks.push(`
-                    <div class="resume-avoid-break mb-10">
-                        <div class="mb-6 flex items-center">
-                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
-                            <h3 class="text-2xl font-bold text-gray-800">工作经历</h3>
+                    <div class="resume-classic-section resume-avoid-break">
+                        <div class="resume-classic-section-heading flex items-center">
+                            <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
+                            <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
                         </div>
-                        <p class="text-sm text-gray-500">可在左侧表单中填写工作经历</p>
+                        <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写工作经历</p>
                     </div>
                 `);
             }
@@ -2279,27 +2359,27 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             if (projectList.length) {
                 const projectCards = projectList.map((project) => renderClassicProjectCard(project));
                 blocks.push(`
-                    <div class="resume-avoid-break mb-6">
-                        <div class="mb-6 flex items-center">
-                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
-                            <h3 class="text-2xl font-bold text-gray-800">项目经验</h3>
+                    <div class="resume-classic-section-tight resume-avoid-break">
+                        <div class="resume-classic-section-heading flex items-center">
+                            <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
+                            <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
                         </div>
                         ${projectCards[0]}
                     </div>
                 `);
 
                 for (let index = 1; index < projectCards.length; index += 1) {
-                    const wrapperClass = index === projectCards.length - 1 ? "resume-avoid-break" : "resume-avoid-break mb-6";
+                    const wrapperClass = index === projectCards.length - 1 ? "resume-avoid-break" : "resume-avoid-break resume-classic-project-wrapper-spaced";
                     blocks.push(`<div class="${wrapperClass}">${projectCards[index]}</div>`);
                 }
             } else {
                 blocks.push(`
                     <div class="resume-avoid-break">
-                        <div class="mb-6 flex items-center">
-                            <div class="resume-section-icon mr-3 flex h-10 w-10 items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
-                            <h3 class="text-2xl font-bold text-gray-800">项目经验</h3>
+                        <div class="resume-classic-section-heading flex items-center">
+                            <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
+                            <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
                         </div>
-                        <p class="text-sm text-gray-500">可在左侧表单中填写项目经验</p>
+                        <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写项目经验</p>
                     </div>
                 `);
             }
@@ -2486,7 +2566,8 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             `;
         }
 
-        function renderCardProjectCard(project) {
+        function renderCardProjectCard(project, showExperienceTimeline) {
+            const showTimeline = Boolean(showExperienceTimeline);
             const badgeClass = pickText(project.badgeStyle, "secondary") === "primary"
                 ? "resume-primary-badge resume-project-badge"
                 : "resume-project-secondary-badge resume-project-badge";
@@ -2497,9 +2578,13 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const badgeHtml = badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : "";
             const description = pickText(project.description, "").trim();
 
+            const cardClass = showTimeline
+                ? "resume-card resume-card-lg resume-project-card resume-avoid-break"
+                : "resume-card resume-card-lg resume-avoid-break";
+
             return `
-                <article class="resume-card resume-card-lg resume-project-card resume-avoid-break">
-                    <div class="resume-project-accent" aria-hidden="true"></div>
+                <article class="${cardClass}">
+                    ${showTimeline ? '<div class="resume-project-accent" aria-hidden="true"></div>' : ""}
                     <div class="resume-project-head">
                         <div class="min-w-0 flex-1">
                             <div class="resume-project-title-row">
@@ -2615,7 +2700,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 `);
 
                 for (let index = 0; index < projectList.length; index += 1) {
-                    blocks.push(renderCardProjectCard(projectList[index]));
+                    blocks.push(renderCardProjectCard(projectList[index], data.showExperienceTimeline));
                 }
             }
 
@@ -2759,7 +2844,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const layout = normalizeResumeLayout(data.resumeLayout);
             const profileImage = getAvatarImageSource(data.profileImage);
             const theme = getResumeThemeOption(data.resumeTheme);
-            const themeInlineStyle = buildResumeThemeInlineStyle(theme);
+            const themeInlineStyle = buildResumeThemeInlineStyle(theme, data);
             const normalizedRenderMode = normalizeRenderMode(renderMode);
 
             activeRenderMode = normalizedRenderMode;
@@ -2767,7 +2852,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             document.title = documentTitle;
 			// 🌟 动态注入丰富的主题变量（支持单色和混搭色）
             const rootStyle = document.documentElement.style;
-            const themeVars = buildResumeThemeVars(theme);
+            const themeVars = buildResumeThemeVars(theme, data);
             Object.entries(themeVars).forEach(([key, value]) => {
                 rootStyle.setProperty(key, value);
 			});
@@ -3129,7 +3214,9 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 value = target.value;
             }
 
-            if (section === "basic") {
+            if (section === "layoutControls") {
+                resumeData[field] = clampResumeLayoutControl(field, value, resumeData[field]);
+            } else if (section === "basic") {
                 resumeData[field] = value;
             } else if (section === "avatarFrame") {
                 const minZoom = avatarCropState ? getAvatarEditorMinZoom(avatarCropState.imageMeta) : 1;
