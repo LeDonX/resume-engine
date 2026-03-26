@@ -365,25 +365,50 @@ const STORAGE_KEY = "resume-generator-draft-v1";
 
         function buildResumeThemeVars(theme, data = sampleResumeData) {
             const layoutControlVars = buildResumeLayoutControlVars(data);
+            const isCardsLayout = normalizeResumeLayout(data?.resumeLayout) === RESUME_LAYOUT_CARDS;
             // 如果主题配置了 leftBg (如专业商务风)，就用纯色；否则用柔和的微渐变
             const leftBackground = theme.leftBg 
                 ? theme.leftBg 
                 : `linear-gradient(180deg, ${theme.softBg || '#f8fbff'}40, ${theme.softBg || '#f3f7fe'}80)`;
 
-            const pageCanvas = mixHexColors(theme.softBg || "#f3f4f6", "#e5e7eb", 0.52, "#eceef2");
-            const pageBorder = mixHexColors(pageCanvas, "#cbd5e1", 0.42, "#d8dee7");
-            const cardBorder = mixHexColors(theme.softBg || "#eef2f7", "#cfd7e3", 0.72, "#dde3ea");
-            const cardSubtle = mixHexColors(theme.softBg || "#f8fafc", "#ffffff", 0.46, "#f8fafc");
-            const mutedText = mixHexColors(theme.accentStrong, "#667085", 0.8, "#667085");
-            const subtleText = mixHexColors(mutedText, "#98a2b3", 0.58, "#98a2b3");
-            const pillBg = mixHexColors(theme.softBg || "#edf2ff", "#ffffff", 0.28, "#f5f7fb");
-            const pillText = mixHexColors(theme.accentStrong, "#667085", 0.5, theme.accentStrong);
-            const timelineTrack = mixHexColors(theme.softBg || "#e5ebf3", "#cbd5e1", 0.54, "#d9e0e8");
-            const pageShadow = `0 32px 72px ${toRgbaString(theme.accentStrong, 0.08, "rgba(15, 23, 42, 0.08)")}, 0 10px 26px rgba(15, 23, 42, 0.06)`;
-            const cardShadow = `0 18px 38px ${toRgbaString(theme.accentStrong, 0.06, "rgba(15, 23, 42, 0.06)")}, 0 4px 14px rgba(15, 23, 42, 0.04)`;
-			const dividerColor = theme.iconMode === "strict_gray" 
-							? "#cbd5e1" // Tailwind 里的 slate-300，最完美的浅灰分割线
-							: (theme.accent + "66"); // 其他主题保留主色带透明度的横线
+            const pageCanvas = isCardsLayout
+                ? "#f5f5f7"
+                : mixHexColors(theme.softBg || "#f3f4f6", "#e5e7eb", 0.52, "#eceef2");
+            const pageBorder = isCardsLayout
+                ? "#e5e5ea"
+                : mixHexColors(pageCanvas, "#cbd5e1", 0.42, "#d8dee7");
+            const cardBorder = isCardsLayout
+                ? "#ececef"
+                : mixHexColors(theme.softBg || "#eef2f7", "#cfd7e3", 0.72, "#dde3ea");
+            const cardSubtle = isCardsLayout
+                ? "#f5f5f7"
+                : mixHexColors(theme.softBg || "#f8fafc", "#ffffff", 0.46, "#f8fafc");
+            const mutedText = isCardsLayout
+                ? "#86868b"
+                : mixHexColors(theme.accentStrong, "#667085", 0.8, "#667085");
+            const subtleText = isCardsLayout
+                ? "#a1a1aa"
+                : mixHexColors(mutedText, "#98a2b3", 0.58, "#98a2b3");
+            const pillBg = isCardsLayout
+                ? "#eff6ff"
+                : mixHexColors(theme.softBg || "#edf2ff", "#ffffff", 0.28, "#f5f7fb");
+            const pillText = isCardsLayout
+                ? "#0071e3"
+                : mixHexColors(theme.accentStrong, "#667085", 0.5, theme.accentStrong);
+            const timelineTrack = isCardsLayout
+                ? "#f0f0f5"
+                : mixHexColors(theme.softBg || "#e5ebf3", "#cbd5e1", 0.54, "#d9e0e8");
+            const pageShadow = isCardsLayout
+                ? "0 18px 50px rgba(0, 0, 0, 0.04)"
+                : `0 32px 72px ${toRgbaString(theme.accentStrong, 0.08, "rgba(15, 23, 42, 0.08)")}, 0 10px 26px rgba(15, 23, 42, 0.06)`;
+            const cardShadow = isCardsLayout
+                ? "0 4px 24px rgba(0, 0, 0, 0.04)"
+                : `0 18px 38px ${toRgbaString(theme.accentStrong, 0.06, "rgba(15, 23, 42, 0.06)")}, 0 4px 14px rgba(15, 23, 42, 0.04)`;
+			const dividerColor = isCardsLayout
+							? "#d6dde8"
+							: (theme.iconMode === "strict_gray" 
+								? "#cbd5e1"
+								: (theme.accent + "66"));
 
             return {
                 "--resume-accent": theme.accent,
@@ -2387,6 +2412,17 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             return blocks;
         }
 
+        function renderCardSectionHeader(title, iconClass, iconToneClass = "", iconShadowClass = "", large = false) {
+            return `
+                <div class="resume-card-title-row${large ? " resume-card-title-row-lg" : ""}">
+                    <div class="resume-section-icon resume-card-title-icon ${iconToneClass} ${iconShadowClass}"><i class="${escapeHtml(iconClass)} ${large ? "text-base" : "text-sm"}"></i></div>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="resume-card-title${large ? " resume-card-title-lg" : ""}">${escapeHtml(title)}</h3>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderCardBasicInfo(basicInfo, renderOptions) {
             const list = pickArray(basicInfo).filter((item) => pickText(item?.value, "").trim() !== "");
             if (!list.length) return "";
@@ -2396,205 +2432,169 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const items = list.map((info, index) => {
                 const icon = escapeHtml(resolveBasicInfoIcon(info));
                 const text = escapeHtml(pickText(info.value, ""));
-                const label = escapeHtml(pickText(info.label, getBasicInfoIconTone(info.iconPreset).label));
                 const currentColorOverride = info.iconColor || "theme";
                 const globalPaletteKey = renderOptions.iconPalette || "theme";
                 const finalColorKey = resolveIconColorToneForTheme(index, currentColorOverride, globalPaletteKey, renderOptions.resumeTheme);
-                const iconHtml = renderDynamicIcon(icon, finalColorKey, "resume-info-icon h-9 w-9 rounded-full text-[13px]", shadowClass);
+                const iconHtml = renderDynamicIcon(icon, finalColorKey, "resume-info-icon h-8 w-8 rounded-full text-[12px]", shadowClass);
 
                 return `
-                    <li class="resume-info-item">
+                    <li class="resume-info-item resume-contact-row">
                         <div class="shrink-0">${iconHtml}</div>
                         <div class="min-w-0 flex-1">
-                            <p class="resume-info-label">${label}</p>
                             <p class="resume-info-value">${text}</p>
                         </div>
                     </li>
                 `;
             }).join("");
 
-            return `<ul class="resume-info-list">${items}</ul>`;
+            return `<ul class="resume-info-list resume-contact-list">${items}</ul>`;
         }
 
         function renderCardEducationEntry(item) {
+            const school = pickText(item?.school, "").trim();
+            const degree = pickText(item?.degree, "").trim();
+            const period = pickText(item?.period, "").trim();
+
             return `
-                <article class="resume-card resume-side-item-card resume-avoid-break">
-                    <h4 class="resume-meta-title">${escapeHtml(pickText(item.school, ""))}</h4>
-                    <p class="resume-meta-subtitle">${escapeHtml(pickText(item.degree, ""))}</p>
-                    <span class="resume-period-pill">${escapeHtml(pickText(item.period, ""))}</span>
-                </article>
+                <div class="resume-education-item">
+                    <div class="resume-education-main min-w-0 flex-1">
+                        ${school ? `<h4 class="resume-meta-title">${escapeHtml(school)}</h4>` : ""}
+                        ${degree ? `<p class="resume-meta-subtitle">${escapeHtml(degree)}</p>` : ""}
+                    </div>
+                    ${period ? `<span class="resume-period-pill">${escapeHtml(period)}</span>` : ""}
+                </div>
             `;
         }
 
         function buildCardEducationBlocks(education, iconShadowClass) {
-            const list = pickArray(education);
-            if (!list.length) {
-                return [
-                    `
-                        <article class="resume-card resume-side-section-card resume-avoid-break">
-                            <div class="resume-card-title-row resume-card-title-row-compact">
-                                <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-user-graduate text-sm"></i></div>
-                                <div>
-                                    <p class="resume-card-kicker">Education</p>
-                                    <h3 class="resume-card-title">教育背景</h3>
-                                </div>
-                            </div>
-                            <p class="resume-empty-state">可在左侧表单中填写教育背景</p>
-                        </article>
-                    `
-                ];
-            }
+            const list = pickArray(education).filter((item) => (
+                pickText(item?.school, "").trim()
+                || pickText(item?.degree, "").trim()
+                || pickText(item?.period, "").trim()
+            ));
+
+            const body = list.length
+                ? `<div class="resume-education-list">${list.map((item) => renderCardEducationEntry(item)).join("")}</div>`
+                : '<p class="resume-empty-state">可在左侧表单中填写教育背景</p>';
 
             return [
                 `
-                    <article class="resume-card resume-side-section-card resume-avoid-break">
-                        <div class="resume-card-title-row resume-card-title-row-compact">
-                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-user-graduate text-sm"></i></div>
-                            <div>
-                                <p class="resume-card-kicker">Education</p>
-                                <h3 class="resume-card-title">教育背景</h3>
-                            </div>
-                        </div>
+                    <article class="resume-card resume-side-section-card resume-card-widget resume-avoid-break">
+                        ${renderCardSectionHeader("Education", "fas fa-user-graduate", "resume-card-icon-education", iconShadowClass)}
+                        ${body}
                     </article>
-                `,
-                ...list.map((item) => renderCardEducationEntry(item))
+                `
             ];
         }
 
         function renderSkillTags(items, badgeColorPref) {
             return normalizeStringArray(items).map((item) => {
                 let badgeClass = "";
-                
-                // 1. 主题浅色：使用底层的 CSS 变量（它会自动调用非常柔和的配色）
+
                 if (badgeColorPref === "theme-soft" || badgeColorPref === "theme") {
-                    badgeClass = "resume-primary-badge border border-black/5 mix-blend-multiply shadow-sm"; 
-                } 
-                // 🌟 2. 新增的主题描边：极简风的最爱，纯白底+主题色边框+主题色文字
-                else if (badgeColorPref === "theme-outline") {
-                    badgeClass = "bg-white text-theme border border-theme shadow-[0_2px_8px_var(--resume-accent-glow)]";
-                } 
-                // 3. 经典灰色系
-                else if (badgeColorPref === "gray") {
-                    badgeClass = "bg-gray-100 text-gray-700 border border-gray-200/50";
+                    badgeClass = "resume-primary-badge resume-skill-tag-theme";
+                } else if (badgeColorPref === "theme-outline") {
+                    badgeClass = "resume-skill-tag-outline";
+                } else if (badgeColorPref === "gray") {
+                    badgeClass = "bg-gray-100 text-gray-700 border border-gray-200/80";
                 } else if (badgeColorPref === "slate") {
-                    badgeClass = "bg-slate-100 text-slate-700 border border-slate-200/50";
+                    badgeClass = "bg-slate-100 text-slate-700 border border-slate-200/80";
                 } else if (badgeColorPref === "zinc") {
-                    badgeClass = "bg-zinc-100 text-zinc-700 border border-zinc-200/50";
+                    badgeClass = "bg-zinc-100 text-zinc-700 border border-zinc-200/80";
+                } else {
+                    badgeClass = "resume-primary-badge resume-skill-tag-theme";
                 }
-                
+
                 return `<span class="${badgeClass} resume-skill-tag">${escapeHtml(item)}</span>`;
             }).join("");
         }
 
-        function renderCardSkillGroupCard(group, badgeColorPref) {
+        function renderCardSkillGroup(group, badgeColorPref) {
+            const groupName = pickText(group?.name, "").trim();
+            const tags = renderSkillTags(group?.items, badgeColorPref);
+
             return `
-                <article class="resume-card resume-side-item-card resume-avoid-break">
-                    <p class="resume-skill-group-name">${escapeHtml(pickText(group.name, ""))}</p>
-                    <div class="resume-skill-tag-list">${renderSkillTags(group.items, badgeColorPref)}</div>
-                </article>
+                <div class="resume-skill-group">
+                    ${groupName ? `<p class="resume-skill-group-name">${escapeHtml(groupName)}</p>` : ""}
+                    ${tags ? `<div class="resume-skill-tag-list">${tags}</div>` : '<p class="resume-empty-state">可补充技能标签</p>'}
+                </div>
             `;
         }
 
         function buildCardSkillBlocks(skills, iconShadowClass, badgeColorPref) {
-            const groups = pickArray(skills);
+            const groups = pickArray(skills).filter((group) => (
+                pickText(group?.name, "").trim() || normalizeStringArray(group?.items).length
+            ));
 
-            if (!groups.length) {
-                return [
-                    `
-                        <article class="resume-card resume-side-section-card resume-avoid-break">
-                            <div class="resume-card-title-row resume-card-title-row-compact">
-                                <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-layer-group text-sm"></i></div>
-                                <div>
-                                    <p class="resume-card-kicker">Skills</p>
-                                    <h3 class="resume-card-title">专业技能</h3>
-                                </div>
-                            </div>
-                            <p class="resume-empty-state">可在左侧表单中填写专业技能</p>
-                        </article>
-                    `
-                ];
-            }
+            const body = groups.length
+                ? `<div class="resume-skill-widget-list">${groups.map((group) => renderCardSkillGroup(group, badgeColorPref)).join("")}</div>`
+                : '<p class="resume-empty-state">可在左侧表单中填写专业技能</p>';
 
             return [
                 `
-                    <article class="resume-card resume-side-section-card resume-avoid-break">
-                        <div class="resume-card-title-row resume-card-title-row-compact">
-                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-layer-group text-sm"></i></div>
-                            <div>
-                                <p class="resume-card-kicker">Skills</p>
-                                <h3 class="resume-card-title">专业技能</h3>
-                            </div>
-                        </div>
+                    <article class="resume-card resume-side-section-card resume-card-widget resume-avoid-break">
+                        ${renderCardSectionHeader("Skills", "fas fa-wand-magic-sparkles", "resume-card-icon-skills", iconShadowClass)}
+                        ${body}
                     </article>
-                `,
-                ...groups.map((group) => renderCardSkillGroupCard(group, badgeColorPref))
+                `
             ];
         }
 
         function renderCardExperienceItem(item, index, total, useThemeTimeline, showExperienceTimeline) {
-            const showTimeline = Boolean(showExperienceTimeline);
-            const isThemeLine = Boolean(useThemeTimeline);
-            const lineClass = isThemeLine ? "resume-timeline-rail-accent" : "resume-timeline-rail-neutral";
-            const isHighlight = Boolean(item.highlight);
-            const dotClass = isHighlight ? "resume-timeline-dot-accent" : "resume-timeline-dot-muted";
-            const companyClass = isHighlight ? "resume-accent-company" : "resume-entry-company-muted";
-            const bullets = normalizeStringArray(item.bullets)
+            const showTimeline = true;
+            const lineClass = "resume-timeline-rail-neutral";
+            const dotClass = "resume-timeline-dot-accent";
+            const companyText = pickText(item?.company, "").trim() || "未填写公司";
+            const roleText = pickText(item?.title, "").trim();
+            const periodText = pickText(item?.period, "").trim();
+            const bullets = normalizeStringArray(item?.bullets)
                 .map((bullet) => (`<li>${escapeHtml(bullet)}</li>`))
                 .join("");
-            const bulletList = bullets ? `<ul class="resume-bullet-list">${bullets}</ul>` : "";
-            const highlightBadge = isHighlight
-                ? '<span class="resume-primary-badge resume-entry-flag">重点经历</span>'
-                : '';
-            const cardClass = showTimeline
-                ? "resume-card resume-card-lg resume-experience-card resume-avoid-break"
-                : "resume-card resume-card-lg resume-avoid-break";
+            const bulletList = bullets
+                ? `<ul class="resume-bullet-list">${bullets}</ul>`
+                : '<p class="resume-empty-state">可在左侧表单中补充工作经历要点</p>';
 
             return `
-                <article class="${cardClass}" data-resume-item-index="${index}" data-resume-item-total="${total}">
-                    ${showTimeline ? `<div class="resume-timeline-rail ${lineClass}" aria-hidden="true"></div>
-                    <div class="resume-timeline-dot ${dotClass}" aria-hidden="true"></div>` : ""}
-                    <div class="resume-entry-head">
-                        <div class="min-w-0 flex-1">
-                            ${highlightBadge}
-                            <h4 class="resume-entry-title">${escapeHtml(pickText(item.title, ""))}</h4>
-                            <p class="resume-entry-company ${companyClass}">${escapeHtml(pickText(item.company, ""))}</p>
+                <article class="resume-timeline-entry resume-experience-entry${showTimeline ? " resume-timeline-entry-has-rail" : ""}" data-resume-item-index="${index}" data-resume-item-total="${total}">
+                    ${showTimeline && index < total - 1 ? `<div class="resume-timeline-rail ${lineClass}" aria-hidden="true"></div>` : ""}
+                    ${showTimeline ? `<div class="resume-timeline-dot ${dotClass}" aria-hidden="true"></div>` : ""}
+                    <div class="resume-timeline-entry-content">
+                        <div class="resume-entry-head">
+                            <div class="min-w-0 flex-1">
+                                <h4 class="resume-entry-company">${escapeHtml(companyText)}</h4>
+                            </div>
+                            ${periodText ? `<span class="resume-period-pill resume-period-pill-tight">${escapeHtml(periodText)}</span>` : ""}
                         </div>
-                        <span class="resume-period-pill resume-period-pill-tight">${escapeHtml(pickText(item.period, ""))}</span>
+                        ${roleText ? `<p class="resume-entry-role">${escapeHtml(roleText)}</p>` : ""}
+                        ${bulletList}
                     </div>
-                    ${bulletList}
                 </article>
             `;
         }
 
-        function renderCardProjectCard(project, showExperienceTimeline) {
-            const showTimeline = Boolean(showExperienceTimeline);
-            const badgeClass = pickText(project.badgeStyle, "secondary") === "primary"
+        function renderCardProjectCard(project, index, total, showExperienceTimeline) {
+            const showTimeline = true;
+            const badgeText = pickText(project?.badge, "").trim();
+            const badgeStyle = pickText(project?.badgeStyle, "secondary") === "primary" ? "primary" : "secondary";
+            const badgeClass = badgeStyle === "primary"
                 ? "resume-primary-badge resume-project-badge"
                 : "resume-project-secondary-badge resume-project-badge";
-            const techTags = normalizeStringArray(project.techs).map((tech) => (
-                `<span class="resume-tech-tag">${escapeHtml(tech)}</span>`
-            )).join("");
-            const badgeText = pickText(project.badge, "").trim();
-            const badgeHtml = badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : "";
-            const description = pickText(project.description, "").trim();
-
-            const cardClass = showTimeline
-                ? "resume-card resume-card-lg resume-project-card resume-avoid-break"
-                : "resume-card resume-card-lg resume-avoid-break";
+            const dotClass = "resume-project-timeline-dot";
+            const description = pickText(project?.description, "").trim();
 
             return `
-                <article class="${cardClass}">
-                    ${showTimeline ? '<div class="resume-project-accent" aria-hidden="true"></div>' : ""}
-                    <div class="resume-project-head">
-                        <div class="min-w-0 flex-1">
+                <article class="resume-timeline-entry resume-project-item${showTimeline ? " resume-timeline-entry-has-rail" : ""}">
+                    ${showTimeline && index < total - 1 ? '<div class="resume-timeline-rail resume-timeline-rail-neutral" aria-hidden="true"></div>' : ""}
+                    ${showTimeline ? `<div class="resume-timeline-dot ${dotClass}" aria-hidden="true"></div>` : ""}
+                    <div class="resume-timeline-entry-content">
+                        <div class="resume-project-head">
                             <div class="resume-project-title-row">
-                                <h4 class="resume-entry-title">${escapeHtml(pickText(project.name, ""))}</h4>
-                                ${badgeHtml}
+                                <h4 class="resume-entry-title">${escapeHtml(pickText(project?.name, "").trim() || "未填写项目名称")}</h4>
+                                ${badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : ""}
                             </div>
-                            <p class="resume-project-description">${escapeHtml(description)}</p>
+                            ${description ? `<p class="resume-project-description">${escapeHtml(description)}</p>` : ""}
                         </div>
                     </div>
-                    <div class="resume-tech-tag-list">${techTags}</div>
                 </article>
             `;
         }
@@ -2605,7 +2605,7 @@ const STORAGE_KEY = "resume-generator-draft-v1";
             const avatarFrame = normalizeAvatarFrame(data.avatarFrame, avatarMeta);
             const avatarStyle = getAvatarImageStyle(avatarFrame, avatarMeta);
             const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
-            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_10px_24px_var(--resume-accent-glow)]";
+            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_18px_var(--resume-accent-glow)]";
             const roleText = pickText(data.role, "").trim();
             const blocks = [
                 `
@@ -2623,20 +2623,12 @@ const STORAGE_KEY = "resume-generator-draft-v1";
                 `
             ];
 
-            if (basicInfoContent) {
-                blocks.push(`
-                    <article class="resume-card resume-avoid-break">
-                        <div class="resume-card-title-row">
-                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-address-book text-sm"></i></div>
-                            <div>
-                                <p class="resume-card-kicker">Contact</p>
-                                <h3 class="resume-card-title">联系方式</h3>
-                            </div>
-                        </div>
-                        ${basicInfoContent}
-                    </article>
-                `);
-            }
+            blocks.push(`
+                <article class="resume-card resume-card-widget resume-contact-card resume-avoid-break">
+                    ${renderCardSectionHeader("Contact", "fas fa-envelope", "resume-card-icon-contact", iconShadowClass)}
+                    ${basicInfoContent || '<p class="resume-empty-state">可在左侧表单中填写联系方式</p>'}
+                </article>
+            `);
 
             blocks.push(
                 ...buildCardEducationBlocks(data.education, iconShadowClass),
@@ -2647,64 +2639,49 @@ const STORAGE_KEY = "resume-generator-draft-v1";
         }
 
         function buildCardRightColumnBlocks(data) {
-            // 🌟 读取扁平开关状态，生成对应阴影类名
-            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_16px_var(--resume-accent-glow)]";
+            const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_14px_var(--resume-accent-glow)]";
             const summaryText = pickText(data.summary, "").trim() || "可在左侧表单中填写个人简介";
+            const experienceList = pickArray(data.experiences).filter((item) => (
+                pickText(item?.company, "").trim()
+                || pickText(item?.title, "").trim()
+                || pickText(item?.period, "").trim()
+                || normalizeStringArray(item?.bullets).length
+            ));
+            const projectList = pickArray(data.projects).filter((item) => (
+                pickText(item?.name, "").trim()
+                || pickText(item?.badge, "").trim()
+                || pickText(item?.description, "").trim()
+                || normalizeStringArray(item?.techs).length
+            ));
 
-            const blocks = [
+            return [
                 `
-                    <article class="resume-card resume-card-lg resume-summary-card resume-avoid-break">
-                        <div class="resume-card-title-row">
-                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-user-tie text-base"></i></div>
-                            <div>
-                                <p class="resume-card-kicker">Profile</p>
-                                <h3 class="resume-card-title resume-card-title-lg">个人简介</h3>
-                            </div>
-                        </div>
+                    <article class="resume-card resume-card-lg resume-card-widget resume-summary-card resume-avoid-break">
+                        ${renderCardSectionHeader("关于我", "fas fa-user", "resume-card-icon-about", iconShadowClass, true)}
                         <p class="resume-summary-text">${escapeHtml(summaryText)}</p>
+                    </article>
+                `,
+                `
+                    <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-experience-section-card resume-avoid-break">
+                        ${renderCardSectionHeader("工作经历", "fas fa-briefcase", "resume-card-icon-experience", iconShadowClass, true)}
+                        <div class="resume-section-card-body resume-card-timeline-list">
+                            ${experienceList.length
+                                ? experienceList.map((item, index) => renderCardExperienceItem(item, index, experienceList.length, data.useThemeTimeline, data.showExperienceTimeline)).join("")
+                                : '<p class="resume-empty-state">可在左侧表单中填写工作经历</p>'}
+                        </div>
+                    </article>
+                `,
+                `
+                    <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-project-section-card resume-avoid-break">
+                        ${renderCardSectionHeader("项目经验", "fas fa-code", "resume-card-icon-project", iconShadowClass, true)}
+                        <div class="resume-section-card-body resume-card-timeline-list">
+                            ${projectList.length
+                                ? projectList.map((item, index) => renderCardProjectCard(item, index, projectList.length, data.showExperienceTimeline)).join("")
+                                : '<p class="resume-empty-state">可在左侧表单中填写项目经验</p>'}
+                        </div>
                     </article>
                 `
             ];
-
-            const experienceList = pickArray(data.experiences);
-            if (experienceList.length) {
-                blocks.push(`
-                    <article class="resume-card resume-section-lead-card resume-avoid-break">
-                        <div class="resume-card-title-row">
-                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-briefcase text-base"></i></div>
-                            <div>
-                                <p class="resume-card-kicker">Timeline</p>
-                                <h3 class="resume-card-title resume-card-title-lg">工作经历</h3>
-                            </div>
-                        </div>
-                    </article>
-                `);
-
-                for (let index = 0; index < experienceList.length; index += 1) {
-                    blocks.push(renderCardExperienceItem(experienceList[index], index, experienceList.length, data.useThemeTimeline, data.showExperienceTimeline));
-                }
-            }
-
-            const projectList = pickArray(data.projects);
-            if (projectList.length) {
-                blocks.push(`
-                    <article class="resume-card resume-section-lead-card resume-avoid-break">
-                        <div class="resume-card-title-row">
-                            <div class="resume-section-icon resume-card-title-icon ${iconShadowClass}"><i class="fas fa-code text-base"></i></div>
-                            <div>
-                                <p class="resume-card-kicker">Selected Work</p>
-                                <h3 class="resume-card-title resume-card-title-lg">项目经验</h3>
-                            </div>
-                        </div>
-                    </article>
-                `);
-
-                for (let index = 0; index < projectList.length; index += 1) {
-                    blocks.push(renderCardProjectCard(projectList[index], data.showExperienceTimeline));
-                }
-            }
-
-            return blocks;
         }
 
         function buildLayoutColumnBlocks(layout, data, profileImage) {
