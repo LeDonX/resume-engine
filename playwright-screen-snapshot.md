@@ -1,0 +1,44 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]
+        - button " 生成 PDF" [ref=e9] [cursor=pointer]
+      - generic [ref=e13]:
+        - generic [ref=e14]
+        - paragraph [ref=e24]
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - button " 个人信息" [ref=e28] [cursor=pointer]
+        - generic [ref=e32]
+      - button " 简历排版与主题" [ref=e63] [cursor=pointer]:
+        - generic [ref=e64]
+      - generic [ref=e67]:
+        - generic [ref=e68]
+        - text:     +
+      - generic [ref=e74]:
+        - generic [ref=e75]
+        - text:       +
+      - generic [ref=e81]:
+        - generic [ref=e82]
+        - text:     +
+      - generic [ref=e88]:
+        - generic [ref=e89]
+        - text:     +
+  - main [ref=e95]:
+    - generic [ref=e97]:
+      - generic [ref=e100]:
+        - generic [ref=e102]
+        - generic [ref=e142]
+        - generic [ref=e151]
+      - generic [ref=e160]: 分页分割区域 · 第 1/3 页
+      - generic [ref=e163]:
+        - generic [ref=e164]
+        - article [ref=e184]
+        - generic [ref=e196]
+        - article [ref=e218]
+        - generic [ref=e233]
+      - generic [ref=e239]: 分页分割区域 · 第 2/3 页
+      - generic [ref=e242]:
+        - article [ref=e244]
+        - article [ref=e253]
