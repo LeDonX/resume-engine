@@ -1,13 +1,13 @@
 export const RESUME_LAYOUT_CONTROL_SETTINGS = Object.freeze({
     fontScale: Object.freeze({ min: 0.85, max: 1.2, step: 0.01, defaultValue: 1 }),
     lineHeightScale: Object.freeze({ min: 0.9, max: 1.25, step: 0.01, defaultValue: 1 }),
-    innerPaddingScale: Object.freeze({ min: 0.8, max: 1.25, step: 0.01, defaultValue: 1 }),
-    moduleSpacingScale: Object.freeze({ min: 0.8, max: 1.35, step: 0.01, defaultValue: 1 }),
+    innerPaddingScale: Object.freeze({ min: 0.6, max: 1.25, step: 0.01, defaultValue: 1 }),
+    moduleSpacingScale: Object.freeze({ min: 0.5, max: 1.5, step: 0.01, defaultValue: 1 }),
     titleScale: Object.freeze({ min: 0.92, max: 1.12, step: 0.01, defaultValue: 1 }),
     nameScale: Object.freeze({ min: 0.88, max: 1.18, step: 0.01, defaultValue: 1 }),
     roleScale: Object.freeze({ min: 0.92, max: 1.1, step: 0.01, defaultValue: 1 }),
-    classicSpacingScale: Object.freeze({ min: 0.9, max: 1.15, step: 0.01, defaultValue: 1 }),
-    cardsSpacingScale: Object.freeze({ min: 0.9, max: 1.15, step: 0.01, defaultValue: 1 })
+    classicSpacingScale: Object.freeze({ min: 0.8, max: 1.25, step: 0.01, defaultValue: 1 }),
+    cardsSpacingScale: Object.freeze({ min: 0.8, max: 1.25, step: 0.01, defaultValue: 1 })
 });
 
 function formatScale(value) {
@@ -16,10 +16,6 @@ function formatScale(value) {
 
 function getSetting(field) {
     return RESUME_LAYOUT_CONTROL_SETTINGS[field] || { min: 0, max: 10, step: 0.01, defaultValue: 1 };
-}
-
-function composeSpacingScale(baseScale, layoutScale) {
-    return formatScale(baseScale * layoutScale);
 }
 
 function parseResumeLayoutControlNumber(value) {
@@ -32,6 +28,7 @@ function parseResumeLayoutControlNumber(value) {
         if (!trimmed) {
             return Number.NaN;
         }
+
         const parsed = Number(trimmed);
         return Number.isFinite(parsed) ? parsed : Number.NaN;
     }
@@ -45,11 +42,13 @@ export function clampResumeLayoutControl(field, value, fallbackValue) {
     const safeFallback = Number.isFinite(parsedFallback) ? parsedFallback : setting.defaultValue;
     const parsedValue = parseResumeLayoutControlNumber(value);
     const candidate = Number.isFinite(parsedValue) ? parsedValue : safeFallback;
+
     return formatScale(Math.min(setting.max, Math.max(setting.min, candidate)));
 }
 
 export function normalizeResumeLayoutControls(sourceValue = {}) {
     const source = sourceValue && typeof sourceValue === "object" ? sourceValue : {};
+
     return {
         fontScale: clampResumeLayoutControl("fontScale", source.fontScale),
         lineHeightScale: clampResumeLayoutControl("lineHeightScale", source.lineHeightScale),
@@ -63,10 +62,29 @@ export function normalizeResumeLayoutControls(sourceValue = {}) {
     };
 }
 
+export function normalizeResumeLayoutControlsForLayout(sourceValue = {}, resumeLayout = "classic") {
+    const controls = normalizeResumeLayoutControls(sourceValue);
+    const activeLegacyField = resumeLayout === "cards" ? "cardsSpacingScale" : "classicSpacingScale";
+
+    return {
+        ...controls,
+        moduleSpacingScale: clampResumeLayoutControl(
+            "moduleSpacingScale",
+            controls.moduleSpacingScale * controls[activeLegacyField],
+            controls.moduleSpacingScale
+        ),
+        classicSpacingScale: RESUME_LAYOUT_CONTROL_SETTINGS.classicSpacingScale.defaultValue,
+        cardsSpacingScale: RESUME_LAYOUT_CONTROL_SETTINGS.cardsSpacingScale.defaultValue
+    };
+}
+
 export function buildResumeLayoutControlVars(sourceValue = {}) {
     const controls = normalizeResumeLayoutControls(sourceValue);
-    const classicModuleSpacingScale = composeSpacingScale(controls.moduleSpacingScale, controls.classicSpacingScale);
-    const cardsModuleSpacingScale = composeSpacingScale(controls.moduleSpacingScale, controls.cardsSpacingScale);
+    const moduleSpacingScale = controls.moduleSpacingScale;
+    const isCardsLayout = sourceValue && typeof sourceValue === "object" && sourceValue.resumeLayout === "cards";
+    const cardsGapBase = isCardsLayout ? 6.2 : 4.5;
+    const cardsPaddingBase = isCardsLayout ? 8.2 : 5.5;
+    const cardsSectionGapBase = isCardsLayout ? 6.2 : 4;
 
     return {
         "--resume-font-scale": String(controls.fontScale),
@@ -78,16 +96,16 @@ export function buildResumeLayoutControlVars(sourceValue = {}) {
         "--resume-role-scale": String(controls.roleScale),
         "--resume-classic-spacing-scale": String(controls.classicSpacingScale),
         "--resume-cards-spacing-scale": String(controls.cardsSpacingScale),
-        "--resume-cards-gap": `calc(4.5mm * ${cardsModuleSpacingScale})`,
-        "--resume-cards-padding": `calc(5.5mm * ${controls.innerPaddingScale})`,
-        "--resume-cards-section-gap": `calc(4mm * ${cardsModuleSpacingScale})`,
+        "--resume-cards-gap": `calc(${cardsGapBase}mm * ${moduleSpacingScale})`,
+        "--resume-cards-padding": `calc(${cardsPaddingBase}mm * ${controls.innerPaddingScale})`,
+        "--resume-cards-section-gap": `calc(${cardsSectionGapBase}mm * ${moduleSpacingScale})`,
         "--resume-classic-left-padding": `calc(2rem * ${controls.innerPaddingScale})`,
         "--resume-classic-right-padding-y": `calc(2rem * ${controls.innerPaddingScale})`,
         "--resume-classic-right-padding-x": `calc(3rem * ${controls.innerPaddingScale})`,
-        "--resume-classic-section-gap": `calc(2.5rem * ${classicModuleSpacingScale})`,
-        "--resume-classic-section-gap-tight": `calc(1.5rem * ${classicModuleSpacingScale})`,
-        "--resume-classic-stack-gap": `calc(1rem * ${classicModuleSpacingScale})`,
-        "--resume-classic-bullet-gap": `calc(0.5rem * ${classicModuleSpacingScale})`,
+        "--resume-classic-section-gap": `calc(2.5rem * ${moduleSpacingScale})`,
+        "--resume-classic-section-gap-tight": `calc(1.5rem * ${moduleSpacingScale})`,
+        "--resume-classic-stack-gap": `calc(1rem * ${moduleSpacingScale})`,
+        "--resume-classic-bullet-gap": `calc(0.5rem * ${moduleSpacingScale})`,
         "--resume-classic-card-padding": `calc(1.25rem * ${controls.innerPaddingScale})`,
         "--resume-classic-avatar-size": `calc(8rem * ${controls.innerPaddingScale})`
     };

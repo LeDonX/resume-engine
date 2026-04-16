@@ -1,0 +1,13 @@
+{
+  "name": "editor-next-prototype",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "serve": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "sortablejs": "^1.15.7"
+  }
+}
