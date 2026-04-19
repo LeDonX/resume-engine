@@ -124,28 +124,50 @@ export const ICON_PALETTE_OPTIONS = [
 ];
 
 export const RESUME_LAYOUT_CONTROL_FIELDS = [
-    { key: "fontScale", label: "字号缩放", hint: "正文与基础字号", group: "typography" },
-    { key: "lineHeightScale", label: "行高缩放", hint: "整体阅读节奏", group: "typography" },
-    { key: "titleScale", label: "标题缩放", hint: "模块与条目标题", group: "typography" },
-    { key: "nameScale", label: "姓名缩放", hint: "姓名主标题大小", group: "typography" },
-    { key: "roleScale", label: "岗位缩放", hint: "岗位标题与标签", group: "typography" },
-    { key: "innerPaddingScale", label: "内部留白", hint: "独立控制卡片与栏位内边距", group: "spacing" },
-    { key: "moduleSpacingScale", label: "模块间距基准", hint: "全局模块上下间距基础值", group: "spacing" }
+    { key: "fontScale", label: "正文", hint: "控制正文与阅读类文本" },
+    { key: "basicInfoScale", label: "基本信息文字大小", hint: "仅控制顶部基本信息文字" },
+    { key: "titleScale", label: "模块标题", hint: "控制模块与分区标题" },
+    { key: "nameScale", label: "姓名", hint: "控制顶部姓名展示" },
+    { key: "roleScale", label: "目标岗位", hint: "控制顶部目标岗位展示" },
+    { key: "basicInfoIconScale", label: "基本信息图标", hint: "仅控制顶部基本信息图标" },
+    { key: "skillGroupNameScale", label: "技能组名称", hint: "控制技能分组标题" },
+    { key: "skillTagScale", label: "技能标签", hint: "控制技能标签与技能项" },
+    { key: "workProjectMetaScale", label: "工作/项目元信息", hint: "控制工作与项目标题、标签、时间" }
 ];
+
+export const RESUME_LAYOUT_SPACING_CONTROL_FIELDS = [
+    { key: "moduleMarginYScale", label: "模块外边距（纵向）", hint: "控制模块与分组包装器的纵向间距" },
+    { key: "moduleMarginXScale", label: "模块外边距（横向）", hint: "控制模块列与横向模块边界间距" },
+    { key: "modulePaddingYScale", label: "模块内边距（纵向）", hint: "控制卡片与内容容器的纵向留白" },
+    { key: "modulePaddingXScale", label: "模块内边距（横向）", hint: "控制卡片与内容容器的横向留白" },
+    { key: "pagePaddingYScale", label: "页面边距（纵向）", hint: "控制页面上下留白" },
+    { key: "pagePaddingXScale", label: "页面边距（横向）", hint: "控制页面左右留白" },
+    { key: "bodyLineHeightScale", label: "正文行高", hint: "仅控制正文段落、描述与项目要点行高" }
+];
+
+export const RESUME_REORDERABLE_SECTION_IDS = ["skills", "experiences", "projects", "education"];
+export const DEFAULT_EXPERIENCE_WORK_BADGE_LABEL = "重点经历";
 
 export const sampleResumeData = {
     documentTitle: "张三的简历",
     resumeLayout: RESUME_LAYOUT_CLASSIC,
     resumeTheme: "pro_blue",
     fontScale: 1,
-    lineHeightScale: 1,
-    innerPaddingScale: 1,
-    moduleSpacingScale: 1,
+    basicInfoScale: 1,
     titleScale: 1,
     nameScale: 1,
     roleScale: 1,
-    classicSpacingScale: 1,
-    cardsSpacingScale: 1,
+    basicInfoIconScale: 1,
+    skillGroupNameScale: 1,
+    skillTagScale: 1,
+    workProjectMetaScale: 1,
+    moduleMarginYScale: 1,
+    moduleMarginXScale: 1,
+    modulePaddingYScale: 1,
+    modulePaddingXScale: 1,
+    pagePaddingYScale: 1,
+    pagePaddingXScale: 1,
+    bodyLineHeightScale: 1,
     showExperienceTimeline: false,
     useFlatIcons: true,
     profileImage: "",
@@ -154,6 +176,7 @@ export const sampleResumeData = {
     avatarShape: AVATAR_SHAPE_CIRCLE,
     basicInfo: BASIC_INFO_PRESETS,
     professionalSkillsMode: PROFESSIONAL_SKILLS_MODE_SKILLS,
+    sectionOrder: [...RESUME_REORDERABLE_SECTION_IDS],
     education: [
         { degree: "计算机科学与技术 - 本科", school: "北京某某大学", period: "2016.09 - 2020.06" },
         { degree: "软件工程 - 硕士", school: "北京某某大学", period: "2020.09 - 2023.06" }
@@ -173,6 +196,8 @@ export const sampleResumeData = {
             company: "北京某某科技有限公司",
             period: "2022.07 - 至今",
             highlight: true,
+            workBadgeEnabled: true,
+            workBadgeLabel: DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
             bullets: [
                 "负责公司核心SAAS平台的架构设计与前端重构，采用 React + TypeScript，将页面首屏加载时间降低了 40%。",
                 "带领5人前端团队，制定代码规范并引入CI/CD自动化部署流程，提升团队整体研发效率约30%。",
@@ -184,6 +209,8 @@ export const sampleResumeData = {
             company: "上海某某互联网公司",
             period: "2020.07 - 2022.06",
             highlight: false,
+            workBadgeEnabled: false,
+            workBadgeLabel: "",
             bullets: [
                 "参与电商PC端及H5端页面的日常迭代开发，使用 Vue.js 与后端工程师紧密配合。",
                 "实现了大型营销活动的复杂交互抽奖转盘及动画效果，活动期间稳定支撑10w+ QPS。",
@@ -223,6 +250,8 @@ export function createInitialPanelState() {
     return {
         profile: false,
         theme: true,
+        font: false,
+        spacing: true,
         contact: true,
         education: true,
         skills: true,

@@ -7,7 +7,7 @@ export function createSkillGroup() {
 }
 
 export function createExperience() {
-    return { title: "", company: "", period: "", highlight: false, bullets: [] };
+    return { title: "", company: "", period: "", highlight: false, workBadgeEnabled: false, workBadgeLabel: "", bullets: [] };
 }
 
 export function createProject() {

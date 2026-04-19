@@ -5,6 +5,7 @@ import {
     AVATAR_SHAPE_RECTANGLE,
     BASIC_INFO_COLORS,
     BASIC_INFO_ICON_OPTIONS,
+    DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
     ICON_PALETTE_OPTIONS,
     PROFESSIONAL_SKILLS_MODE_OPTIONS,
     PROFESSIONAL_SKILLS_MODE_SKILLS,
@@ -12,6 +13,7 @@ import {
     RESUME_LAYOUT_CLASSIC,
     RESUME_LAYOUT_CARDS,
     RESUME_LAYOUT_CONTROL_FIELDS,
+    RESUME_LAYOUT_SPACING_CONTROL_FIELDS,
     RESUME_LAYOUT_MY_RESUME,
     RESUME_LAYOUT_OPTIONS,
     RESUME_THEME_OPTIONS,
@@ -22,6 +24,7 @@ import {
     normalizeResumeLayout,
     normalizeResumeTheme,
     normalizeBasicInfoColor,
+    normalizeSectionOrder,
     normalizeProfessionalSkillsMode,
     renderDynamicIcon,
     resolveBasicInfoIcon,
@@ -39,7 +42,8 @@ import {
 } from "../avatar/avatar-utils.js";
 import {
     RESUME_LAYOUT_CONTROL_SETTINGS,
-    clampResumeLayoutControl
+    clampResumeLayoutControl,
+    formatResumeLayoutControlValue
 } from "../resume-layout-controls.js";
 
 const inputClass = "mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 transition-all placeholder:text-slate-400 hover:bg-slate-200/60 focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
@@ -197,43 +201,35 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
     const isSkillsMode = normalizeProfessionalSkillsMode(resumeData.professionalSkillsMode) === PROFESSIONAL_SKILLS_MODE_SKILLS;
     const isProfileCollapsed = panelState.profile;
     const isThemeCollapsed = panelState.theme;
+    const isFontCollapsed = panelState.font ?? false;
+    const isSpacingCollapsed = panelState.spacing ?? true;
     const renderLayoutControl = (control) => {
         const settings = RESUME_LAYOUT_CONTROL_SETTINGS[control.key];
         const value = clampResumeLayoutControl(control.key, resumeData[control.key]);
         return `
-            <label class="block rounded-xl border border-slate-200/70 bg-white/80 px-3 py-2.5">
-                <div class="mb-2 flex items-start justify-between gap-3">
-                    <div>
-                        <p class="text-[11px] font-bold text-slate-700">${control.label}</p>
-                        <p class="mt-0.5 text-[9px] font-medium text-slate-400">${control.hint}</p>
-                    </div>
-                    <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">${Math.round(value * 100)}%</span>
+            <label class="grid gap-2.5 px-3 py-3">
+                <div class="flex min-w-0 items-center justify-between gap-3">
+                    <p class="min-w-0 truncate text-[11px] font-bold leading-none text-slate-700">${control.label}</p>
+                    <output class="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-bold leading-none tabular-nums text-slate-600 shadow-[0_1px_2px_rgba(15,23,42,0.03)]" data-layout-control-value="${control.key}">${formatResumeLayoutControlValue(control.key, value, { layout: activeLayout })}</output>
                 </div>
-                <input type="range" min="${settings.min}" max="${settings.max}" step="${settings.step}" value="${value}" class="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-blue-600" data-section="layoutControls" data-field="${control.key}">
-                <div class="mt-1 flex items-center justify-between text-[9px] font-medium text-slate-400">
-                    <span>${Math.round(settings.min * 100)}%</span>
-                    <span>${Math.round(settings.max * 100)}%</span>
+                <div class="grid min-w-0 grid-cols-[52px_minmax(0,1fr)_52px] items-center gap-2.5">
+                    <span class="shrink-0 text-[9px] font-medium tabular-nums text-slate-400">${formatResumeLayoutControlValue(control.key, settings.min, { layout: activeLayout })}</span>
+                    <input type="range" min="${settings.min}" max="${settings.max}" step="${settings.step}" value="${value}" class="h-1.5 min-w-0 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-blue-600" data-section="layoutControls" data-field="${control.key}">
+                    <span class="shrink-0 justify-self-end text-[9px] font-medium tabular-nums text-slate-400">${formatResumeLayoutControlValue(control.key, settings.max, { layout: activeLayout })}</span>
                 </div>
             </label>
         `;
     };
-    const layoutControlSections = [
-        { key: "typography", label: "字体与行高" },
-        { key: "spacing", label: "留白与间距" }
-    ].map((section) => {
-        const controls = RESUME_LAYOUT_CONTROL_FIELDS.filter((control) => control.group === section.key);
-        return `
-            <div class="rounded-2xl border border-slate-200/70 bg-white/55 p-3">
-                <div class="mb-3 flex items-center justify-between">
-                    <p class="text-[11px] font-bold text-slate-700">${section.label}</p>
-                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-400">${controls.length} 项</span>
-                </div>
-                <div class="grid gap-2.5 sm:grid-cols-2">
-                    ${controls.map(renderLayoutControl).join("")}
-                </div>
-            </div>
-        `;
-    }).join("");
+    const layoutControlSection = `
+        <div class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/65 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] divide-y divide-slate-200/70">
+            ${RESUME_LAYOUT_CONTROL_FIELDS.map(renderLayoutControl).join("")}
+        </div>
+    `;
+    const spacingControlSection = `
+        <div class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/65 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] divide-y divide-slate-200/70">
+            ${RESUME_LAYOUT_SPACING_CONTROL_FIELDS.map(renderLayoutControl).join("")}
+        </div>
+    `;
 
     const contactBlocks = resumeData.basicInfo.map((item, index) => {
         const iconClass = resolveBasicInfoIcon(item);
@@ -376,13 +372,28 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
                         </div>
                     </div>
                     <div class="border-t border-slate-200/60 pt-4 mb-5">
-                        <div class="flex items-center justify-between mb-2.5">
-                            <div>
-                                <p class="text-[12px] font-bold text-slate-700">全局排版微调</p>
-                                <p class="text-[9px] text-slate-400 font-medium mt-0.5">统一作用于预览、测量分页与打印</p>
+                        <button type="button" data-action="toggle-section" data-section-id="font" class="flex w-full items-center justify-between outline-none group/font">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ${isFontCollapsed ? '-rotate-90' : ''} group-hover/font:text-slate-600"></i>
+                                <p class="text-[13px] font-bold text-slate-700 transition-colors group-hover/font:text-slate-900">字体</p>
                             </div>
+                            <span class="rounded-full border border-slate-200/50 bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400">${RESUME_LAYOUT_CONTROL_FIELDS.length} 项</span>
+                        </button>
+                        <div class="transition-all duration-300 overflow-hidden ${isFontCollapsed ? 'h-0 opacity-0 pointer-events-none mt-0' : 'h-auto opacity-100 mt-3'}">
+                            <div class="grid gap-3">${layoutControlSection}</div>
                         </div>
-                        <div class="grid gap-3">${layoutControlSections}</div>
+                    </div>
+                    <div class="border-t border-slate-200/60 pt-4 mb-5">
+                        <button type="button" data-action="toggle-section" data-section-id="spacing" class="flex w-full items-center justify-between outline-none group/spacing">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ${isSpacingCollapsed ? '-rotate-90' : ''} group-hover/spacing:text-slate-600"></i>
+                                <p class="text-[13px] font-bold text-slate-700 transition-colors group-hover/spacing:text-slate-900">间距与版式</p>
+                            </div>
+                            <span class="rounded-full border border-slate-200/50 bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400">${RESUME_LAYOUT_SPACING_CONTROL_FIELDS.length} 项</span>
+                        </button>
+                        <div class="transition-all duration-300 overflow-hidden ${isSpacingCollapsed ? 'h-0 opacity-0 pointer-events-none mt-0' : 'h-auto opacity-100 mt-3'}">
+                            <div class="grid gap-3">${spacingControlSection}</div>
+                        </div>
                     </div>
                     <div class="border-t border-slate-200/60 pt-4 mb-5">
                         <div class="flex items-center justify-between mb-3">
@@ -486,6 +497,26 @@ function renderBasicInfoForm() {
     return "";
 }
 
+function renderReorderableSectionShell({ sectionId, title, isCollapsed, collapsedActionHtml = "", contentHtml }) {
+    return `
+        <section class="form-section sortable-form-section !p-0 overflow-hidden" data-section-id="${sectionId}">
+            <div class="flex w-full items-center justify-between">
+                <button type="button" class="form-section-drag-handle ml-3 flex h-8 w-8 shrink-0 cursor-grab items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing" title="拖拽排序" aria-label="拖拽排序">
+                    <i class="fas fa-grip-vertical text-[11px]"></i>
+                </button>
+                <button type="button" data-action="toggle-section" data-section-id="${sectionId}" class="flex flex-1 items-center gap-2 p-4 pl-2 transition-colors outline-none text-left">
+                    <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}"></i>
+                    <h2 class="text-sm font-extrabold text-slate-900">${title}</h2>
+                </button>
+                ${collapsedActionHtml}
+            </div>
+            <div class="px-4 pb-6 ${isCollapsed ? 'hidden' : 'block'}">
+                ${contentHtml}
+            </div>
+        </section>
+    `;
+}
+
 function renderEducationForm({ resumeData, panelState }) {
     const isCollapsed = panelState.education;
     const blocks = resumeData.education.map((item, index) => (`
@@ -505,23 +536,20 @@ function renderEducationForm({ resumeData, panelState }) {
         </div>
     `)).join("");
 
-    return `
-        <section class="form-section !p-0 overflow-hidden">
-            <div class="flex w-full items-center justify-between">
-                <button type="button" data-action="toggle-section" data-section-id="education" class="flex flex-1 items-center gap-2 p-4 transition-colors outline-none text-left">
-                    <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}"></i>
-                    <h2 class="text-sm font-extrabold text-slate-900">教育背景</h2>
-                </button>
-                <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
-                    <button type="button" data-action="add-education" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
-                </div>
+    return renderReorderableSectionShell({
+        sectionId: "education",
+        title: "教育背景",
+        isCollapsed,
+        collapsedActionHtml: `
+            <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
+                <button type="button" data-action="add-education" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
             </div>
-            <div class="px-4 pb-6 ${isCollapsed ? 'hidden' : 'block'}">
-                <div class="grid gap-3">${blocks}</div>
-                <button type="button" data-action="add-education" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-plus"></i> 新增教育经历</button>
-            </div>
-        </section>
-    `;
+        `,
+        contentHtml: `
+            <div class="grid gap-3">${blocks}</div>
+            <button type="button" data-action="add-education" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-plus"></i> 新增教育经历</button>
+        `
+    });
 }
 
 function renderSkillsForm({ resumeData, panelState }) {
@@ -574,35 +602,30 @@ function renderSkillsForm({ resumeData, panelState }) {
         <button type="button" data-action="add-skill" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-600"><i class="fas fa-plus"></i> 新增技能分组</button>
     `;
 
-    return `
-        <section class="form-section !p-0 overflow-hidden">
-            <div class="flex w-full items-center justify-between">
-                <button type="button" data-action="toggle-section" data-section-id="skills" class="flex flex-1 items-center gap-2 p-4 transition-colors outline-none text-left">
-                    <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}"></i>
-                    <h2 class="text-sm font-extrabold text-slate-900">专业技能</h2>
-                </button>
-                ${isSkillsMode ? `
-                    <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
-                        <button type="button" data-action="add-skill" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
-                    </div>
-                ` : ""}
+    return renderReorderableSectionShell({
+        sectionId: "skills",
+        title: "专业技能",
+        isCollapsed,
+        collapsedActionHtml: isSkillsMode ? `
+            <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
+                <button type="button" data-action="add-skill" class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
             </div>
-            <div class="px-4 pb-6 ${isCollapsed ? 'hidden' : 'block'}">
-                <div class="mb-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-4">
-                    <div class="flex items-center justify-between gap-3">
-                        <div>
-                            <p class="text-[12px] font-bold text-slate-700">经典 / 卡片版技能展示</p>
-                        </div>
-                        <span class="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[9px] font-bold ${isSkillsMode ? 'text-emerald-600' : 'text-violet-600'}">${activeModeLabel}</span>
+        ` : "",
+        contentHtml: `
+            <div class="mb-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-[12px] font-bold text-slate-700">经典 / 卡片版技能展示</p>
                     </div>
-                    <div class="mt-3 grid gap-2 sm:grid-cols-2">
-                        ${professionalSkillsModeButtons}
-                    </div>
+                    <span class="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[9px] font-bold ${isSkillsMode ? 'text-emerald-600' : 'text-violet-600'}">${activeModeLabel}</span>
                 </div>
-                ${isSkillsMode ? skillsEditor : textEditor}
+                <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                    ${professionalSkillsModeButtons}
+                </div>
             </div>
-        </section>
-    `;
+            ${isSkillsMode ? skillsEditor : textEditor}
+        `
+    });
 }
 
 function renderExperiencesForm({ resumeData, panelState }) {
@@ -622,29 +645,28 @@ function renderExperiencesForm({ resumeData, panelState }) {
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">公司<input name="experience-company-${index}" class="${inputClass}" data-section="experiences" data-index="${index}" data-field="company" value="${escapeHtml(item.company)}"></label>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">时间<input name="experience-period-${index}" class="${inputClass}" data-section="experiences" data-index="${index}" data-field="period" value="${escapeHtml(item.period)}"></label>
                 </div>
-                <label class="mt-1 flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100"><input name="experience-highlight-${index}" type="checkbox" class="h-4 w-4 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-blue-500" data-section="experiences" data-index="${index}" data-field="highlight" ${item.highlight ? "checked" : ""}><span class="text-[12px] font-bold text-slate-600">标记为高亮经历</span></label>
+                <label class="mt-1 flex w-fit cursor-pointer items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100"><input name="experience-highlight-${index}" type="checkbox" class="mt-0.5 h-4 w-4 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-blue-500" data-section="experiences" data-index="${index}" data-field="highlight" ${item.highlight ? "checked" : ""}><span class="grid gap-0.5"><span class="text-[12px] font-bold text-slate-600">启用文本高亮</span><span class="text-[10px] text-slate-400">工作内容支持 **...** 强调重点</span></span></label>
+                <label class="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100"><input name="experience-work-badge-enabled-${index}" type="checkbox" class="h-4 w-4 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-blue-500" data-section="experiences" data-index="${index}" data-field="workBadgeEnabled" ${item.workBadgeEnabled ? "checked" : ""}><span class="text-[12px] font-bold text-slate-600">显示经历徽章</span></label>
+                ${item.workBadgeEnabled ? `<label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">经历徽章文案<input name="experience-work-badge-label-${index}" class="${inputClass}" data-section="experiences" data-index="${index}" data-field="workBadgeLabel" value="${escapeHtml(item.workBadgeLabel || DEFAULT_EXPERIENCE_WORK_BADGE_LABEL)}" placeholder="${escapeHtml(DEFAULT_EXPERIENCE_WORK_BADGE_LABEL)}"></label>` : ""}
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">工作内容 <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal ml-1">（每行一段描述）</span><textarea name="experience-bullets-${index}" class="${textareaClass}" data-section="experiences" data-index="${index}" data-field="bullets" data-multiline="true">${escapeHtml(arrayToLines(item.bullets))}</textarea></label>
             </div>
         </div>
     `)).join("");
 
-    return `
-        <section class="form-section !p-0 overflow-hidden">
-            <div class="flex w-full items-center justify-between">
-                <button type="button" data-action="toggle-section" data-section-id="experiences" class="flex flex-1 items-center gap-2 p-4 transition-colors outline-none text-left">
-                    <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}"></i>
-                    <h2 class="text-sm font-extrabold text-slate-900">工作经历</h2>
-                </button>
-                <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
-                    <button type="button" data-action="add-experience" class="text-[11px] font-bold text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
-                </div>
+    return renderReorderableSectionShell({
+        sectionId: "experiences",
+        title: "工作经历",
+        isCollapsed,
+        collapsedActionHtml: `
+            <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
+                <button type="button" data-action="add-experience" class="text-[11px] font-bold text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
             </div>
-            <div class="px-4 pb-6 ${isCollapsed ? 'hidden' : 'block'}">
-                <div class="grid gap-3">${blocks}</div>
-                <button type="button" data-action="add-experience" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-600"><i class="fas fa-plus"></i> 新增工作经历</button>
-            </div>
-        </section>
-    `;
+        `,
+        contentHtml: `
+            <div class="grid gap-3">${blocks}</div>
+            <button type="button" data-action="add-experience" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-amber-400 hover:bg-amber-50 hover:text-amber-600"><i class="fas fa-plus"></i> 新增工作经历</button>
+        `
+    });
 }
 
 function renderProjectsForm({ resumeData, panelState }) {
@@ -677,33 +699,40 @@ function renderProjectsForm({ resumeData, panelState }) {
         </div>
     `)).join("");
 
-    return `
-        <section class="form-section !p-0 overflow-hidden">
-            <div class="flex w-full items-center justify-between">
-                <button type="button" data-action="toggle-section" data-section-id="projects" class="flex flex-1 items-center gap-2 p-4 transition-colors outline-none text-left">
-                    <i class="fas fa-chevron-down text-[12px] text-slate-400 transition-transform duration-200 ${isCollapsed ? '-rotate-90' : ''}"></i>
-                    <h2 class="text-sm font-extrabold text-slate-900">项目经验</h2>
-                </button>
-                <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
-                    <button type="button" data-action="add-project" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
-                </div>
+    return renderReorderableSectionShell({
+        sectionId: "projects",
+        title: "项目经验",
+        isCollapsed,
+        collapsedActionHtml: `
+            <div class="pr-4 ${isCollapsed ? '' : 'hidden'}">
+                <button type="button" data-action="add-project" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-lg transition-colors z-10 relative">+ 新增</button>
             </div>
-            <div class="px-4 pb-6 ${isCollapsed ? 'hidden' : 'block'}">
-                <div class="grid gap-3">${blocks}</div>
-                <button type="button" data-action="add-project" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-600"><i class="fas fa-plus"></i> 新增项目经验</button>
-            </div>
-        </section>
-    `;
+        `,
+        contentHtml: `
+            <div class="grid gap-3">${blocks}</div>
+            <button type="button" data-action="add-project" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-3 text-[12px] font-bold text-slate-500 transition-all hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-600"><i class="fas fa-plus"></i> 新增项目经验</button>
+        `
+    });
 }
 
 export function renderFormHtml(state) {
+    const reorderableSectionRenderers = {
+        education: renderEducationForm,
+        skills: renderSkillsForm,
+        experiences: renderExperiencesForm,
+        projects: renderProjectsForm
+    };
+    const sortableSectionsHtml = normalizeSectionOrder(state.resumeData?.sectionOrder)
+        .map((sectionId) => {
+            const renderSection = reorderableSectionRenderers[sectionId];
+            return renderSection ? renderSection(state) : "";
+        })
+        .join("");
+
     return [
         renderBasicForm(state),
         renderBasicInfoForm(state),
-        renderEducationForm(state),
-        renderSkillsForm(state),
-        renderExperiencesForm(state),
-        renderProjectsForm(state),
+        `<div id="form-sections-sortable" class="grid gap-4">${sortableSectionsHtml}</div>`,
         renderAvatarCropModal(state)
     ].join("");
 }

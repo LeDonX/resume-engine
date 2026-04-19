@@ -2,9 +2,11 @@ import {
     BASIC_INFO_COLORS,
     BASIC_INFO_ICON_OPTIONS,
     BASIC_INFO_PRESETS,
+    DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
     ICON_PALETTE_OPTIONS,
     PROFESSIONAL_SKILLS_MODE_SKILLS,
     PROFESSIONAL_SKILLS_MODE_TEXT,
+    RESUME_REORDERABLE_SECTION_IDS,
     RESUME_LAYOUT_CARDS,
     RESUME_LAYOUT_CLASSIC,
     RESUME_LAYOUT_MY_RESUME,
@@ -34,6 +36,8 @@ import {
     buildResumeLayoutControlVars,
     normalizeResumeLayoutControlsForLayout
 } from "../resume-layout-controls.js";
+
+const REORDERABLE_SECTION_ID_SET = new Set(RESUME_REORDERABLE_SECTION_IDS);
 
 export function normalizeBasicInfoColor(value) {
     const normalized = pickText(value, "theme").trim().toLowerCase();
@@ -75,6 +79,29 @@ export function normalizeResumeLayout(value) {
 export function normalizeProfessionalSkillsMode(value) {
     const normalized = pickText(value, "").trim().toLowerCase();
     return normalized === PROFESSIONAL_SKILLS_MODE_TEXT ? PROFESSIONAL_SKILLS_MODE_TEXT : PROFESSIONAL_SKILLS_MODE_SKILLS;
+}
+
+export function normalizeSectionOrder(value) {
+    const source = Array.isArray(value) ? value : RESUME_REORDERABLE_SECTION_IDS;
+    const seen = new Set();
+    const normalized = [];
+
+    for (const item of source) {
+        const sectionId = pickText(item, "").trim().toLowerCase();
+        if (!REORDERABLE_SECTION_ID_SET.has(sectionId) || seen.has(sectionId)) {
+            continue;
+        }
+        seen.add(sectionId);
+        normalized.push(sectionId);
+    }
+
+    for (const sectionId of RESUME_REORDERABLE_SECTION_IDS) {
+        if (!seen.has(sectionId)) {
+            normalized.push(sectionId);
+        }
+    }
+
+    return normalized;
 }
 
 export function normalizeRenderMode(value) {
@@ -427,6 +454,9 @@ export function normalizeResumeData(rawData) {
         professionalSkillsMode: hasOwn(raw, "professionalSkillsMode")
             ? normalizeProfessionalSkillsMode(raw.professionalSkillsMode)
             : normalizeProfessionalSkillsMode(fallback.professionalSkillsMode),
+        sectionOrder: hasOwn(raw, "sectionOrder")
+            ? normalizeSectionOrder(raw.sectionOrder)
+            : normalizeSectionOrder(fallback.sectionOrder),
         profileImage: hasProfileImage ? profileImage : "",
         avatarImageMeta: normalizedAvatarImageMeta,
         avatarFrame: hasProfileImage
@@ -447,13 +477,23 @@ export function normalizeResumeData(rawData) {
             name: pickText(item?.name, ""),
             items: normalizeStringArray(item?.items)
         })),
-        experiences: pickArray(experiencesSource).map((item) => ({
-            title: pickText(item?.title, ""),
-            company: pickText(item?.company, ""),
-            period: pickText(item?.period, ""),
-            highlight: Boolean(item?.highlight),
-            bullets: normalizeStringArray(item?.bullets)
-        })),
+        experiences: pickArray(experiencesSource).map((item) => {
+            const highlight = Boolean(item?.highlight);
+            const legacyWorkBadgeLabel = pickText(item?.highlightLabel, "").trim();
+            const workBadgeLabel = pickText(item?.workBadgeLabel, legacyWorkBadgeLabel).trim();
+            const workBadgeEnabled = item && hasOwn(item, "workBadgeEnabled")
+                ? Boolean(item.workBadgeEnabled)
+                : Boolean(legacyWorkBadgeLabel);
+            return {
+                title: pickText(item?.title, ""),
+                company: pickText(item?.company, ""),
+                period: pickText(item?.period, ""),
+                highlight,
+                workBadgeEnabled,
+                workBadgeLabel: workBadgeEnabled ? (workBadgeLabel || DEFAULT_EXPERIENCE_WORK_BADGE_LABEL) : workBadgeLabel,
+                bullets: normalizeStringArray(item?.bullets)
+            };
+        }),
         projects: pickArray(projectsSource).map((item) => {
             const { hasRenderableContent, ...projectData } = buildProjectRenderModel(item);
             return projectData;

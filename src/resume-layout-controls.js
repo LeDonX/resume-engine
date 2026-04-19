@@ -1,13 +1,77 @@
+import {
+    RESUME_LAYOUT_CARDS,
+    RESUME_LAYOUT_CLASSIC,
+    RESUME_LAYOUT_MY_RESUME,
+    RESUME_LAYOUT_MY_RESUME3
+} from "./core/config.js";
+
 export const RESUME_LAYOUT_CONTROL_SETTINGS = Object.freeze({
-    fontScale: Object.freeze({ min: 0.85, max: 1.2, step: 0.01, defaultValue: 1 }),
-    lineHeightScale: Object.freeze({ min: 0.9, max: 1.25, step: 0.01, defaultValue: 1 }),
-    innerPaddingScale: Object.freeze({ min: 0.6, max: 1.25, step: 0.01, defaultValue: 1 }),
-    moduleSpacingScale: Object.freeze({ min: 0.5, max: 1.5, step: 0.01, defaultValue: 1 }),
-    titleScale: Object.freeze({ min: 0.92, max: 1.12, step: 0.01, defaultValue: 1 }),
-    nameScale: Object.freeze({ min: 0.88, max: 1.18, step: 0.01, defaultValue: 1 }),
-    roleScale: Object.freeze({ min: 0.92, max: 1.1, step: 0.01, defaultValue: 1 }),
-    classicSpacingScale: Object.freeze({ min: 0.8, max: 1.25, step: 0.01, defaultValue: 1 }),
-    cardsSpacingScale: Object.freeze({ min: 0.8, max: 1.25, step: 0.01, defaultValue: 1 })
+    fontScale: Object.freeze({ min: 0.85, max: 1.3, step: 0.01, defaultValue: 1 }),
+    basicInfoScale: Object.freeze({ min: 0.8, max: 1.1, step: 0.01, defaultValue: 1 }),
+    titleScale: Object.freeze({ min: 0.75, max: 1.35, step: 0.01, defaultValue: 1 }),
+    nameScale: Object.freeze({ min: 0.75, max: 1.45, step: 0.01, defaultValue: 1 }),
+    roleScale: Object.freeze({ min: 0.8, max: 1.3, step: 0.01, defaultValue: 1 }),
+    basicInfoIconScale: Object.freeze({ min: 0.75, max: 1.3, step: 0.01, defaultValue: 1 }),
+    skillGroupNameScale: Object.freeze({ min: 0.8, max: 1.35, step: 0.01, defaultValue: 1 }),
+    skillTagScale: Object.freeze({ min: 0.85, max: 1.3, step: 0.01, defaultValue: 1 }),
+    workProjectMetaScale: Object.freeze({ min: 0.85, max: 1.3, step: 0.01, defaultValue: 1 }),
+    moduleMarginYScale: Object.freeze({ min: 0, max: 1.2, step: 0.01, defaultValue: 1 }),
+    moduleMarginXScale: Object.freeze({ min: 0, max: 1.2, step: 0.01, defaultValue: 1 }),
+    modulePaddingYScale: Object.freeze({ min: 0.75, max: 1.15, step: 0.01, defaultValue: 1 }),
+    modulePaddingXScale: Object.freeze({ min: 0.75, max: 1.15, step: 0.01, defaultValue: 1 }),
+    pagePaddingYScale: Object.freeze({ min: 0.75, max: 1.15, step: 0.01, defaultValue: 1 }),
+    pagePaddingXScale: Object.freeze({ min: 0.75, max: 1.15, step: 0.01, defaultValue: 1 }),
+    bodyLineHeightScale: Object.freeze({ min: 0.8, max: 1.15, step: 0.01, defaultValue: 1 })
+});
+
+const FONT_CONTROL_FIELDS = new Set([
+    "fontScale",
+    "basicInfoScale",
+    "titleScale",
+    "nameScale",
+    "roleScale",
+    "basicInfoIconScale",
+    "skillGroupNameScale",
+    "skillTagScale",
+    "workProjectMetaScale"
+]);
+
+const MM_TO_PX = 96 / 25.4;
+const REM_TO_PX = 16;
+
+const RESUME_LAYOUT_SPACING_DISPLAY_BASES = Object.freeze({
+    [RESUME_LAYOUT_CLASSIC]: Object.freeze({
+        moduleMarginYScale: Object.freeze({ baseValue: 2.5, unit: "rem" }),
+        moduleMarginXScale: Object.freeze({ baseValue: 2, unit: "rem", relativeToDefault: true }),
+        modulePaddingYScale: Object.freeze({ baseValue: 1.25, unit: "rem" }),
+        modulePaddingXScale: Object.freeze({ baseValue: 1.25, unit: "rem" }),
+        pagePaddingYScale: Object.freeze({ baseValue: 2, unit: "rem" }),
+        pagePaddingXScale: Object.freeze({ baseValue: 3, unit: "rem" })
+    }),
+    [RESUME_LAYOUT_CARDS]: Object.freeze({
+        moduleMarginYScale: Object.freeze({ baseValue: 6.2, unit: "mm" }),
+        moduleMarginXScale: Object.freeze({ baseValue: 6.2, unit: "mm" }),
+        modulePaddingYScale: Object.freeze({ baseValue: 2, unit: "rem" }),
+        modulePaddingXScale: Object.freeze({ baseValue: 2, unit: "rem" }),
+        pagePaddingYScale: Object.freeze({ baseValue: 8.2, unit: "mm" }),
+        pagePaddingXScale: Object.freeze({ baseValue: 8.2, unit: "mm" })
+    }),
+    [RESUME_LAYOUT_MY_RESUME]: Object.freeze({
+        moduleMarginYScale: Object.freeze({ baseValue: 2.35, unit: "rem" }),
+        moduleMarginXScale: Object.freeze({ baseValue: 2, unit: "rem", relativeToDefault: true }),
+        modulePaddingYScale: Object.freeze({ baseValue: 1.22, unit: "rem" }),
+        modulePaddingXScale: Object.freeze({ baseValue: 1.22, unit: "rem" }),
+        pagePaddingYScale: Object.freeze({ baseValue: 2, unit: "rem" }),
+        pagePaddingXScale: Object.freeze({ baseValue: 3, unit: "rem" })
+    }),
+    [RESUME_LAYOUT_MY_RESUME3]: Object.freeze({
+        moduleMarginYScale: Object.freeze({ baseValue: 2.4, unit: "rem" }),
+        moduleMarginXScale: Object.freeze({ baseValue: 2, unit: "rem", relativeToDefault: true }),
+        modulePaddingYScale: Object.freeze({ baseValue: 1.2, unit: "rem" }),
+        modulePaddingXScale: Object.freeze({ baseValue: 1.2, unit: "rem" }),
+        pagePaddingYScale: Object.freeze({ baseValue: 2, unit: "rem" }),
+        pagePaddingXScale: Object.freeze({ baseValue: 3, unit: "rem" })
+    })
 });
 
 function formatScale(value) {
@@ -16,6 +80,24 @@ function formatScale(value) {
 
 function getSetting(field) {
     return RESUME_LAYOUT_CONTROL_SETTINGS[field] || { min: 0, max: 10, step: 0.01, defaultValue: 1 };
+}
+
+function normalizeResumeLayoutControlDisplayLayout(layout) {
+    const normalized = typeof layout === "string" ? layout.trim().toLowerCase() : "";
+
+    if (normalized === RESUME_LAYOUT_CARDS) {
+        return RESUME_LAYOUT_CARDS;
+    }
+
+    if (normalized === RESUME_LAYOUT_MY_RESUME) {
+        return RESUME_LAYOUT_MY_RESUME;
+    }
+
+    if (normalized === RESUME_LAYOUT_MY_RESUME3) {
+        return RESUME_LAYOUT_MY_RESUME3;
+    }
+
+    return RESUME_LAYOUT_CLASSIC;
 }
 
 function parseResumeLayoutControlNumber(value) {
@@ -36,6 +118,32 @@ function parseResumeLayoutControlNumber(value) {
     return Number.NaN;
 }
 
+function formatDisplayNumber(value, maximumFractionDigits = 1) {
+    const safeValue = Math.abs(value) < 0.05 ? 0 : value;
+    return Number.parseFloat(safeValue.toFixed(maximumFractionDigits)).toString();
+}
+
+function convertSpacingBaseToPx(baseValue, unit) {
+    return unit === "mm" ? baseValue * MM_TO_PX : baseValue * REM_TO_PX;
+}
+
+function formatResumeLayoutSpacingValue(field, value, layout) {
+    const layoutBases = RESUME_LAYOUT_SPACING_DISPLAY_BASES[normalizeResumeLayoutControlDisplayLayout(layout)]
+        || RESUME_LAYOUT_SPACING_DISPLAY_BASES[RESUME_LAYOUT_CLASSIC];
+    const base = layoutBases[field];
+
+    if (!base) {
+        return `${formatDisplayNumber(value)}px`;
+    }
+
+    const basePxValue = convertSpacingBaseToPx(base.baseValue, base.unit);
+    const displayValue = base.relativeToDefault
+        ? (basePxValue * value) - basePxValue
+        : basePxValue * value;
+
+    return `${formatDisplayNumber(displayValue)}px`;
+}
+
 export function clampResumeLayoutControl(field, value, fallbackValue) {
     const setting = getSetting(field);
     const parsedFallback = parseResumeLayoutControlNumber(fallbackValue);
@@ -46,67 +154,90 @@ export function clampResumeLayoutControl(field, value, fallbackValue) {
     return formatScale(Math.min(setting.max, Math.max(setting.min, candidate)));
 }
 
+export function formatResumeLayoutControlValue(field, value, options = {}) {
+    const normalizedValue = clampResumeLayoutControl(field, value);
+
+    if (field === "bodyLineHeightScale") {
+        return `${formatDisplayNumber(normalizedValue, 2)}x`;
+    }
+
+    if (FONT_CONTROL_FIELDS.has(field)) {
+        return `${Math.round(normalizedValue * 100)}%`;
+    }
+
+    return formatResumeLayoutSpacingValue(field, normalizedValue, options.layout);
+}
+
 export function normalizeResumeLayoutControls(sourceValue = {}) {
     const source = sourceValue && typeof sourceValue === "object" ? sourceValue : {};
 
     return {
         fontScale: clampResumeLayoutControl("fontScale", source.fontScale),
-        lineHeightScale: clampResumeLayoutControl("lineHeightScale", source.lineHeightScale),
-        innerPaddingScale: clampResumeLayoutControl("innerPaddingScale", source.innerPaddingScale),
-        moduleSpacingScale: clampResumeLayoutControl("moduleSpacingScale", source.moduleSpacingScale),
+        basicInfoScale: clampResumeLayoutControl("basicInfoScale", source.basicInfoScale),
         titleScale: clampResumeLayoutControl("titleScale", source.titleScale),
         nameScale: clampResumeLayoutControl("nameScale", source.nameScale),
         roleScale: clampResumeLayoutControl("roleScale", source.roleScale),
-        classicSpacingScale: clampResumeLayoutControl("classicSpacingScale", source.classicSpacingScale),
-        cardsSpacingScale: clampResumeLayoutControl("cardsSpacingScale", source.cardsSpacingScale)
+        basicInfoIconScale: clampResumeLayoutControl("basicInfoIconScale", source.basicInfoIconScale),
+        skillGroupNameScale: clampResumeLayoutControl("skillGroupNameScale", source.skillGroupNameScale),
+        skillTagScale: clampResumeLayoutControl("skillTagScale", source.skillTagScale),
+        workProjectMetaScale: clampResumeLayoutControl("workProjectMetaScale", source.workProjectMetaScale),
+        moduleMarginYScale: clampResumeLayoutControl(
+            "moduleMarginYScale",
+            source.moduleMarginYScale,
+            source.moduleSpacingScale
+        ),
+        moduleMarginXScale: clampResumeLayoutControl(
+            "moduleMarginXScale",
+            source.moduleMarginXScale,
+            source.moduleSpacingScale
+        ),
+        modulePaddingYScale: clampResumeLayoutControl(
+            "modulePaddingYScale",
+            source.modulePaddingYScale,
+            source.surfacePaddingScale
+        ),
+        modulePaddingXScale: clampResumeLayoutControl(
+            "modulePaddingXScale",
+            source.modulePaddingXScale,
+            source.surfacePaddingScale
+        ),
+        pagePaddingYScale: clampResumeLayoutControl(
+            "pagePaddingYScale",
+            source.pagePaddingYScale,
+            source.pagePaddingScale
+        ),
+        pagePaddingXScale: clampResumeLayoutControl(
+            "pagePaddingXScale",
+            source.pagePaddingXScale,
+            source.pagePaddingScale
+        ),
+        bodyLineHeightScale: clampResumeLayoutControl("bodyLineHeightScale", source.bodyLineHeightScale)
     };
 }
 
-export function normalizeResumeLayoutControlsForLayout(sourceValue = {}, resumeLayout = "classic") {
-    const controls = normalizeResumeLayoutControls(sourceValue);
-    const activeLegacyField = resumeLayout === "cards" ? "cardsSpacingScale" : "classicSpacingScale";
-
-    return {
-        ...controls,
-        moduleSpacingScale: clampResumeLayoutControl(
-            "moduleSpacingScale",
-            controls.moduleSpacingScale * controls[activeLegacyField],
-            controls.moduleSpacingScale
-        ),
-        classicSpacingScale: RESUME_LAYOUT_CONTROL_SETTINGS.classicSpacingScale.defaultValue,
-        cardsSpacingScale: RESUME_LAYOUT_CONTROL_SETTINGS.cardsSpacingScale.defaultValue
-    };
+export function normalizeResumeLayoutControlsForLayout(sourceValue = {}) {
+    return normalizeResumeLayoutControls(sourceValue);
 }
 
 export function buildResumeLayoutControlVars(sourceValue = {}) {
     const controls = normalizeResumeLayoutControls(sourceValue);
-    const moduleSpacingScale = controls.moduleSpacingScale;
-    const isCardsLayout = sourceValue && typeof sourceValue === "object" && sourceValue.resumeLayout === "cards";
-    const cardsGapBase = isCardsLayout ? 6.2 : 4.5;
-    const cardsPaddingBase = isCardsLayout ? 8.2 : 5.5;
-    const cardsSectionGapBase = isCardsLayout ? 6.2 : 4;
 
     return {
         "--resume-font-scale": String(controls.fontScale),
-        "--resume-line-height-scale": String(controls.lineHeightScale),
-        "--resume-inner-padding-scale": String(controls.innerPaddingScale),
-        "--resume-module-spacing-scale": String(controls.moduleSpacingScale),
+        "--resume-basic-info-scale": String(controls.basicInfoScale),
         "--resume-title-scale": String(controls.titleScale),
         "--resume-name-scale": String(controls.nameScale),
         "--resume-role-scale": String(controls.roleScale),
-        "--resume-classic-spacing-scale": String(controls.classicSpacingScale),
-        "--resume-cards-spacing-scale": String(controls.cardsSpacingScale),
-        "--resume-cards-gap": `calc(${cardsGapBase}mm * ${moduleSpacingScale})`,
-        "--resume-cards-padding": `calc(${cardsPaddingBase}mm * ${controls.innerPaddingScale})`,
-        "--resume-cards-section-gap": `calc(${cardsSectionGapBase}mm * ${moduleSpacingScale})`,
-        "--resume-classic-left-padding": `calc(2rem * ${controls.innerPaddingScale})`,
-        "--resume-classic-right-padding-y": `calc(2rem * ${controls.innerPaddingScale})`,
-        "--resume-classic-right-padding-x": `calc(3rem * ${controls.innerPaddingScale})`,
-        "--resume-classic-section-gap": `calc(2.5rem * ${moduleSpacingScale})`,
-        "--resume-classic-section-gap-tight": `calc(1.5rem * ${moduleSpacingScale})`,
-        "--resume-classic-stack-gap": `calc(1rem * ${moduleSpacingScale})`,
-        "--resume-classic-bullet-gap": `calc(0.5rem * ${moduleSpacingScale})`,
-        "--resume-classic-card-padding": `calc(1.25rem * ${controls.innerPaddingScale})`,
-        "--resume-classic-avatar-size": `calc(8rem * ${controls.innerPaddingScale})`
+        "--resume-basic-info-icon-scale": String(controls.basicInfoIconScale),
+        "--resume-skill-group-name-scale": String(controls.skillGroupNameScale),
+        "--resume-skill-tag-scale": String(controls.skillTagScale),
+        "--resume-work-project-meta-scale": String(controls.workProjectMetaScale),
+        "--resume-module-margin-y-scale": String(controls.moduleMarginYScale),
+        "--resume-module-margin-x-scale": String(controls.moduleMarginXScale),
+        "--resume-module-padding-y-scale": String(controls.modulePaddingYScale),
+        "--resume-module-padding-x-scale": String(controls.modulePaddingXScale),
+        "--resume-page-padding-y-scale": String(controls.pagePaddingYScale),
+        "--resume-page-padding-x-scale": String(controls.pagePaddingXScale),
+        "--resume-body-line-height-scale": String(controls.bodyLineHeightScale)
     };
 }

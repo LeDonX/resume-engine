@@ -14,12 +14,14 @@
             --resume-page-screen-padding-y: 5mm;
             --resume-page-screen-padding-y-cards: 4.5mm;
             --resume-cards-gap: 4.5mm;
-            --resume-cards-padding: 5.5mm;
+            --resume-cards-padding-y: 5.5mm;
+            --resume-cards-padding-x: 5.5mm;
+            --resume-cards-padding: var(--resume-cards-padding-y) var(--resume-cards-padding-x);
             --resume-classic-left-width: 33.333333%;
             --resume-classic-right-width: 66.666667%;
             --resume-cards-left-ratio: 0.315;
             --resume-cards-right-ratio: 0.685;
-            --resume-cards-columns-width: calc(var(--resume-page-width) - (var(--resume-cards-padding) * 2) - var(--resume-cards-gap));
+            --resume-cards-columns-width: calc(var(--resume-page-width) - (var(--resume-cards-padding-x) * 2) - var(--resume-cards-gap));
             --resume-cards-left-width: calc(var(--resume-cards-columns-width) * var(--resume-cards-left-ratio));
             --resume-cards-right-width: calc(var(--resume-cards-columns-width) * var(--resume-cards-right-ratio));
         }
@@ -217,23 +219,44 @@ body {
             --resume-timeline-track: #d9e0e8;
             --resume-timeline-dot-glow: rgba(37, 99, 235, 0.22);
             --resume-font-scale: 1;
-            --resume-line-height-scale: 1;
-            --resume-inner-padding-scale: 1;
-            --resume-module-spacing-scale: 1;
+            --resume-module-margin-y-scale: 1;
+            --resume-module-margin-x-scale: 1;
+            --resume-module-padding-y-scale: 1;
+            --resume-module-padding-x-scale: 1;
+            --resume-page-padding-y-scale: 1;
+            --resume-page-padding-x-scale: 1;
+            --resume-body-line-height-scale: 1;
             --resume-title-scale: 1;
             --resume-name-scale: 1;
             --resume-role-scale: 1;
-            --resume-classic-spacing-scale: 1;
-            --resume-cards-spacing-scale: 1;
-            --resume-cards-section-gap: 4mm;
-            --resume-classic-left-padding: 2rem;
-            --resume-classic-right-padding-y: 2rem;
-            --resume-classic-right-padding-x: 3rem;
-            --resume-classic-section-gap: 2.5rem;
-            --resume-classic-section-gap-tight: 1.5rem;
+            --resume-basic-info-icon-scale: 1;
+            --resume-skill-group-name-scale: 1;
+            --resume-skill-tag-scale: 1;
+            --resume-work-project-meta-scale: 1;
+            --resume-module-inline-boundary-offset: calc((var(--resume-module-margin-x-scale, 1) - 1) * 2rem);
+            --resume-cards-gap: calc(4mm * var(--resume-module-margin-x-scale, 1));
+            --resume-cards-section-gap: calc(4mm * var(--resume-module-margin-y-scale, 1));
+            --resume-card-padding-y: calc(1.25rem * var(--resume-module-padding-y-scale, 1));
+            --resume-card-padding-x: calc(1.25rem * var(--resume-module-padding-x-scale, 1));
+            --resume-card-padding: var(--resume-card-padding-y) var(--resume-card-padding-x);
+            --resume-card-lg-padding-y: calc(1.5rem * var(--resume-module-padding-y-scale, 1));
+            --resume-card-lg-padding-x: calc(1.5rem * var(--resume-module-padding-x-scale, 1));
+            --resume-card-lg-padding: var(--resume-card-lg-padding-y) var(--resume-card-lg-padding-x);
+            --resume-profile-card-padding-y: calc(1.55rem * var(--resume-module-padding-y-scale, 1));
+            --resume-side-card-padding-y: calc(1rem * var(--resume-module-padding-y-scale, 1));
+            --resume-side-card-padding-x: calc(1.05rem * var(--resume-module-padding-x-scale, 1));
+            --resume-meta-block-padding-y: calc(0.9rem * var(--resume-module-padding-y-scale, 1));
+            --resume-meta-block-padding-x: calc(0.95rem * var(--resume-module-padding-x-scale, 1));
+            --resume-classic-left-padding: calc(2rem * var(--resume-page-padding-y-scale, 1)) calc(2rem * var(--resume-page-padding-x-scale, 1));
+            --resume-classic-right-padding-y: calc(2rem * var(--resume-page-padding-y-scale, 1));
+            --resume-classic-right-padding-x: calc(3rem * var(--resume-page-padding-x-scale, 1));
+            --resume-classic-section-gap: calc(2.5rem * var(--resume-module-margin-y-scale, 1));
+            --resume-classic-section-gap-tight: calc(1.5rem * var(--resume-module-margin-y-scale, 1));
             --resume-classic-stack-gap: 1rem;
             --resume-classic-bullet-gap: 0.5rem;
-            --resume-classic-card-padding: 1.25rem;
+            --resume-classic-card-padding-y: calc(1.25rem * var(--resume-module-padding-y-scale, 1));
+            --resume-classic-card-padding-x: calc(1.25rem * var(--resume-module-padding-x-scale, 1));
+            --resume-classic-card-padding: var(--resume-classic-card-padding-y) var(--resume-classic-card-padding-x);
             --resume-classic-avatar-size: 8rem;
         }
 
@@ -346,19 +369,19 @@ body {
             border: 1px solid var(--resume-card-border);
             border-radius: 24px;
             box-shadow: var(--resume-card-shadow);
-            padding: calc(1.25rem * var(--resume-inner-padding-scale, 1));
+            padding: var(--resume-card-padding);
             min-width: 0;
         }
 
         .resume-card-lg {
-            padding: calc(1.5rem * var(--resume-inner-padding-scale, 1));
+            padding: var(--resume-card-lg-padding);
         }
 
         .resume-card-title-row {
             display: flex;
             align-items: center;
-            gap: calc(0.8rem * var(--resume-inner-padding-scale, 1));
-            margin-bottom: calc(1rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.8rem;
+            margin-bottom: 1rem;
             min-width: 0;
         }
 
@@ -387,15 +410,15 @@ body {
 
         .resume-card-title {
             margin: 0;
-            font-size: calc(1.02rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.15 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.02rem * var(--resume-title-scale, 1));
+            line-height: 1.15;
             font-weight: 800;
             color: #1d1d1f;
             letter-spacing: -0.02em;
         }
 
         .resume-card-title-lg {
-            font-size: calc(1.18rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
+            font-size: calc(1.18rem * var(--resume-title-scale, 1));
         }
 
         .resume-card-description,
@@ -404,18 +427,18 @@ body {
             margin: 0;
             color: var(--resume-text-muted);
             font-size: calc(0.96rem * var(--resume-font-scale, 1));
-            line-height: calc(1.72 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.72 * var(--resume-body-line-height-scale, 1));
             text-align: justify;
         }
 
         .resume-profile-card {
-            padding-top: calc(1.55rem * var(--resume-inner-padding-scale, 1));
-            padding-bottom: calc(1.55rem * var(--resume-inner-padding-scale, 1));
+            padding-top: var(--resume-profile-card-padding-y);
+            padding-bottom: var(--resume-profile-card-padding-y);
             text-align: center;
         }
 
         .resume-profile-avatar-wrap {
-            margin-bottom: calc(1.05rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 1.05rem;
         }
 
         .resume-profile-avatar-shell {
@@ -431,13 +454,13 @@ body {
 
         .resume-profile-copy {
             display: grid;
-            gap: calc(0.48rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.48rem;
         }
 
         .resume-profile-name {
             margin: 0;
-            font-size: calc(1.9rem * var(--resume-font-scale, 1) * var(--resume-name-scale, 1));
-            line-height: calc(0.98 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.9rem * var(--resume-name-scale, 1));
+            line-height: 0.98;
             font-weight: 900;
             color: #1d1d1f;
             letter-spacing: -0.045em;
@@ -454,22 +477,22 @@ body {
             background: var(--resume-pill-bg);
             border: 1px solid var(--resume-card-border);
             color: var(--resume-role-text);
-            font-size: calc(0.78rem * var(--resume-font-scale, 1) * var(--resume-role-scale, 1));
+            font-size: calc(0.78rem * var(--resume-role-scale, 1));
             font-weight: 700;
             letter-spacing: 0.02em;
         }
 
         .resume-side-section-card {
-            padding: calc(1rem * var(--resume-inner-padding-scale, 1)) calc(1.05rem * var(--resume-inner-padding-scale, 1));
+            padding: var(--resume-side-card-padding-y) var(--resume-side-card-padding-x);
         }
 
         .resume-side-item-card {
-            padding: calc(1rem * var(--resume-inner-padding-scale, 1)) calc(1.05rem * var(--resume-inner-padding-scale, 1));
+            padding: var(--resume-side-card-padding-y) var(--resume-side-card-padding-x);
         }
 
         .resume-info-list {
             display: grid;
-            gap: calc(0.82rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.82rem;
             margin: 0;
             padding: 0;
             list-style: none;
@@ -486,6 +509,10 @@ body {
         }
 
         .resume-info-icon {
+            width: calc(2rem * var(--resume-basic-info-icon-scale, 1));
+            height: calc(2rem * var(--resume-basic-info-icon-scale, 1));
+            font-size: calc(0.75rem * var(--resume-basic-info-icon-scale, 1));
+            line-height: 1;
             border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
@@ -502,19 +529,19 @@ body {
             margin: 0;
             color: #1f2937;
             font-size: calc(0.9rem * var(--resume-font-scale, 1));
-            line-height: calc(1.45 * var(--resume-line-height-scale, 1));
+            line-height: 1.45;
             word-break: break-word;
         }
 
         .resume-meta-stack {
             display: grid;
-            gap: calc(0.78rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.78rem;
         }
 
         .resume-meta-block {
             display: grid;
-            gap: calc(0.3rem * var(--resume-module-spacing-scale, 1));
-            padding: calc(0.9rem * var(--resume-inner-padding-scale, 1)) calc(0.95rem * var(--resume-inner-padding-scale, 1));
+            gap: 0.3rem;
+            padding: var(--resume-meta-block-padding-y) var(--resume-meta-block-padding-x);
             border-radius: 18px;
             background: var(--resume-card-subtle);
         }
@@ -522,8 +549,8 @@ body {
         .resume-meta-title {
             margin: 0;
             color: #1f2937;
-            font-size: calc(0.92rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.92rem * var(--resume-font-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
@@ -531,14 +558,14 @@ body {
             margin: 0;
             color: var(--resume-text-muted);
             font-size: calc(0.82rem * var(--resume-font-scale, 1));
-            line-height: calc(1.45 * var(--resume-line-height-scale, 1));
+            line-height: 1.45;
         }
 
         .resume-empty-state {
             margin: 0;
             color: var(--resume-text-subtle);
-            font-size: calc(0.84rem * var(--resume-font-scale, 1));
-            line-height: calc(1.5 * var(--resume-line-height-scale, 1));
+            font-size: 0.84rem;
+            line-height: 1.5;
         }
 
         .resume-period-pill {
@@ -552,32 +579,32 @@ body {
             background: var(--resume-pill-bg);
             border: 1px solid var(--resume-card-border);
             color: var(--resume-pill-text);
-            font-size: calc(0.72rem * var(--resume-font-scale, 1));
+            font-size: 0.72rem;
             font-weight: 700;
             line-height: 1.2;
         }
 
         .resume-period-pill-tight {
-            margin-left: calc(1rem * var(--resume-module-spacing-scale, 1));
+            margin-left: 1rem;
             flex-shrink: 0;
             white-space: nowrap;
         }
 
         .resume-skill-group {
             display: grid;
-            gap: calc(0.7rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.7rem;
         }
 
         .resume-skill-group + .resume-skill-group {
-            margin-top: calc(0.95rem * var(--resume-module-spacing-scale, 1));
-            padding-top: calc(0.95rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.95rem;
+            padding-top: 0.95rem;
             border-top: 1px solid var(--resume-card-border);
         }
 
         .resume-skill-group-name {
             margin: 0;
             color: #1f2937;
-            font-size: calc(0.84rem * var(--resume-font-scale, 1));
+            font-size: calc(0.84rem * var(--resume-skill-group-name-scale, 1));
             font-weight: 800;
             letter-spacing: 0.01em;
         }
@@ -586,26 +613,33 @@ body {
         .resume-tech-tag-list {
             display: flex;
             flex-wrap: wrap;
-            gap: calc(0.55rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.55rem;
         }
 
         .resume-side-item-card .resume-skill-tag-list {
-            margin-top: calc(0.72rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.72rem;
         }
 
         .resume-skill-tag,
         .resume-tech-tag,
-        .resume-project-badge,
-        .resume-entry-flag {
+        .resume-project-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 0.42rem 0.78rem;
             border-radius: 999px;
-            font-size: calc(0.72rem * var(--resume-font-scale, 1));
             font-weight: 700;
             line-height: 1;
             border: 1px solid transparent;
+        }
+
+        .resume-skill-tag {
+            font-size: calc(0.72rem * var(--resume-skill-tag-scale, 1));
+        }
+
+        .resume-tech-tag,
+        .resume-project-badge {
+            font-size: calc(0.72rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .resume-project-secondary-badge {
@@ -621,22 +655,27 @@ body {
         }
 
         .resume-entry-flag {
-            margin-bottom: calc(0.72rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 0.72rem;
+        }
+
+        .resume-classic-entry-title .resume-entry-flag,
+        .resume-entry-company .resume-entry-flag {
+            margin-bottom: 0;
         }
 
         .resume-entry-head {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: calc(1rem * var(--resume-module-spacing-scale, 1));
+            gap: 1rem;
             min-width: 0;
         }
 
         .resume-entry-title {
             margin: 0;
             color: #1d1d1f;
-            font-size: calc(1.05rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.28 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.05rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.28;
             font-weight: 800;
             letter-spacing: -0.02em;
             word-break: break-word;
@@ -644,8 +683,8 @@ body {
 
         .resume-entry-company {
             margin: 0.32rem 0 0;
-            font-size: calc(0.88rem * var(--resume-font-scale, 1));
-            line-height: calc(1.4 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.88rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.4;
             font-weight: 700;
         }
 
@@ -654,19 +693,19 @@ body {
         }
 
         .resume-bullet-list {
-            margin: calc(0.95rem * var(--resume-module-spacing-scale, 1)) 0 0;
+            margin: 0.95rem 0 0;
             padding: 0;
             list-style: none;
             display: grid;
-            gap: calc(0.52rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.52rem;
             color: var(--resume-text-muted);
             font-size: calc(0.88rem * var(--resume-font-scale, 1));
-            line-height: calc(1.62 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.62 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-bullet-list li {
             position: relative;
-            padding-left: calc(1rem * var(--resume-inner-padding-scale, 1));
+            padding-left: 1rem;
             text-align: justify;
         }
 
@@ -683,20 +722,20 @@ body {
 
         .resume-experience-card,
         .resume-project-card {
-            padding-left: calc(1.75rem * var(--resume-inner-padding-scale, 1));
+            padding-left: 1.75rem;
         }
 
         .resume-section-lead-card {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), var(--resume-card-subtle));
-            padding-bottom: calc(1.15rem * var(--resume-inner-padding-scale, 1));
+            padding-bottom: calc(1.15rem * var(--resume-module-padding-y-scale, 1));
         }
 
         .resume-timeline-rail,
         .resume-project-accent {
             position: absolute;
-            left: calc(1rem * var(--resume-inner-padding-scale, 1));
-            top: calc(1.45rem * var(--resume-inner-padding-scale, 1));
-            bottom: calc(1.35rem * var(--resume-inner-padding-scale, 1));
+            left: 1rem;
+            top: 1.45rem;
+            bottom: 1.35rem;
             width: 2px;
             border-radius: 999px;
         }
@@ -712,8 +751,8 @@ body {
 
         .resume-timeline-dot {
             position: absolute;
-            left: calc(0.59rem * var(--resume-inner-padding-scale, 1));
-            top: calc(1.4rem * var(--resume-inner-padding-scale, 1));
+            left: 0.59rem;
+            top: 1.4rem;
             width: 0.86rem;
             height: 0.86rem;
             border-radius: 999px;
@@ -738,18 +777,18 @@ body {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: calc(0.9rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.9rem;
             min-width: 0;
         }
 
         .resume-project-description {
-            margin-top: calc(0.72rem * var(--resume-module-spacing-scale, 1));
-            margin-bottom: calc(0.95rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.72rem;
+            margin-bottom: 0.95rem;
         }
 
         .resume-project-details {
             display: grid;
-            gap: calc(0.82rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.82rem;
         }
 
         .resume-project-details .resume-classic-project-description,
@@ -763,7 +802,7 @@ body {
         }
 
         .resume-card-title-row-lg {
-            margin-bottom: calc(1.2rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 1.2rem;
         }
 
         .resume-education-list,
@@ -780,14 +819,18 @@ body {
 
         .resume-entry-role {
             margin: 0;
+            font-size: calc(0.88rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.4;
         }
 
         .resume-layout-cards.resume-theme-shell {
             --resume-cards-left-ratio: 0.32;
             --resume-cards-right-ratio: 0.68;
-            --resume-cards-gap: 6.2mm;
-            --resume-cards-padding: 8.2mm;
-            --resume-cards-section-gap: 6.2mm;
+            --resume-cards-gap: calc(6.2mm * var(--resume-module-margin-x-scale, 1));
+            --resume-cards-padding-y: calc(8.2mm * var(--resume-page-padding-y-scale, 1));
+            --resume-cards-padding-x: calc(8.2mm * var(--resume-page-padding-x-scale, 1));
+            --resume-cards-padding: var(--resume-cards-padding-y) var(--resume-cards-padding-x);
+            --resume-cards-section-gap: calc(6.2mm * var(--resume-module-margin-y-scale, 1));
         }
 
         .resume-layout-cards .resume-sheet {
@@ -809,17 +852,17 @@ body {
             border-color: var(--resume-card-border);
             border-radius: 24px;
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-            padding: calc(1.5rem * var(--resume-inner-padding-scale, 1));
+            padding: var(--resume-card-lg-padding);
         }
 
         .resume-layout-cards .resume-card-lg {
-            padding: calc(2rem * var(--resume-inner-padding-scale, 1));
+            padding: calc(2rem * var(--resume-module-padding-y-scale, 1)) calc(2rem * var(--resume-module-padding-x-scale, 1));
         }
 
         .resume-layout-cards .resume-card-title-row {
             align-items: center;
-            gap: calc(0.75rem * var(--resume-inner-padding-scale, 1));
-            margin-bottom: calc(1rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
             border: 0;
             box-shadow: none;
         }
@@ -831,7 +874,7 @@ body {
         }
 
         .resume-layout-cards .resume-card-title-row-lg {
-            margin-bottom: calc(1.35rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 1.35rem;
         }
 
         .resume-layout-cards .resume-card-title-icon {
@@ -889,13 +932,13 @@ body {
 
         .resume-layout-cards .resume-card-title {
             color: #1d1d1f;
-            font-size: calc(0.92rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
+            font-size: calc(0.92rem * var(--resume-title-scale, 1));
             font-weight: 800;
             letter-spacing: -0.02em;
         }
 
         .resume-layout-cards .resume-card-title-lg {
-            font-size: calc(1.16rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
+            font-size: calc(1.16rem * var(--resume-title-scale, 1));
         }
 
         .resume-layout-cards .resume-card-widget {
@@ -911,13 +954,13 @@ body {
         }
 
         .resume-layout-cards .resume-profile-card {
-            padding-top: calc(1.5rem * var(--resume-inner-padding-scale, 1));
-            padding-bottom: calc(1.5rem * var(--resume-inner-padding-scale, 1));
+            padding-top: calc(1.5rem * var(--resume-module-padding-y-scale, 1));
+            padding-bottom: calc(1.5rem * var(--resume-module-padding-y-scale, 1));
             text-align: center;
         }
 
         .resume-layout-cards .resume-profile-avatar-wrap {
-            margin-bottom: calc(1rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 1rem;
         }
 
         .resume-layout-cards .resume-profile-avatar-shell {
@@ -930,8 +973,8 @@ body {
 
         .resume-layout-cards .resume-profile-name {
             color: #1d1d1f;
-            font-size: calc(1.95rem * var(--resume-font-scale, 1) * var(--resume-name-scale, 1));
-            line-height: calc(1 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.95rem * var(--resume-name-scale, 1));
+            line-height: 1;
             font-weight: 900;
             letter-spacing: -0.045em;
         }
@@ -942,12 +985,12 @@ body {
             background: #eff6ff;
             border: 1px solid #dbeafe;
             color: #0071e3;
-            font-size: calc(0.8rem * var(--resume-font-scale, 1) * var(--resume-role-scale, 1));
+            font-size: calc(0.8rem * var(--resume-role-scale, 1));
             font-weight: 700;
         }
 
         .resume-layout-cards .resume-contact-list {
-            gap: calc(0.9rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.9rem;
         }
 
         .resume-layout-cards .resume-contact-row {
@@ -969,18 +1012,18 @@ body {
 
         .resume-layout-cards .resume-contact-list .resume-info-value {
             color: #1d1d1f;
-            font-size: calc(0.92rem * var(--resume-font-scale, 1));
-            line-height: calc(1.45 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.92rem * var(--resume-basic-info-scale, 1));
+            line-height: 1.45;
             font-weight: 600;
         }
 
         .resume-layout-cards .resume-contact-card .resume-card-title,
         .resume-layout-cards .resume-side-section-card .resume-card-title {
-            font-size: calc(0.98rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
+            font-size: calc(0.98rem * var(--resume-title-scale, 1));
         }
 
         .resume-layout-cards .resume-education-list {
-            gap: calc(1rem * var(--resume-module-spacing-scale, 1));
+            gap: 1rem;
         }
 
         .resume-layout-cards .resume-education-item {
@@ -996,8 +1039,8 @@ body {
 
         .resume-layout-cards .resume-meta-title {
             color: #1d1d1f;
-            font-size: calc(0.84rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.84rem * var(--resume-font-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
@@ -1005,26 +1048,26 @@ body {
             margin-top: 0;
             color: #86868b;
             font-size: calc(0.78rem * var(--resume-font-scale, 1));
-            line-height: calc(1.4 * var(--resume-line-height-scale, 1));
+            line-height: 1.4;
         }
 
         .resume-layout-cards .resume-skill-widget-list {
-            gap: calc(0.95rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.95rem;
         }
 
         .resume-layout-cards .resume-skill-group {
-            gap: calc(0.55rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.55rem;
         }
 
         .resume-layout-cards .resume-skill-group + .resume-skill-group {
             margin-top: 0;
-            padding-top: calc(0.95rem * var(--resume-module-spacing-scale, 1));
+            padding-top: 0.95rem;
             border-top: 1px solid #f0f0f5;
         }
 
         .resume-layout-cards .resume-skill-group-name {
             color: #1d1d1f;
-            font-size: calc(0.78rem * var(--resume-font-scale, 1));
+            font-size: calc(0.78rem * var(--resume-skill-group-name-scale, 1));
             font-weight: 700;
         }
 
@@ -1035,13 +1078,20 @@ body {
 
         .resume-layout-cards .resume-skill-tag,
         .resume-layout-cards .resume-tech-tag,
-        .resume-layout-cards .resume-project-badge,
-        .resume-layout-cards .resume-entry-flag {
+        .resume-layout-cards .resume-project-badge {
             padding: 0.28rem 0.5rem;
             border-radius: 0.4rem;
-            font-size: calc(0.69rem * var(--resume-font-scale, 1));
             font-weight: 700;
             line-height: 1.15;
+        }
+
+        .resume-layout-cards .resume-skill-tag {
+            font-size: calc(0.69rem * var(--resume-skill-tag-scale, 1));
+        }
+
+        .resume-layout-cards .resume-tech-tag,
+        .resume-layout-cards .resume-project-badge {
+            font-size: calc(0.69rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .resume-layout-cards .resume-skill-tag-theme {
@@ -1075,7 +1125,7 @@ body {
         }
 
         .resume-layout-cards .resume-section-card-body {
-            gap: calc(2rem * var(--resume-module-spacing-scale, 1));
+            gap: 2rem;
         }
 
         .resume-layout-cards .resume-timeline-entry {
@@ -1089,13 +1139,13 @@ body {
         }
 
         .resume-layout-cards .resume-timeline-entry-has-rail {
-            padding-left: calc(1.55rem * var(--resume-inner-padding-scale, 1));
+            padding-left: 1.55rem;
         }
 
         .resume-layout-cards .resume-timeline-entry .resume-timeline-rail {
-            left: calc(0.36rem * var(--resume-inner-padding-scale, 1));
+            left: 0.36rem;
             top: 1.35rem;
-            bottom: calc(-2rem * var(--resume-module-spacing-scale, 1));
+            bottom: -2rem;
             width: 2px;
             border-radius: 999px;
         }
@@ -1124,44 +1174,44 @@ body {
         .resume-layout-cards .resume-entry-head {
             align-items: flex-start;
             justify-content: space-between;
-            gap: calc(0.9rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.9rem;
         }
 
         .resume-layout-cards .resume-entry-company {
             margin: 0;
             color: #1d1d1f;
-            font-size: calc(1rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.25 * var(--resume-line-height-scale, 1));
+            font-size: calc(1rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.25;
             font-weight: 800;
             letter-spacing: -0.02em;
         }
 
         .resume-layout-cards .resume-entry-role {
-            margin-top: calc(0.28rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.28rem;
             color: #86868b;
-            font-size: calc(0.88rem * var(--resume-font-scale, 1));
-            line-height: calc(1.4 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.88rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.4;
             font-weight: 700;
         }
 
         .resume-layout-cards .resume-entry-title {
             color: #1d1d1f;
-            font-size: calc(0.95rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.3 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.95rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.3;
             font-weight: 800;
         }
 
         .resume-layout-cards .resume-project-title-row {
             align-items: center;
             justify-content: flex-start;
-            gap: calc(0.75rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.75rem;
         }
 
         .resume-layout-cards .resume-project-description,
         .resume-layout-cards .resume-summary-text {
             color: #1d1d1f;
             font-size: calc(0.9rem * var(--resume-font-scale, 1));
-            line-height: calc(1.7 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.7 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-layout-cards .resume-summary-card,
@@ -1171,18 +1221,18 @@ body {
         }
 
         .resume-layout-cards .resume-project-description {
-            margin-top: calc(0.45rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.45rem;
             color: #86868b;
             font-size: calc(0.86rem * var(--resume-font-scale, 1));
-            line-height: calc(1.6 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.6 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-layout-cards .resume-bullet-list {
-            margin-top: calc(0.8rem * var(--resume-module-spacing-scale, 1));
-            gap: calc(0.5rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.8rem;
+            gap: 0.5rem;
             color: #1d1d1f;
             font-size: calc(0.88rem * var(--resume-font-scale, 1));
-            line-height: calc(1.68 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.68 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-layout-cards .resume-bullet-list li {
@@ -1207,9 +1257,14 @@ body {
             border: 0;
             background: #f5f5f7;
             color: #86868b;
-            font-size: calc(0.68rem * var(--resume-font-scale, 1));
+            font-size: 0.68rem;
             font-weight: 600;
             font-variant-numeric: tabular-nums;
+        }
+
+        .resume-layout-cards .resume-experience-entry .resume-period-pill,
+        .resume-layout-cards .resume-project-item .resume-period-pill {
+            font-size: calc(0.68rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .resume-layout-cards .resume-experience-entry .resume-period-pill {
@@ -1218,12 +1273,12 @@ body {
         }
 
         .resume-layout-cards .resume-period-pill-tight {
-            margin-left: calc(0.75rem * var(--resume-module-spacing-scale, 1));
+            margin-left: 0.75rem;
         }
 
         .resume-layout-cards .resume-empty-state {
             color: #a1a1aa;
-            font-size: calc(0.84rem * var(--resume-font-scale, 1));
+            font-size: 0.84rem;
         }
 
         .resume-layout-my-resume.resume-theme-shell {
@@ -1235,11 +1290,11 @@ body {
             --resume-my-border: #e2e8f0;
             --resume-my-divider: rgba(226, 232, 240, 0.86);
             --resume-my-card-bg: rgba(248, 250, 252, 0.78);
-            --resume-my-page-padding-x: calc(3rem * var(--resume-inner-padding-scale, 1));
-            --resume-my-page-padding-y: calc(2rem * var(--resume-inner-padding-scale, 1));
-            --resume-my-section-gap: calc(2.35rem * var(--resume-module-spacing-scale, 1));
-            --resume-my-block-gap: calc(1.5rem * var(--resume-module-spacing-scale, 1));
-            --resume-my-tight-gap: calc(0.82rem * var(--resume-module-spacing-scale, 1));
+            --resume-my-page-padding-x: calc(3rem * var(--resume-page-padding-x-scale, 1));
+            --resume-my-page-padding-y: calc(2rem * var(--resume-page-padding-y-scale, 1));
+            --resume-my-section-gap: calc(2.35rem * var(--resume-module-margin-y-scale, 1));
+            --resume-my-block-gap: calc(1.5rem * var(--resume-module-margin-y-scale, 1));
+            --resume-my-tight-gap: 0.82rem;
         }
 
         .resume-layout-my-resume .resume-sheet {
@@ -1268,7 +1323,7 @@ body {
         }
 
         .my-resume-header {
-            padding-top: calc(0.42rem * var(--resume-module-spacing-scale, 1));
+            padding-top: 0.42rem;
             margin-bottom: var(--resume-my-section-gap);
         }
 
@@ -1276,7 +1331,7 @@ body {
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
             align-items: flex-start;
-            column-gap: calc(1.15rem * var(--resume-module-spacing-scale, 1));
+            column-gap: 1.15rem;
         }
 
         .my-resume-header-copy {
@@ -1288,23 +1343,23 @@ body {
             display: flex;
             flex-wrap: wrap;
             align-items: baseline;
-            gap: calc(0.9rem * var(--resume-module-spacing-scale, 1));
-            margin-bottom: calc(0.95rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.9rem;
+            margin-bottom: 0.95rem;
         }
 
         .my-resume-name {
             margin: 0;
             color: var(--resume-my-text);
-            font-size: calc(2.96rem * var(--resume-font-scale, 1) * var(--resume-name-scale, 1));
-            line-height: calc(1 * var(--resume-line-height-scale, 1));
+            font-size: calc(2.96rem * var(--resume-name-scale, 1));
+            line-height: 1;
             font-weight: 800;
             letter-spacing: -0.04em;
         }
 
         .my-resume-role {
             color: var(--resume-my-accent);
-            font-size: calc(1.38rem * var(--resume-font-scale, 1) * var(--resume-role-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.38rem * var(--resume-role-scale, 1));
+            line-height: 1.35;
             font-weight: 700;
             letter-spacing: 0.01em;
         }
@@ -1312,8 +1367,8 @@ body {
         .my-resume-contact-grid {
             display: flex;
             flex-direction: column;
-            gap: calc(0.44rem * var(--resume-module-spacing-scale, 1));
-            padding-top: calc(0.95rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.44rem;
+            padding-top: 0.95rem;
             border-top: 1px solid var(--resume-my-divider);
         }
 
@@ -1321,7 +1376,7 @@ body {
             display: flex;
             flex-wrap: wrap;
             align-items: flex-start;
-            gap: calc(0.38rem * var(--resume-module-spacing-scale, 1)) calc(1rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.38rem 1rem;
         }
 
         .my-resume-contact-item {
@@ -1332,8 +1387,8 @@ body {
             max-width: min(100%, 12.75rem);
             gap: 0.48rem;
             color: var(--resume-my-muted);
-            font-size: calc(0.94rem * var(--resume-font-scale, 1));
-            line-height: calc(1.45 * var(--resume-line-height-scale, 1));
+            font-size: 0.94rem;
+            line-height: 1.45;
         }
 
         .my-resume-contact-icon {
@@ -1344,7 +1399,12 @@ body {
             color: var(--resume-my-accent);
         }
 
-        .my-resume-contact-icon-svg,
+        .my-resume-contact-icon-svg {
+            width: calc(1rem * var(--resume-basic-info-icon-scale, 1));
+            height: calc(1rem * var(--resume-basic-info-icon-scale, 1));
+            display: block;
+        }
+
         .my-resume-section-icon,
         .my-resume-period-icon,
         .my-resume-badge-icon,
@@ -1355,6 +1415,7 @@ body {
         }
 
         .my-resume-contact-text {
+            font-size: calc(1em * var(--resume-basic-info-scale, 1));
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1370,7 +1431,7 @@ body {
             align-items: flex-start;
             justify-content: flex-end;
             flex-shrink: 0;
-            padding-top: calc(0.18rem * var(--resume-module-spacing-scale, 1));
+            padding-top: 0.18rem;
         }
 
         .my-resume-avatar-shell {
@@ -1400,9 +1461,11 @@ body {
             letter-spacing: 0.08em;
         }
 
+        .my-resume-header,
         .my-resume-section,
         .my-resume-flow-block {
             min-width: 0;
+            margin-inline: var(--resume-module-inline-boundary-offset, 0);
         }
 
         .my-resume-flow-block {
@@ -1418,8 +1481,8 @@ body {
             display: flex;
             align-items: center;
             gap: 0.68rem;
-            padding-bottom: calc(0.58rem * var(--resume-module-spacing-scale, 1));
-            margin-bottom: calc(1.12rem * var(--resume-module-spacing-scale, 1));
+            padding-bottom: 0.58rem;
+            margin-bottom: 1.12rem;
             border-bottom: 1px solid rgba(241, 245, 249, 0.98);
         }
 
@@ -1431,7 +1494,7 @@ body {
         .my-resume-section-heading {
             margin: 0;
             color: var(--resume-my-subtle);
-            font-size: calc(1.3rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
+            font-size: calc(1.3rem * var(--resume-title-scale, 1));
             line-height: 1.12;
             font-weight: 800;
             letter-spacing: 0.12em;
@@ -1444,7 +1507,7 @@ body {
             margin: 0;
             color: var(--resume-my-muted);
             font-size: calc(1rem * var(--resume-font-scale, 1));
-            line-height: calc(1.72 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.72 * var(--resume-body-line-height-scale, 1));
             text-align: justify;
         }
 
@@ -1462,7 +1525,7 @@ body {
         }
 
         .my-resume-skills-grid {
-            --resume-my-skills-grid-gap: calc(0.92rem * var(--resume-module-spacing-scale, 1));
+            --resume-my-skills-grid-gap: 0.92rem;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, max(13.5rem, calc((100% - (2 * var(--resume-my-skills-grid-gap))) / 3))), 1fr));
             gap: var(--resume-my-skills-grid-gap);
@@ -1472,8 +1535,8 @@ body {
             min-width: 0;
             display: grid;
             align-content: start;
-            gap: calc(0.68rem * var(--resume-module-spacing-scale, 1));
-            padding: calc(1rem * var(--resume-inner-padding-scale, 1));
+            gap: 0.68rem;
+            padding: calc(1rem * var(--resume-module-padding-y-scale, 1)) calc(1rem * var(--resume-module-padding-x-scale, 1));
             border: 1px solid var(--resume-my-border);
             border-radius: 0.96rem;
             background: var(--resume-my-card-bg);
@@ -1482,15 +1545,15 @@ body {
         .my-resume-skill-group-title {
             margin: 0;
             color: var(--resume-my-text);
-            font-size: calc(0.96rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.96rem * var(--resume-skill-group-name-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
         .my-resume-skill-tag-list {
             display: flex;
             flex-wrap: wrap;
-            gap: calc(0.38rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.38rem;
         }
 
         .my-resume-skill-tag {
@@ -1503,7 +1566,7 @@ body {
             border: 1px solid var(--resume-my-border);
             background: #ffffff;
             color: var(--resume-my-muted);
-            font-size: calc(0.78rem * var(--resume-font-scale, 1));
+            font-size: calc(0.78rem * var(--resume-skill-tag-scale, 1));
             line-height: 1.2;
             font-weight: 600;
             overflow-wrap: anywhere;
@@ -1548,15 +1611,15 @@ body {
             display: flex;
             align-items: baseline;
             justify-content: space-between;
-            gap: calc(0.9rem * var(--resume-module-spacing-scale, 1));
-            margin-bottom: calc(0.26rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.9rem;
+            margin-bottom: 0.26rem;
         }
 
         .my-resume-experience-company {
             margin: 0;
             color: var(--resume-my-text);
-            font-size: calc(1.14rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.14rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
@@ -1566,7 +1629,7 @@ body {
             gap: 0.26rem;
             flex-shrink: 0;
             color: var(--resume-my-subtle);
-            font-size: calc(0.84rem * var(--resume-font-scale, 1));
+            font-size: calc(0.84rem * var(--resume-work-project-meta-scale, 1));
             line-height: 1.2;
             font-weight: 600;
             white-space: nowrap;
@@ -1582,17 +1645,18 @@ body {
             flex-wrap: wrap;
             align-items: center;
             gap: 0.52rem;
-            margin-bottom: calc(0.62rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 0.62rem;
         }
 
         .my-resume-experience-role {
             margin: 0;
             color: var(--resume-my-accent);
-            font-size: calc(0.98rem * var(--resume-font-scale, 1) * var(--resume-role-scale, 1));
-            line-height: calc(1.3 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.98rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.3;
             font-weight: 700;
         }
 
+        .resume-work-badge,
         .my-resume-highlight-badge {
             display: inline-flex;
             align-items: center;
@@ -1601,9 +1665,15 @@ body {
             border-radius: 0.38rem;
             background: #fff7ed;
             color: #f59e0b;
-            font-size: calc(0.74rem * var(--resume-font-scale, 1));
+            font-size: calc(0.74rem * var(--resume-work-project-meta-scale, 1));
             line-height: 1.2;
             font-weight: 700;
+        }
+
+        .resume-work-badge.resume-primary-badge {
+            background: #fff7ed;
+            color: #f59e0b;
+            border-color: transparent;
         }
 
         .my-resume-badge-icon {
@@ -1615,15 +1685,15 @@ body {
             border: 1px solid var(--resume-my-border);
             border-radius: 1rem;
             background: var(--resume-my-card-bg);
-            padding: calc(1.22rem * var(--resume-inner-padding-scale, 1));
+            padding: calc(1.22rem * var(--resume-module-padding-y-scale, 1)) calc(1.22rem * var(--resume-module-padding-x-scale, 1));
         }
 
         .my-resume-project-head {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: calc(0.85rem * var(--resume-module-spacing-scale, 1));
-            margin-bottom: calc(0.72rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.85rem;
+            margin-bottom: 0.72rem;
         }
 
         .my-resume-project-title {
@@ -1633,8 +1703,8 @@ body {
             margin: 0;
             min-width: 0;
             color: var(--resume-my-text);
-            font-size: calc(1.08rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.08rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
@@ -1660,20 +1730,20 @@ body {
             border: 1px solid var(--resume-my-border);
             background: #ffffff;
             color: var(--resume-my-muted);
-            font-size: calc(0.76rem * var(--resume-font-scale, 1));
+            font-size: calc(0.76rem * var(--resume-work-project-meta-scale, 1));
             line-height: 1.2;
         }
 
         .my-resume-project-details {
             display: grid;
-            gap: calc(0.72rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.72rem;
         }
 
         .resume-layout-my-resume .my-resume-project-details .resume-bullet-list {
             margin: 0;
             color: var(--resume-my-muted);
             font-size: calc(0.96rem * var(--resume-font-scale, 1));
-            line-height: calc(1.68 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.68 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-layout-my-resume .my-resume-project-details .resume-bullet-list li::before {
@@ -1682,14 +1752,14 @@ body {
 
         .my-resume-education-list {
             display: grid;
-            gap: calc(0.68rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.68rem;
         }
 
         .my-resume-education-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: calc(0.75rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.75rem;
         }
 
         .my-resume-education-main {
@@ -1702,8 +1772,8 @@ body {
 
         .my-resume-education-school {
             color: #1e293b;
-            font-size: calc(1.06rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.06rem * var(--resume-font-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
@@ -1718,20 +1788,20 @@ body {
         .my-resume-education-degree {
             color: var(--resume-my-muted);
             font-size: calc(0.92rem * var(--resume-font-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            line-height: 1.35;
         }
 
         .my-resume-empty-state {
             margin: 0;
             color: var(--resume-my-subtle);
-            font-size: calc(0.92rem * var(--resume-font-scale, 1));
-            line-height: calc(1.5 * var(--resume-line-height-scale, 1));
+            font-size: 0.92rem;
+            line-height: 1.5;
         }
 
         @media screen and (max-width: 900px) {
             .my-resume-header-main {
                 grid-template-columns: minmax(0, 1fr);
-                row-gap: calc(0.9rem * var(--resume-module-spacing-scale, 1));
+                row-gap: 0.9rem;
             }
 
             .my-resume-header-avatar {
@@ -1749,11 +1819,11 @@ body {
             --resume-my3-border: #e2e8f0;
             --resume-my3-divider: #dbe3ec;
             --resume-my3-surface: rgba(248, 250, 252, 0.72);
-            --resume-my3-page-padding-x: calc(3rem * var(--resume-inner-padding-scale, 1));
-            --resume-my3-page-padding-y: calc(2rem * var(--resume-inner-padding-scale, 1));
-            --resume-my3-section-gap: calc(2.4rem * var(--resume-module-spacing-scale, 1));
-            --resume-my3-block-gap: calc(1.55rem * var(--resume-module-spacing-scale, 1));
-            --resume-my3-bullet-gap: calc(0.82rem * var(--resume-module-spacing-scale, 1));
+            --resume-my3-page-padding-x: calc(3rem * var(--resume-page-padding-x-scale, 1));
+            --resume-my3-page-padding-y: calc(2rem * var(--resume-page-padding-y-scale, 1));
+            --resume-my3-section-gap: calc(2.4rem * var(--resume-module-margin-y-scale, 1));
+            --resume-my3-block-gap: calc(1.55rem * var(--resume-module-margin-y-scale, 1));
+            --resume-my3-bullet-gap: 0.82rem;
         }
 
         .resume-layout-my-resume3 .resume-sheet {
@@ -1785,10 +1855,11 @@ body {
         .my-resume3-section,
         .my-resume3-flow-block {
             min-width: 0;
+            margin-inline: var(--resume-module-inline-boundary-offset, 0);
         }
 
         .my-resume3-header {
-            margin-bottom: calc(var(--resume-my3-section-gap) - (0.46rem * var(--resume-module-spacing-scale, 1)));
+            margin-bottom: max(0px, calc(var(--resume-my3-section-gap) - 0.46rem));
         }
 
         .my-resume3-flow-block {
@@ -1804,7 +1875,7 @@ body {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: calc(2.2rem * var(--resume-module-spacing-scale, 1));
+            gap: 2.2rem;
         }
 
         .my-resume3-header-copy {
@@ -1812,22 +1883,22 @@ body {
             min-width: 0;
             display: grid;
             align-content: start;
-            gap: calc(3rem * var(--resume-module-spacing-scale, 1));
+            gap: 3rem;
         }
 
         .my-resume3-name-row {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: calc(0.92rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.92rem;
             margin-bottom: 0;
         }
 
         .my-resume3-name {
             margin: 0;
             color: var(--resume-my3-text);
-            font-size: calc(2.95rem * var(--resume-font-scale, 1) * var(--resume-name-scale, 1));
-            line-height: calc(1 * var(--resume-line-height-scale, 1));
+            font-size: calc(2.95rem * var(--resume-name-scale, 1));
+            line-height: 1;
             font-weight: 800;
             letter-spacing: -0.04em;
         }
@@ -1835,7 +1906,7 @@ body {
         .my-resume3-role-badge {
             align-self: flex-end;
             color: var(--resume-my3-accent);
-            font-size: calc(1.5rem * var(--resume-font-scale, 1) * var(--resume-role-scale, 1));
+            font-size: calc(1.5rem * var(--resume-role-scale, 1));
             line-height: 1.15;
             font-weight: 700;
         }
@@ -1844,7 +1915,7 @@ body {
             display: flex;
             flex-wrap: wrap;
             align-items: flex-start;
-            gap: calc(1.4rem * var(--resume-module-spacing-scale, 1)) calc(1.2rem * var(--resume-module-spacing-scale, 1));
+            gap: 1.4rem 1.2rem;
         }
 
         .my-resume3-meta-item {
@@ -1868,15 +1939,15 @@ body {
 
         .my-resume3-meta-icon-svg {
             display: block;
-            width: 1.14rem;
-            height: 1.14rem;
+            width: calc(1.14rem * var(--resume-basic-info-icon-scale, 1));
+            height: calc(1.14rem * var(--resume-basic-info-icon-scale, 1));
         }
 
         .my-resume3-meta-text {
             min-width: 0;
             color: #334155;
-            font-size: calc(0.98rem * var(--resume-font-scale, 1));
-            line-height: calc(1.5 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.98rem * var(--resume-basic-info-scale, 1));
+            line-height: 1.5;
             font-weight: 600;
             text-decoration: none;
             overflow: hidden;
@@ -1955,7 +2026,7 @@ body {
             display: flex;
             align-items: center;
             gap: 0.9rem;
-            margin-bottom: calc(1.22rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 1.22rem;
         }
 
         .my-resume3-section-icon-box {
@@ -1981,8 +2052,8 @@ body {
         .my-resume3-section-heading {
             margin: 0;
             color: var(--resume-my3-text);
-            font-size: calc(1.44rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.25 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.44rem * var(--resume-title-scale, 1));
+            line-height: 1.25;
             font-weight: 800;
             letter-spacing: 0.01em;
         }
@@ -2001,7 +2072,7 @@ body {
             padding-left: 1.06rem;
             color: var(--resume-my3-muted);
             font-size: calc(1rem * var(--resume-font-scale, 1));
-            line-height: calc(1.72 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.72 * var(--resume-body-line-height-scale, 1));
             text-align: justify;
         }
 
@@ -2022,7 +2093,7 @@ body {
         }
 
         .my-resume3-skills-grid {
-            --resume-my3-skills-grid-gap: calc(0.96rem * var(--resume-module-spacing-scale, 1));
+            --resume-my3-skills-grid-gap: 0.96rem;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(min(100%, max(13.5rem, calc((100% - (2 * var(--resume-my3-skills-grid-gap))) / 3))), 1fr));
             gap: var(--resume-my3-skills-grid-gap);
@@ -2032,8 +2103,8 @@ body {
             min-width: 0;
             display: grid;
             align-content: start;
-            gap: calc(0.72rem * var(--resume-module-spacing-scale, 1));
-            padding: calc(1rem * var(--resume-inner-padding-scale, 1));
+            gap: 0.72rem;
+            padding: calc(1rem * var(--resume-module-padding-y-scale, 1)) calc(1rem * var(--resume-module-padding-x-scale, 1));
             border: 1px solid rgba(226, 232, 240, 0.85);
             border-radius: 1rem;
             background: var(--resume-my3-surface);
@@ -2043,15 +2114,15 @@ body {
         .my-resume3-skill-group-name {
             margin: 0;
             color: var(--resume-my3-text);
-            font-size: calc(1rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1rem * var(--resume-skill-group-name-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
         .my-resume3-skill-item-list {
             display: flex;
             flex-wrap: wrap;
-            gap: calc(0.42rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.42rem;
         }
 
         .my-resume3-skill-item {
@@ -2064,7 +2135,7 @@ body {
             border: 1px solid rgba(226, 232, 240, 0.95);
             background: rgba(255, 255, 255, 0.94);
             color: var(--resume-my3-muted);
-            font-size: calc(0.84rem * var(--resume-font-scale, 1));
+            font-size: calc(0.84rem * var(--resume-skill-tag-scale, 1));
             line-height: 1.2;
             font-weight: 600;
             overflow-wrap: anywhere;
@@ -2113,17 +2184,29 @@ body {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: calc(0.95rem * var(--resume-module-spacing-scale, 1));
-            margin-bottom: calc(0.74rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.95rem;
+            margin-bottom: 0.74rem;
+        }
+
+        .my-resume3-work-heading {
+            min-width: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.62rem;
         }
 
         .my-resume3-timeline-title {
             margin: 0;
             min-width: 0;
             color: var(--resume-my3-text);
-            font-size: calc(1.18rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: 1.18rem;
+            line-height: 1.35;
             font-weight: 800;
+        }
+
+        .my-resume3-work-entry .my-resume3-timeline-title {
+            font-size: calc(1.18rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .my-resume3-timeline-title-main {
@@ -2139,7 +2222,7 @@ body {
 
         .my-resume3-work-role {
             color: var(--resume-my3-accent);
-            font-size: calc(1.06rem * var(--resume-font-scale, 1) * var(--resume-role-scale, 1));
+            font-size: calc(1.06rem * var(--resume-work-project-meta-scale, 1));
             font-weight: 700;
         }
 
@@ -2152,11 +2235,22 @@ body {
         .my-resume3-date {
             flex-shrink: 0;
             color: var(--resume-my3-subtle);
-            font-size: calc(0.92rem * var(--resume-font-scale, 1));
+            font-size: 0.92rem;
             line-height: 1.25;
             font-weight: 700;
             letter-spacing: 0.01em;
             white-space: nowrap;
+        }
+
+        .my-resume3-experience-badge {
+            flex-shrink: 0;
+            margin-left: 0.62rem;
+            vertical-align: middle;
+        }
+
+        .my-resume3-work-entry .my-resume3-date,
+        .my-resume3-project-date {
+            font-size: calc(0.92rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .my-resume3-project-card {
@@ -2164,15 +2258,15 @@ body {
             border-radius: 1.05rem;
             background: var(--resume-my3-surface);
             box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-            padding: calc(1.2rem * var(--resume-inner-padding-scale, 1));
+            padding: calc(1.2rem * var(--resume-module-padding-y-scale, 1)) calc(1.2rem * var(--resume-module-padding-x-scale, 1));
         }
 
         .my-resume3-project-head {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
-            gap: calc(1rem * var(--resume-module-spacing-scale, 1));
-            margin-bottom: calc(0.96rem * var(--resume-module-spacing-scale, 1));
+            gap: 1rem;
+            margin-bottom: 0.96rem;
         }
 
         .my-resume3-project-copy {
@@ -2185,14 +2279,14 @@ body {
             align-items: center;
             flex-wrap: wrap;
             gap: 0.62rem;
-            margin-bottom: calc(0.62rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 0.62rem;
         }
 
         .my-resume3-project-title {
             margin: 0;
             color: var(--resume-my3-text);
-            font-size: calc(1.18rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.18rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.35;
             font-weight: 800;
         }
 
@@ -2202,7 +2296,7 @@ body {
             justify-content: center;
             padding: 0.22rem 0.6rem;
             border-radius: 0.52rem;
-            font-size: calc(0.82rem * var(--resume-font-scale, 1));
+            font-size: calc(0.82rem * var(--resume-work-project-meta-scale, 1));
             line-height: 1.2;
             font-weight: 800;
             letter-spacing: 0.03em;
@@ -2236,7 +2330,7 @@ body {
             border: 1px solid rgba(226, 232, 240, 0.95);
             background: rgba(255, 255, 255, 0.94);
             color: var(--resume-my3-muted);
-            font-size: calc(0.84rem * var(--resume-font-scale, 1));
+            font-size: calc(0.84rem * var(--resume-work-project-meta-scale, 1));
             line-height: 1.2;
             font-weight: 500;
         }
@@ -2254,7 +2348,7 @@ body {
             margin: 0;
             color: var(--resume-my3-muted);
             font-size: calc(1rem * var(--resume-font-scale, 1));
-            line-height: calc(1.72 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.72 * var(--resume-body-line-height-scale, 1));
             text-align: justify;
         }
 
@@ -2265,14 +2359,14 @@ body {
         .my-resume3-empty-state {
             margin: 0;
             color: var(--resume-my3-subtle);
-            font-size: calc(0.94rem * var(--resume-font-scale, 1));
-            line-height: calc(1.55 * var(--resume-line-height-scale, 1));
+            font-size: 0.94rem;
+            line-height: 1.55;
         }
 
         @media screen and (max-width: 900px) {
             .my-resume3-header-main {
                 flex-direction: column-reverse;
-                gap: calc(1.45rem * var(--resume-module-spacing-scale, 1));
+                gap: 1.45rem;
             }
 
             .my-resume3-avatar-wrap {
@@ -2293,8 +2387,14 @@ body {
             }
         }
 
+        .resume-classic-avatar-section,
+        .resume-classic-section,
+        .resume-classic-section-tight {
+            margin-inline: var(--resume-module-inline-boundary-offset, 0);
+        }
+
         .resume-classic-avatar-section {
-            margin-bottom: calc(2rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: calc(2rem * var(--resume-module-margin-y-scale, 1));
         }
 
         .resume-classic-avatar-shell {
@@ -2312,15 +2412,15 @@ body {
         }
 
         .resume-classic-section-title {
-            margin-bottom: calc(1rem * var(--resume-module-spacing-scale, 1));
-            padding-bottom: calc(0.5rem * var(--resume-inner-padding-scale, 1));
-            font-size: calc(1.125rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            font-size: calc(1.125rem * var(--resume-title-scale, 1));
+            line-height: 1.35;
         }
 
         .resume-classic-basic-info-list {
             display: grid;
-            gap: calc(0.875rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.875rem;
             margin: 0;
             padding: 0;
             list-style: none;
@@ -2331,13 +2431,14 @@ body {
         }
 
         .resume-classic-basic-info-icon {
-            width: calc(2rem * var(--resume-font-scale, 1));
-            height: calc(2rem * var(--resume-font-scale, 1));
+            width: calc(2rem * var(--resume-basic-info-icon-scale, 1));
+            height: calc(2rem * var(--resume-basic-info-icon-scale, 1));
+            font-size: calc(0.8125rem * var(--resume-basic-info-icon-scale, 1));
         }
 
         .resume-classic-basic-info-text {
-            font-size: calc(0.875rem * var(--resume-font-scale, 1));
-            line-height: calc(2rem * var(--resume-line-height-scale, 1));
+            font-size: calc(0.875rem * var(--resume-basic-info-scale, 1));
+            line-height: 2rem;
         }
 
         .resume-classic-stack-item-spaced {
@@ -2345,37 +2446,45 @@ body {
         }
 
         .resume-classic-item-title {
-            font-size: calc(1rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.45 * var(--resume-line-height-scale, 1));
+            font-size: calc(1rem * var(--resume-font-scale, 1));
+            line-height: 1.45;
         }
 
         .resume-classic-item-subtitle {
-            margin-top: calc(0.25rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.25rem;
             font-size: calc(0.875rem * var(--resume-font-scale, 1));
-            line-height: calc(1.4 * var(--resume-line-height-scale, 1));
+            line-height: 1.4;
         }
 
         .resume-classic-item-period {
-            margin-top: calc(0.25rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.25rem;
             font-size: calc(0.75rem * var(--resume-font-scale, 1));
-            line-height: calc(1.4 * var(--resume-line-height-scale, 1));
+            line-height: 1.4;
         }
 
         .resume-classic-group-title {
-            margin-bottom: calc(0.5rem * var(--resume-module-spacing-scale, 1));
-            font-size: calc(0.875rem * var(--resume-font-scale, 1));
-            line-height: calc(1.4 * var(--resume-line-height-scale, 1));
+            margin-bottom: 0.5rem;
+            font-size: calc(0.875rem * var(--resume-skill-group-name-scale, 1));
+            line-height: 1.4;
         }
 
         .resume-classic-skill-tag-list {
-            gap: calc(0.5rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.5rem;
         }
 
         .resume-classic-skill-tag,
         .resume-classic-project-badge,
         .resume-classic-tech-tag {
-            font-size: calc(0.75rem * var(--resume-font-scale, 1));
-            line-height: calc(1.2 * var(--resume-line-height-scale, 1));
+            line-height: 1.2;
+        }
+
+        .resume-classic-skill-tag {
+            font-size: calc(0.75rem * var(--resume-skill-tag-scale, 1));
+        }
+
+        .resume-classic-project-badge,
+        .resume-classic-tech-tag {
+            font-size: calc(0.75rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .resume-classic-skill-tag {
@@ -2383,33 +2492,33 @@ body {
         }
 
         .resume-classic-entry-spaced {
-            margin-bottom: calc(2rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: calc(2rem * var(--resume-module-margin-y-scale, 1));
         }
 
         .resume-classic-entry-head {
-            margin-bottom: calc(0.5rem * var(--resume-module-spacing-scale, 1));
-            gap: calc(1rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 0.5rem;
+            gap: 1rem;
         }
 
         .resume-classic-entry-title {
-            font-size: calc(1.125rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.125rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.35;
         }
 
         .resume-classic-entry-company,
         .resume-classic-entry-period {
-            font-size: calc(0.875rem * var(--resume-font-scale, 1));
-            line-height: calc(1.4 * var(--resume-line-height-scale, 1));
+            font-size: calc(0.875rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.4;
         }
 
         .resume-classic-entry-period {
-            margin-top: calc(0.25rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.25rem;
         }
 
         .resume-classic-bullet-list {
-            margin-top: calc(0.75rem * var(--resume-module-spacing-scale, 1));
+            margin-top: 0.75rem;
             font-size: calc(0.875rem * var(--resume-font-scale, 1));
-            line-height: calc(1.625 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.625 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-classic-bullet-list li + li {
@@ -2421,22 +2530,26 @@ body {
         }
 
         .resume-classic-project-head {
-            margin-bottom: calc(0.5rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 0.5rem;
         }
 
         .resume-classic-project-title {
-            font-size: calc(1rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.35 * var(--resume-line-height-scale, 1));
+            font-size: calc(1rem * var(--resume-work-project-meta-scale, 1));
+            line-height: 1.35;
+        }
+
+        .resume-classic-project-card .resume-period-pill {
+            font-size: calc(0.72rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .resume-classic-project-description {
-            margin-bottom: calc(0.75rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 0.75rem;
             font-size: calc(0.875rem * var(--resume-font-scale, 1));
-            line-height: calc(1.625 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.625 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-classic-tech-list {
-            gap: calc(0.5rem * var(--resume-module-spacing-scale, 1));
+            gap: 0.5rem;
         }
 
         .resume-classic-tech-tag,
@@ -2446,22 +2559,22 @@ body {
 
         .resume-classic-hero {
             margin-bottom: var(--resume-classic-section-gap, 2.5rem);
-            padding-bottom: calc(2rem * var(--resume-inner-padding-scale, 1));
+            padding-bottom: 2rem;
         }
 
         .resume-classic-name {
-            margin-bottom: calc(0.5rem * var(--resume-module-spacing-scale, 1));
-            font-size: calc(3rem * var(--resume-font-scale, 1) * var(--resume-name-scale, 1));
-            line-height: calc(1.05 * var(--resume-line-height-scale, 1));
+            margin-bottom: 0.5rem;
+            font-size: calc(3rem * var(--resume-name-scale, 1));
+            line-height: 1.05;
         }
 
         .resume-classic-role {
-            font-size: calc(1.5rem * var(--resume-font-scale, 1) * var(--resume-role-scale, 1));
-            line-height: calc(1.25 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.5rem * var(--resume-role-scale, 1));
+            line-height: 1.25;
         }
 
         .resume-classic-section-heading {
-            margin-bottom: calc(1rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: 1rem;
         }
 
         .resume-classic-section-icon {
@@ -2471,22 +2584,22 @@ body {
         }
 
         .resume-classic-section-heading-title {
-            font-size: calc(1.5rem * var(--resume-font-scale, 1) * var(--resume-title-scale, 1));
-            line-height: calc(1.25 * var(--resume-line-height-scale, 1));
+            font-size: calc(1.5rem * var(--resume-title-scale, 1));
+            line-height: 1.25;
         }
 
         .resume-classic-summary-text {
             font-size: calc(1rem * var(--resume-font-scale, 1));
-            line-height: calc(1.625 * var(--resume-line-height-scale, 1));
+            line-height: calc(1.625 * var(--resume-body-line-height-scale, 1));
         }
 
         .resume-classic-empty-state {
-            font-size: calc(0.875rem * var(--resume-font-scale, 1));
-            line-height: calc(1.5 * var(--resume-line-height-scale, 1));
+            font-size: 0.875rem;
+            line-height: 1.5;
         }
 
         .resume-classic-project-wrapper-spaced {
-            margin-bottom: calc(1.5rem * var(--resume-module-spacing-scale, 1));
+            margin-bottom: calc(1.5rem * var(--resume-module-margin-y-scale, 1));
         }
 
         .app-shell {
@@ -3055,6 +3168,8 @@ body {
             .resume-skill-tag,
             .resume-tech-tag,
             .resume-project-badge,
+            .resume-work-badge,
+            .resume-entry-flag,
             .resume-period-pill,
             .resume-profile-avatar-shell,
             .my-resume-avatar-shell,
@@ -3068,6 +3183,7 @@ body {
             .my-resume3-timeline-dot,
             .my-resume3-project-card,
             .my-resume3-project-badge,
+            .my-resume3-experience-badge,
             .my-resume3-project-tag {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -3238,11 +3354,11 @@ body {
             }
 
             .resume-page[data-resume-layout="my-resume3"] .my-resume3-header-copy {
-                gap: calc(3rem * var(--resume-module-spacing-scale, 1)) !important;
+                gap: 3rem !important;
             }
 
             .resume-page[data-resume-layout="my-resume3"] .my-resume3-header {
-                margin-bottom: calc(var(--resume-my3-section-gap) - (0.46rem * var(--resume-module-spacing-scale, 1))) !important;
+                margin-bottom: max(0px, calc(var(--resume-my3-section-gap) - 0.46rem)) !important;
             }
 
             .resume-page[data-resume-layout="cards"] .resume-card {

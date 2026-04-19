@@ -34,6 +34,7 @@ import {
 import {
     getResumeLayoutLabel,
     normalizeProfessionalSkillsMode,
+    normalizeSectionOrder,
     getResumeThemeOption,
     normalizeResumeData,
     normalizeResumeLayout,
@@ -41,7 +42,10 @@ import {
 } from "../core/resume-model.js";
 import { renderFormHtml } from "../form/render.js";
 import { renderResume as renderPreview } from "../preview/render.js";
-import { clampResumeLayoutControl } from "../resume-layout-controls.js";
+import {
+    clampResumeLayoutControl,
+    formatResumeLayoutControlValue
+} from "../resume-layout-controls.js";
 
 export function createResumeApp({ dom, windowRef = window, documentRef = document, sortableLib = Sortable }) {
     const {
@@ -55,6 +59,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
     let panelState = createInitialPanelState();
     let activeBasicInfoPickerIndex = -1;
     let basicInfoSortable = null;
+    let reorderableSectionSortable = null;
     let lastExportedJson = "";
     let avatarDragState = null;
     let avatarCropState = null;
@@ -150,6 +155,50 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
         });
     }
 
+    function initSectionOrderSortable() {
+        if (reorderableSectionSortable) {
+            reorderableSectionSortable.destroy();
+            reorderableSectionSortable = null;
+        }
+
+        const list = documentRef.getElementById("form-sections-sortable");
+        if (!list || !sortableLib || typeof sortableLib.create !== "function") {
+            return;
+        }
+
+        reorderableSectionSortable = sortableLib.create(list, {
+            draggable: ".sortable-form-section",
+            handle: ".form-section-drag-handle",
+            dataIdAttr: "data-section-id",
+            animation: 150,
+            delayOnTouchOnly: true,
+            delay: 120,
+            touchStartThreshold: 4,
+            fallbackTolerance: 4,
+            onEnd() {
+                if (!reorderableSectionSortable) {
+                    return;
+                }
+
+                const previousOrder = normalizeSectionOrder(resumeData.sectionOrder);
+                const nextOrder = normalizeSectionOrder(reorderableSectionSortable.toArray());
+                if (nextOrder.join("|") === previousOrder.join("|")) {
+                    return;
+                }
+
+                resumeData.sectionOrder = nextOrder;
+                renderAll();
+                if (!saveDraft()) {
+                    resumeData.sectionOrder = previousOrder;
+                    renderAll();
+                    setStatus("模块排序保存失败：无法写入本地草稿。", "error");
+                    return;
+                }
+                setStatus("已更新模块排序。", "success");
+            }
+        });
+    }
+
     function renderForm() {
         formRoot.innerHTML = renderFormHtml({
             resumeData,
@@ -160,6 +209,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
 
         avatarController.initAvatarFrameEditor();
         initBasicInfoSortable();
+        initSectionOrderSortable();
     }
 
     function renderAll() {
@@ -262,8 +312,33 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
             list[index][field] = value;
         }
 
+        if (section === "experiences" && (field === "highlight" || field === "workBadgeEnabled")) {
+            renderAll();
+            saveDraft();
+            return;
+        }
+
         renderResume(resumeData);
         saveDraft();
+    }
+
+    function syncLayoutControlReadout(target) {
+        if (!target || !target.dataset || target.dataset.section !== "layoutControls" || target.type !== "range") {
+            return;
+        }
+
+        const field = target.dataset.field;
+        if (!field) {
+            return;
+        }
+
+        const readout = target.closest("label")?.querySelector(`[data-layout-control-value="${field}"]`);
+        if (!readout) {
+            return;
+        }
+
+        const nextValue = clampResumeLayoutControl(field, target.value, resumeData[field]);
+        readout.textContent = formatResumeLayoutControlValue(field, nextValue, { layout: resumeData.resumeLayout });
     }
 
     function handleAction(action, index, button) {
@@ -546,6 +621,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
         if (!target || !target.dataset) {
             return;
         }
+        syncLayoutControlReadout(target);
         applyFieldUpdate(target);
     }
 
@@ -558,6 +634,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
             target.value = "";
             return;
         }
+        syncLayoutControlReadout(target);
         applyFieldUpdate(target);
     }
 

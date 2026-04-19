@@ -1,4 +1,5 @@
 import {
+    DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
     FALLBACK_AVATAR,
     PAGE_BREAK_BUFFER_PX,
     PROFESSIONAL_SKILLS_MODE_TEXT,
@@ -18,6 +19,7 @@ import {
     normalizeProfessionalSkillsMode,
     normalizeRenderMode,
     normalizeResumeLayout,
+    normalizeSectionOrder,
     renderDynamicIcon,
     resolveBasicInfoIcon,
     resolveIconColorToneForTheme
@@ -104,8 +106,65 @@ function renderClassicSkillsText(skillsText) {
         : '<p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写专业技能</p>';
 }
 
+function getOrderedSectionIds(data) {
+    return normalizeSectionOrder(data?.sectionOrder);
+}
+
+function appendOrderedBlocks(blocks, orderedSectionIds, sectionBlockMap) {
+    for (const sectionId of orderedSectionIds) {
+        const nextBlocks = sectionBlockMap[sectionId];
+        if (!nextBlocks) {
+            continue;
+        }
+        if (Array.isArray(nextBlocks)) {
+            blocks.push(...nextBlocks);
+            continue;
+        }
+        blocks.push(nextBlocks);
+    }
+
+    return blocks;
+}
+
 function isProfessionalSkillsTextMode(data) {
     return normalizeProfessionalSkillsMode(data?.professionalSkillsMode) === PROFESSIONAL_SKILLS_MODE_TEXT;
+}
+
+function renderExperienceRichText(text, enabled, emphasisClass = "") {
+    const source = String(text ?? "").trim();
+    if (!source) {
+        return "";
+    }
+    if (!enabled) {
+        return escapeHtml(source);
+    }
+
+    return source
+        .split(/(\*\*.*?\*\*)/g)
+        .filter(Boolean)
+        .map((part) => {
+            const match = part.match(/^\*\*(.*?)\*\*$/);
+            if (!match) {
+                return escapeHtml(part);
+            }
+            const classAttr = emphasisClass ? ` class="${emphasisClass}"` : "";
+            return `<strong${classAttr}>${escapeHtml(match[1])}</strong>`;
+        })
+        .join("");
+}
+
+function resolveExperienceWorkBadgeLabel(item) {
+    const label = pickText(item?.workBadgeLabel, "").trim();
+    return label || DEFAULT_EXPERIENCE_WORK_BADGE_LABEL;
+}
+
+function renderExperienceWorkBadge(item, badgeClass) {
+    if (!item?.workBadgeEnabled) {
+        return "";
+    }
+
+    const classes = ["resume-work-badge", badgeClass].filter(Boolean).join(" ");
+    return `<span class="${classes}">${renderMyResumeIcon("award", "my-resume-badge-icon")}<span>${escapeHtml(resolveExperienceWorkBadgeLabel(item))}</span></span>`;
 }
 
 function renderClassicExperienceItem(item, index, total, renderOptions) {
@@ -115,20 +174,19 @@ function renderClassicExperienceItem(item, index, total, renderOptions) {
     const wrapperClass = showTimeline
         ? `${spacingClass} resume-classic-entry relative pl-6 border-l-2 ${lineClass} resume-avoid-break`.trim()
         : `${spacingClass} resume-classic-entry relative resume-avoid-break`.trim();
-    const isHighlight = Boolean(item.highlight);
-    const dotClass = isHighlight ? "resume-accent-dot" : "bg-gray-300";
-    const companyClass = isHighlight ? "resume-accent-company" : "text-gray-600";
+    const highlightEnabled = Boolean(item?.highlight);
+    const workBadge = renderExperienceWorkBadge(item, "resume-primary-badge resume-entry-flag");
     const bullets = normalizeStringArray(item.bullets)
-        .map((bullet) => (`<li>${escapeHtml(bullet)}</li>`))
+        .map((bullet) => (`<li>${renderExperienceRichText(bullet, highlightEnabled)}</li>`))
         .join("");
 
     return `
         <div class="${wrapperClass}">
-            ${showTimeline ? `<div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full ${dotClass} ring-4 ring-white"></div>` : ""}
+            ${showTimeline ? '<div class="absolute -left-[7px] top-1.5 h-3 w-3 rounded-full bg-gray-300 ring-4 ring-white"></div>' : ""}
             <div class="resume-classic-entry-head flex flex-col md:flex-row md:items-start md:justify-between">
                 <div>
-                    <h4 class="resume-classic-entry-title font-bold text-gray-800">${escapeHtml(pickText(item.title, ""))}</h4>
-                    <p class="resume-classic-entry-company font-medium ${companyClass}">${escapeHtml(pickText(item.company, ""))}</p>
+                    <h4 class="resume-classic-entry-title flex flex-wrap items-center gap-2 font-bold text-gray-800"><span class="min-w-0">${escapeHtml(pickText(item.title, ""))}</span>${workBadge}</h4>
+                    <p class="resume-classic-entry-company font-medium text-gray-600">${escapeHtml(pickText(item.company, ""))}</p>
                 </div>
                 <div class="resume-classic-entry-period whitespace-nowrap font-medium text-gray-500">
                     ${escapeHtml(pickText(item.period, ""))}
@@ -177,13 +235,127 @@ function renderClassicProjectCard(project) {
     `;
 }
 
+function buildClassicEducationSectionBlocks(data) {
+    return [
+        `
+            <div class="resume-classic-section resume-avoid-break">
+                <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">教育背景</h3>
+                ${renderClassicEducation(data.education)}
+            </div>
+        `
+    ];
+}
+
+function buildClassicGroupedSkillsSectionBlocks(data) {
+    if (isProfessionalSkillsTextMode(data)) {
+        return [];
+    }
+
+    return [
+        `
+            <div class="resume-classic-section resume-avoid-break">
+                <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">专业技能</h3>
+                ${renderClassicSkills(data.skills)}
+            </div>
+        `
+    ];
+}
+
+function buildClassicSkillsTextSectionBlocks(data) {
+    if (!isProfessionalSkillsTextMode(data)) {
+        return [];
+    }
+
+    return [
+        `
+            <div class="resume-classic-section resume-avoid-break">
+                <div class="resume-classic-section-heading flex items-center">
+                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-wand-magic-sparkles text-lg"></i></div>
+                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">专业技能</h3>
+                </div>
+                ${renderClassicSkillsText(data.professionalSkillsText)}
+            </div>
+        `
+    ];
+}
+
+function buildClassicExperienceSectionBlocks(data) {
+    const blocks = [];
+    const experienceList = pickArray(data.experiences);
+
+    if (experienceList.length) {
+        const experienceItems = experienceList.map((item, index) => renderClassicExperienceItem(item, index, experienceList.length, data));
+        blocks.push(`
+            <div class="resume-classic-section resume-avoid-break">
+                <div class="resume-classic-section-heading flex items-center">
+                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
+                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
+                </div>
+                ${experienceItems[0]}
+            </div>
+        `);
+
+        for (let index = 1; index < experienceItems.length; index += 1) {
+            blocks.push(experienceItems[index]);
+        }
+
+        return blocks;
+    }
+
+    blocks.push(`
+        <div class="resume-classic-section resume-avoid-break">
+            <div class="resume-classic-section-heading flex items-center">
+                <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
+                <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
+            </div>
+            <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写工作经历</p>
+        </div>
+    `);
+    return blocks;
+}
+
+function buildClassicProjectSectionBlocks(data) {
+    const blocks = [];
+    const projectList = getRenderableProjects(data.projects);
+
+    if (projectList.length) {
+        const projectCards = projectList.map((project) => renderClassicProjectCard(project));
+        blocks.push(`
+            <div class="resume-classic-section-tight resume-avoid-break">
+                <div class="resume-classic-section-heading flex items-center">
+                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
+                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
+                </div>
+                ${projectCards[0]}
+            </div>
+        `);
+
+        for (let index = 1; index < projectCards.length; index += 1) {
+            const wrapperClass = index === projectCards.length - 1 ? "resume-avoid-break" : "resume-avoid-break resume-classic-project-wrapper-spaced";
+            blocks.push(`<div class="${wrapperClass}">${projectCards[index]}</div>`);
+        }
+
+        return blocks;
+    }
+
+    blocks.push(`
+        <div class="resume-avoid-break">
+            <div class="resume-classic-section-heading flex items-center">
+                <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
+                <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
+            </div>
+            <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写项目经验</p>
+        </div>
+    `);
+    return blocks;
+}
+
 function buildClassicLeftColumnBlocks(data, profileImage) {
     const basicInfoContent = renderClassicBasicInfo(data.basicInfo, data);
     const avatarMeta = data.avatarImageMeta || getCachedAvatarImageMeta(data.profileImage);
     const avatarFrame = normalizeAvatarFrame(data.avatarFrame, avatarMeta);
     const avatarStyle = getAvatarImageStyle(avatarFrame, avatarMeta);
     const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
-    const showGroupedSkills = !isProfessionalSkillsTextMode(data);
     const blocks = [
         `
             <div class="resume-classic-avatar-section resume-avoid-break flex justify-center">
@@ -203,30 +375,15 @@ function buildClassicLeftColumnBlocks(data, profileImage) {
         `);
     }
 
-    blocks.push(
-        `
-            <div class="resume-classic-section resume-avoid-break">
-                <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">教育背景</h3>
-                ${renderClassicEducation(data.education)}
-            </div>
-        `
-    );
-
-    if (showGroupedSkills) {
-        blocks.push(`
-            <div class="resume-classic-section resume-avoid-break">
-                <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">专业技能</h3>
-                ${renderClassicSkills(data.skills)}
-            </div>
-        `);
-    }
-
+    appendOrderedBlocks(blocks, getOrderedSectionIds(data), {
+        education: buildClassicEducationSectionBlocks(data),
+        skills: buildClassicGroupedSkillsSectionBlocks(data)
+    });
     return blocks;
 }
 
 function buildClassicRightColumnBlocks(data) {
     const summaryText = pickText(data.summary, "").trim() || "可在左侧表单中填写个人简介";
-    const showSkillsText = isProfessionalSkillsTextMode(data);
     const blocks = [
         `
             <div class="resume-soft-divider resume-classic-hero resume-avoid-break border-b">
@@ -245,75 +402,11 @@ function buildClassicRightColumnBlocks(data) {
         `
     ];
 
-    if (showSkillsText) {
-        blocks.push(`
-            <div class="resume-classic-section resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-wand-magic-sparkles text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">专业技能</h3>
-                </div>
-                ${renderClassicSkillsText(data.professionalSkillsText)}
-            </div>
-        `);
-    }
-
-    const experienceList = pickArray(data.experiences);
-    if (experienceList.length) {
-        const experienceItems = experienceList.map((item, index) => renderClassicExperienceItem(item, index, experienceList.length, data));
-        blocks.push(`
-            <div class="resume-classic-section resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
-                </div>
-                ${experienceItems[0]}
-            </div>
-        `);
-
-        for (let index = 1; index < experienceItems.length; index += 1) {
-            blocks.push(experienceItems[index]);
-        }
-    } else {
-        blocks.push(`
-            <div class="resume-classic-section resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
-                </div>
-                <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写工作经历</p>
-            </div>
-        `);
-    }
-
-    const projectList = getRenderableProjects(data.projects);
-    if (projectList.length) {
-        const projectCards = projectList.map((project) => renderClassicProjectCard(project));
-        blocks.push(`
-            <div class="resume-classic-section-tight resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
-                </div>
-                ${projectCards[0]}
-            </div>
-        `);
-
-        for (let index = 1; index < projectCards.length; index += 1) {
-            const wrapperClass = index === projectCards.length - 1 ? "resume-avoid-break" : "resume-avoid-break resume-classic-project-wrapper-spaced";
-            blocks.push(`<div class="${wrapperClass}">${projectCards[index]}</div>`);
-        }
-    } else {
-        blocks.push(`
-            <div class="resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
-                </div>
-                <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写项目经验</p>
-            </div>
-        `);
-    }
-
+    appendOrderedBlocks(blocks, getOrderedSectionIds(data), {
+        skills: buildClassicSkillsTextSectionBlocks(data),
+        experiences: buildClassicExperienceSectionBlocks(data),
+        projects: buildClassicProjectSectionBlocks(data)
+    });
     return blocks;
 }
 
@@ -456,6 +549,62 @@ function buildCardSkillBlocks(skills, iconShadowClass, badgeColorPref) {
     ];
 }
 
+function buildCardSkillsTextSectionBlocks(data, iconShadowClass) {
+    if (!isProfessionalSkillsTextMode(data)) {
+        return [];
+    }
+
+    return [
+        `
+            <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-avoid-break">
+                ${renderCardSectionHeader("专业技能", "fas fa-wand-magic-sparkles", "resume-card-icon-skills", iconShadowClass, true)}
+                <div class="resume-section-card-body">
+                    ${renderCardSkillsText(data.professionalSkillsText)}
+                </div>
+            </article>
+        `
+    ];
+}
+
+function buildCardExperienceSectionBlocks(data, iconShadowClass) {
+    const experienceList = pickArray(data.experiences).filter((item) => (
+        pickText(item?.company, "").trim()
+        || pickText(item?.title, "").trim()
+        || pickText(item?.period, "").trim()
+        || normalizeStringArray(item?.bullets).length
+    ));
+
+    return [
+        `
+            <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-experience-section-card resume-avoid-break">
+                ${renderCardSectionHeader("工作经历", "fas fa-briefcase", "resume-card-icon-experience", iconShadowClass, true)}
+                <div class="resume-section-card-body resume-card-timeline-list">
+                    ${experienceList.length
+                        ? experienceList.map((item, index) => renderCardExperienceItem(item, index, experienceList.length, data.useThemeTimeline, data.showExperienceTimeline)).join("")
+                        : '<p class="resume-empty-state">可在左侧表单中填写工作经历</p>'}
+                </div>
+            </article>
+        `
+    ];
+}
+
+function buildCardProjectSectionBlocks(data, iconShadowClass) {
+    const projectList = getRenderableProjects(data.projects);
+
+    return [
+        `
+            <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-project-section-card resume-avoid-break">
+                ${renderCardSectionHeader("项目经验", "fas fa-code", "resume-card-icon-project", iconShadowClass, true)}
+                <div class="resume-section-card-body resume-card-timeline-list">
+                    ${projectList.length
+                        ? projectList.map((item, index) => renderCardProjectCard(item, index, projectList.length, data.showExperienceTimeline)).join("")
+                        : '<p class="resume-empty-state">可在左侧表单中填写项目经验</p>'}
+                </div>
+            </article>
+        `
+    ];
+}
+
 function renderCardExperienceItem(item, index, total, useThemeTimeline, showExperienceTimeline) {
     const showTimeline = true;
     const lineClass = "resume-timeline-rail-neutral";
@@ -463,8 +612,10 @@ function renderCardExperienceItem(item, index, total, useThemeTimeline, showExpe
     const companyText = pickText(item?.company, "").trim() || "未填写公司";
     const roleText = pickText(item?.title, "").trim();
     const periodText = pickText(item?.period, "").trim();
+    const highlightEnabled = Boolean(item?.highlight);
+    const workBadge = renderExperienceWorkBadge(item, "resume-primary-badge resume-entry-flag");
     const bullets = normalizeStringArray(item?.bullets)
-        .map((bullet) => (`<li>${escapeHtml(bullet)}</li>`))
+        .map((bullet) => (`<li>${renderExperienceRichText(bullet, highlightEnabled)}</li>`))
         .join("");
     const bulletList = bullets
         ? `<ul class="resume-bullet-list">${bullets}</ul>`
@@ -477,7 +628,7 @@ function renderCardExperienceItem(item, index, total, useThemeTimeline, showExpe
             <div class="resume-timeline-entry-content">
                 <div class="resume-entry-head">
                     <div class="min-w-0 flex-1">
-                        <h4 class="resume-entry-company">${escapeHtml(companyText)}</h4>
+                        <h4 class="resume-entry-company flex flex-wrap items-center gap-2"><span class="min-w-0">${escapeHtml(companyText)}</span>${workBadge}</h4>
                     </div>
                     ${periodText ? `<span class="resume-period-pill resume-period-pill-tight">${escapeHtml(periodText)}</span>` : ""}
                 </div>
@@ -541,7 +692,6 @@ function buildCardLeftColumnBlocks(data, profileImage) {
     const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
     const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_8px_18px_var(--resume-accent-glow)]";
     const roleText = pickText(data.role, "").trim();
-    const showGroupedSkills = !isProfessionalSkillsTextMode(data);
     const blocks = [
         `
             <article class="resume-card resume-profile-card resume-avoid-break">
@@ -565,67 +715,34 @@ function buildCardLeftColumnBlocks(data, profileImage) {
         </article>
     `);
 
-    blocks.push(
-        ...buildCardEducationBlocks(data.education, iconShadowClass)
-    );
-
-    if (showGroupedSkills) {
-        blocks.push(
-            ...buildCardSkillBlocks(data.skills, iconShadowClass, data.skillBadgeColor || "theme-soft")
-        );
-    }
-
+    appendOrderedBlocks(blocks, getOrderedSectionIds(data), {
+        education: buildCardEducationBlocks(data.education, iconShadowClass),
+        skills: isProfessionalSkillsTextMode(data)
+            ? []
+            : buildCardSkillBlocks(data.skills, iconShadowClass, data.skillBadgeColor || "theme-soft")
+    });
     return blocks;
 }
 
 function buildCardRightColumnBlocks(data) {
     const iconShadowClass = data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_14px_var(--resume-accent-glow)]";
     const summaryText = pickText(data.summary, "").trim() || "可在左侧表单中填写个人简介";
-    const showSkillsText = isProfessionalSkillsTextMode(data);
-    const experienceList = pickArray(data.experiences).filter((item) => (
-        pickText(item?.company, "").trim()
-        || pickText(item?.title, "").trim()
-        || pickText(item?.period, "").trim()
-        || normalizeStringArray(item?.bullets).length
-    ));
-    const projectList = getRenderableProjects(data.projects);
-
-    return [
+    const blocks = [
         `
             <article class="resume-card resume-card-lg resume-card-widget resume-summary-card resume-avoid-break">
                 ${renderCardSectionHeader("关于我", "fas fa-user", "resume-card-icon-about", iconShadowClass, true)}
                 <p class="resume-summary-text">${escapeHtml(summaryText)}</p>
             </article>
-        `,
-        ...(showSkillsText ? [`
-            <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-avoid-break">
-                ${renderCardSectionHeader("专业技能", "fas fa-wand-magic-sparkles", "resume-card-icon-skills", iconShadowClass, true)}
-                <div class="resume-section-card-body">
-                    ${renderCardSkillsText(data.professionalSkillsText)}
-                </div>
-            </article>
-        `] : []),
-        `
-            <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-experience-section-card resume-avoid-break">
-                ${renderCardSectionHeader("工作经历", "fas fa-briefcase", "resume-card-icon-experience", iconShadowClass, true)}
-                <div class="resume-section-card-body resume-card-timeline-list">
-                    ${experienceList.length
-                        ? experienceList.map((item, index) => renderCardExperienceItem(item, index, experienceList.length, data.useThemeTimeline, data.showExperienceTimeline)).join("")
-                        : '<p class="resume-empty-state">可在左侧表单中填写工作经历</p>'}
-                </div>
-            </article>
-        `,
-        `
-            <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-project-section-card resume-avoid-break">
-                ${renderCardSectionHeader("项目经验", "fas fa-code", "resume-card-icon-project", iconShadowClass, true)}
-                <div class="resume-section-card-body resume-card-timeline-list">
-                    ${projectList.length
-                        ? projectList.map((item, index) => renderCardProjectCard(item, index, projectList.length, data.showExperienceTimeline)).join("")
-                        : '<p class="resume-empty-state">可在左侧表单中填写项目经验</p>'}
-                </div>
-            </article>
         `
     ];
+
+    appendOrderedBlocks(blocks, getOrderedSectionIds(data), {
+        skills: buildCardSkillsTextSectionBlocks(data, iconShadowClass),
+        experiences: buildCardExperienceSectionBlocks(data, iconShadowClass),
+        projects: buildCardProjectSectionBlocks(data, iconShadowClass)
+    });
+
+    return blocks;
 }
 
 function renderMyResumeIcon(name, className = "") {
@@ -764,17 +881,26 @@ function renderMyResumeSkillGroups(skills) {
 
 function renderMyResumeExperienceText(item) {
     const bullets = normalizeStringArray(item?.bullets);
+    const highlightEnabled = Boolean(item?.highlight);
     if (!bullets.length) {
         return '<p class="my-resume-empty-state">可在左侧表单中补充工作经历内容</p>';
     }
-    return `<p class="my-resume-experience-description">${bullets.map((bullet) => escapeHtml(bullet)).join(" ")}</p>`;
+    return `<p class="my-resume-experience-description">${bullets.map((bullet) => renderExperienceRichText(bullet, highlightEnabled, "my-resume-skill-strong")).join(" ")}</p>`;
 }
 
 function renderMyResumeExperienceEntry(item, index, total) {
     const company = pickText(item?.company, "").trim() || "未填写公司";
     const role = pickText(item?.title, "").trim();
     const period = pickText(item?.period, "").trim();
+    const workBadge = renderExperienceWorkBadge(item, "my-resume-highlight-badge");
     const showTail = index < total - 1;
+    const roleRow = role
+        ? `
+                <div class="my-resume-experience-role-row">
+                    <p class="my-resume-experience-role">${escapeHtml(role)}</p>
+                </div>
+            `
+        : "";
 
     return `
         <article class="my-resume-experience-entry${showTail ? " my-resume-experience-entry-tail" : ""}">
@@ -782,13 +908,13 @@ function renderMyResumeExperienceEntry(item, index, total) {
             <span class="my-resume-experience-dot" aria-hidden="true"></span>
             <div class="my-resume-experience-body">
                 <div class="my-resume-experience-top">
-                    <h3 class="my-resume-experience-company">${escapeHtml(company)}</h3>
+                    <div class="flex min-w-0 flex-wrap items-baseline gap-2">
+                        <h3 class="my-resume-experience-company min-w-0">${escapeHtml(company)}</h3>
+                        ${workBadge}
+                    </div>
                     ${period ? `<span class="my-resume-period">${renderMyResumeIcon("calendar", "my-resume-period-icon")}<span>${escapeHtml(period)}</span></span>` : ""}
                 </div>
-                <div class="my-resume-experience-role-row">
-                    ${role ? `<p class="my-resume-experience-role">${escapeHtml(role)}</p>` : ""}
-                    ${item?.highlight ? `<span class="my-resume-highlight-badge">${renderMyResumeIcon("award", "my-resume-badge-icon")}<span>重点经历</span></span>` : ""}
-                </div>
+                ${roleRow}
                 ${renderMyResumeExperienceText(item)}
             </div>
         </article>
@@ -875,6 +1001,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
     const summaryText = pickText(data.summary, "").trim();
     const showSkillsText = isProfessionalSkillsTextMode(data);
     const skillsText = showSkillsText ? renderMyResumeSkillsText(data) : "";
+    const orderedSectionIds = getOrderedSectionIds(data);
     const experienceList = pickArray(data.experiences).filter((item) => (
         pickText(item?.company, "").trim()
         || pickText(item?.title, "").trim()
@@ -927,87 +1054,88 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
         </section>
     `);
 
-    blocks.push(`
-        <section class="my-resume-section resume-avoid-break">
-            ${renderMyResumeSectionHeading("专业技能", "layers")}
-            ${showSkillsText
-                ? (skillsText
-                    ? `<p class="my-resume-paragraph my-resume-skills-paragraph">${skillsText}</p>`
-                    : '<p class="my-resume-empty-state">可在左侧表单中填写专业技能</p>')
-                : renderMyResumeSkillGroups(data.skills)}
-        </section>
-    `);
-
-    if (experienceList.length) {
-        blocks.push(`
-            <section class="my-resume-section resume-avoid-break">
-                ${renderMyResumeSectionHeading("工作经历", "briefcase")}
-                ${renderMyResumeExperienceEntry(experienceList[0], 0, experienceList.length)}
-            </section>
-        `);
-
-        for (let index = 1; index < experienceList.length; index += 1) {
-            blocks.push(`
-                <div class="my-resume-flow-block resume-avoid-break">
-                    ${renderMyResumeExperienceEntry(experienceList[index], index, experienceList.length)}
-                </div>
-            `);
-        }
-    } else {
-        blocks.push(`
-            <section class="my-resume-section resume-avoid-break">
-                ${renderMyResumeSectionHeading("工作经历", "briefcase")}
-                <p class="my-resume-empty-state">可在左侧表单中填写工作经历</p>
-            </section>
-        `);
-    }
-
-    if (projectList.length) {
-        blocks.push(`
-            <section class="my-resume-section resume-avoid-break">
-                ${renderMyResumeSectionHeading("核心项目", "zap")}
-                ${renderMyResumeProjectCard(projectList[0])}
-            </section>
-        `);
-
-        for (let index = 1; index < projectList.length; index += 1) {
-            blocks.push(`
-                <div class="my-resume-flow-block resume-avoid-break">
-                    ${renderMyResumeProjectCard(projectList[index])}
-                </div>
-            `);
-        }
-    } else {
-        blocks.push(`
-            <section class="my-resume-section resume-avoid-break">
-                ${renderMyResumeSectionHeading("核心项目", "zap")}
-                <p class="my-resume-empty-state">可在左侧表单中填写项目经验</p>
-            </section>
-        `);
-    }
-
-    blocks.push(`
-        <section class="my-resume-section resume-avoid-break">
-            ${renderMyResumeSectionHeading("教育背景", "graduation")}
-            ${educationList.length
-                ? `<div class="my-resume-education-list">${educationList.map((item) => {
-                    const school = pickText(item?.school, "").trim();
-                    const degree = pickText(item?.degree, "").trim();
-                    const period = pickText(item?.period, "").trim();
-                    return `
-                        <div class="my-resume-education-row">
-                            <div class="my-resume-education-main">
-                                ${school ? `<span class="my-resume-education-school">${escapeHtml(school)}</span>` : ""}
-                                ${(school && degree) ? '<span class="my-resume-education-separator">|</span>' : ""}
-                                ${degree ? `<span class="my-resume-education-degree">${escapeHtml(degree)}</span>` : ""}
-                            </div>
-                            ${period ? `<span class="my-resume-education-period">${escapeHtml(period)}</span>` : ""}
-                        </div>
-                    `;
-                }).join("")}</div>`
-                : '<p class="my-resume-empty-state">可在左侧表单中填写教育背景</p>'}
-        </section>
-    `);
+    appendOrderedBlocks(blocks, orderedSectionIds, {
+        skills: [
+            `
+                <section class="my-resume-section resume-avoid-break">
+                    ${renderMyResumeSectionHeading("专业技能", "layers")}
+                    ${showSkillsText
+                        ? (skillsText
+                            ? `<p class="my-resume-paragraph my-resume-skills-paragraph">${skillsText}</p>`
+                            : '<p class="my-resume-empty-state">可在左侧表单中填写专业技能</p>')
+                        : renderMyResumeSkillGroups(data.skills)}
+                </section>
+            `
+        ],
+        experiences: experienceList.length
+            ? [
+                `
+                    <section class="my-resume-section resume-avoid-break">
+                        ${renderMyResumeSectionHeading("工作经历", "briefcase")}
+                        ${renderMyResumeExperienceEntry(experienceList[0], 0, experienceList.length)}
+                    </section>
+                `,
+                ...experienceList.slice(1).map((item, index) => (`
+                    <div class="my-resume-flow-block resume-avoid-break">
+                        ${renderMyResumeExperienceEntry(item, index + 1, experienceList.length)}
+                    </div>
+                `))
+            ]
+            : [
+                `
+                    <section class="my-resume-section resume-avoid-break">
+                        ${renderMyResumeSectionHeading("工作经历", "briefcase")}
+                        <p class="my-resume-empty-state">可在左侧表单中填写工作经历</p>
+                    </section>
+                `
+            ],
+        projects: projectList.length
+            ? [
+                `
+                    <section class="my-resume-section resume-avoid-break">
+                        ${renderMyResumeSectionHeading("核心项目", "zap")}
+                        ${renderMyResumeProjectCard(projectList[0])}
+                    </section>
+                `,
+                ...projectList.slice(1).map((project) => (`
+                    <div class="my-resume-flow-block resume-avoid-break">
+                        ${renderMyResumeProjectCard(project)}
+                    </div>
+                `))
+            ]
+            : [
+                `
+                    <section class="my-resume-section resume-avoid-break">
+                        ${renderMyResumeSectionHeading("核心项目", "zap")}
+                        <p class="my-resume-empty-state">可在左侧表单中填写项目经验</p>
+                    </section>
+                `
+            ],
+        education: [
+            `
+                <section class="my-resume-section resume-avoid-break">
+                    ${renderMyResumeSectionHeading("教育背景", "graduation")}
+                    ${educationList.length
+                        ? `<div class="my-resume-education-list">${educationList.map((item) => {
+                            const school = pickText(item?.school, "").trim();
+                            const degree = pickText(item?.degree, "").trim();
+                            const period = pickText(item?.period, "").trim();
+                            return `
+                                <div class="my-resume-education-row">
+                                    <div class="my-resume-education-main">
+                                        ${school ? `<span class="my-resume-education-school">${escapeHtml(school)}</span>` : ""}
+                                        ${(school && degree) ? '<span class="my-resume-education-separator">|</span>' : ""}
+                                        ${degree ? `<span class="my-resume-education-degree">${escapeHtml(degree)}</span>` : ""}
+                                    </div>
+                                    ${period ? `<span class="my-resume-education-period">${escapeHtml(period)}</span>` : ""}
+                                </div>
+                            `;
+                        }).join("")}</div>`
+                        : '<p class="my-resume-empty-state">可在左侧表单中填写教育背景</p>'}
+                </section>
+            `
+        ]
+    });
 
     return {
         leftBlocks: [],
@@ -1223,6 +1351,8 @@ function renderMyResume3ExperienceEntry(item, index, total) {
     const company = pickText(item?.company, "").trim() || "未填写公司";
     const role = pickText(item?.title, "").trim();
     const period = pickText(item?.period, "").trim();
+    const highlightEnabled = Boolean(item?.highlight);
+    const workBadge = renderExperienceWorkBadge(item, "my-resume3-experience-badge");
     const details = normalizeStringArray(item?.bullets);
     const showTail = index < total - 1;
 
@@ -1232,14 +1362,17 @@ function renderMyResume3ExperienceEntry(item, index, total) {
             <span class="my-resume3-timeline-dot" aria-hidden="true"></span>
             <div class="my-resume3-timeline-body">
                 <div class="my-resume3-timeline-head">
-                    <h3 class="my-resume3-timeline-title">
-                        <span class="my-resume3-timeline-title-main">${escapeHtml(company)}</span>
-                        ${role ? `<span class="my-resume3-timeline-separator">/</span><span class="my-resume3-work-role">${escapeHtml(role)}</span>` : ""}
-                    </h3>
+                    <div class="my-resume3-work-heading">
+                        <h3 class="my-resume3-timeline-title">
+                            <span class="my-resume3-timeline-title-main">${escapeHtml(company)}</span>
+                            ${workBadge}
+                            ${role ? `<span class="my-resume3-timeline-separator">/</span><span class="my-resume3-work-role">${escapeHtml(role)}</span>` : ""}
+                        </h3>
+                    </div>
                     ${period ? `<span class="my-resume3-date">${escapeHtml(period)}</span>` : ""}
                 </div>
                 ${details.length
-                    ? renderMyResume3BulletList(details)
+                    ? `<ul class="my-resume3-bullet-list">${details.map((detail) => (`<li class="my-resume3-bullet-item">${renderExperienceRichText(detail, highlightEnabled, "my-resume3-emphasis")}</li>`)).join("")}</ul>`
                     : '<p class="my-resume3-empty-state">可在左侧表单中补充工作经历要点</p>'}
             </div>
         </article>
@@ -1310,6 +1443,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
     const summaryItems = normalizeStringArray(pickText(data.summary, ""));
     const showSkillsText = isProfessionalSkillsTextMode(data);
     const skillItems = showSkillsText ? getMyResume3SkillItems(data) : [];
+    const orderedSectionIds = getOrderedSectionIds(data);
     const experienceList = pickArray(data.experiences).filter((item) => (
         pickText(item?.company, "").trim()
         || pickText(item?.title, "").trim()
@@ -1348,92 +1482,91 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
                     ? renderMyResume3BulletList(summaryItems)
                     : '<p class="my-resume3-empty-state">可在左侧表单中填写个人概况</p>'}
             </section>
-        `,
-        `
-            <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("专业技能", "code")}
-                ${showSkillsText
-                    ? (skillItems.length
-                        ? renderMyResume3BulletList(skillItems)
-                        : '<p class="my-resume3-empty-state">可在左侧表单中填写专业技能</p>')
-                    : renderMyResume3SkillGroups(data.skills)}
-            </section>
         `
     ];
 
-    if (experienceList.length) {
-        blocks.push(`
-            <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("工作经历", "briefcase")}
-                ${renderMyResume3ExperienceEntry(experienceList[0], 0, experienceList.length)}
-            </section>
-        `);
-
-        for (let index = 1; index < experienceList.length; index += 1) {
-            blocks.push(`
-                <div class="my-resume3-flow-block resume-avoid-break">
-                    ${renderMyResume3ExperienceEntry(experienceList[index], index, experienceList.length)}
-                </div>
-            `);
-        }
-    } else {
-        blocks.push(`
-            <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("工作经历", "briefcase")}
-                <p class="my-resume3-empty-state">可在左侧表单中填写工作经历</p>
-            </section>
-        `);
-    }
-
-    if (projectList.length) {
-        blocks.push(`
-            <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("项目经历", "layers")}
-                ${renderMyResume3ProjectCard(projectList[0])}
-            </section>
-        `);
-
-        for (let index = 1; index < projectList.length; index += 1) {
-            blocks.push(`
-                <div class="my-resume3-flow-block resume-avoid-break">
-                    ${renderMyResume3ProjectCard(projectList[index])}
-                </div>
-            `);
-        }
-    } else {
-        blocks.push(`
-            <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("项目经历", "layers")}
-                <p class="my-resume3-empty-state">可在左侧表单中填写项目经验</p>
-            </section>
-        `);
-    }
-
-    if (educationList.length) {
-        blocks.push(`
-            <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("教育经历", "book")}
-                <div class="my-resume3-flow-block">
-                    ${renderMyResume3EducationEntry(educationList[0], 0, educationList.length)}
-                </div>
-            </section>
-        `);
-
-        for (let index = 1; index < educationList.length; index += 1) {
-            blocks.push(`
-                <div class="my-resume3-flow-block resume-avoid-break">
-                    ${renderMyResume3EducationEntry(educationList[index], index, educationList.length)}
-                </div>
-            `);
-        }
-    } else {
-        blocks.push(`
-            <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("教育经历", "book")}
-                <p class="my-resume3-empty-state">可在左侧表单中填写教育背景</p>
-            </section>
-        `);
-    }
+    appendOrderedBlocks(blocks, orderedSectionIds, {
+        skills: [
+            `
+                <section class="my-resume3-section resume-avoid-break">
+                    ${renderMyResume3SectionHeading("专业技能", "code")}
+                    ${showSkillsText
+                        ? (skillItems.length
+                            ? renderMyResume3BulletList(skillItems)
+                            : '<p class="my-resume3-empty-state">可在左侧表单中填写专业技能</p>')
+                        : renderMyResume3SkillGroups(data.skills)}
+                </section>
+            `
+        ],
+        experiences: experienceList.length
+            ? [
+                `
+                    <section class="my-resume3-section resume-avoid-break">
+                        ${renderMyResume3SectionHeading("工作经历", "briefcase")}
+                        ${renderMyResume3ExperienceEntry(experienceList[0], 0, experienceList.length)}
+                    </section>
+                `,
+                ...experienceList.slice(1).map((item, index) => (`
+                    <div class="my-resume3-flow-block resume-avoid-break">
+                        ${renderMyResume3ExperienceEntry(item, index + 1, experienceList.length)}
+                    </div>
+                `))
+            ]
+            : [
+                `
+                    <section class="my-resume3-section resume-avoid-break">
+                        ${renderMyResume3SectionHeading("工作经历", "briefcase")}
+                        <p class="my-resume3-empty-state">可在左侧表单中填写工作经历</p>
+                    </section>
+                `
+            ],
+        projects: projectList.length
+            ? [
+                `
+                    <section class="my-resume3-section resume-avoid-break">
+                        ${renderMyResume3SectionHeading("项目经历", "layers")}
+                        ${renderMyResume3ProjectCard(projectList[0])}
+                    </section>
+                `,
+                ...projectList.slice(1).map((project) => (`
+                    <div class="my-resume3-flow-block resume-avoid-break">
+                        ${renderMyResume3ProjectCard(project)}
+                    </div>
+                `))
+            ]
+            : [
+                `
+                    <section class="my-resume3-section resume-avoid-break">
+                        ${renderMyResume3SectionHeading("项目经历", "layers")}
+                        <p class="my-resume3-empty-state">可在左侧表单中填写项目经验</p>
+                    </section>
+                `
+            ],
+        education: educationList.length
+            ? [
+                `
+                    <section class="my-resume3-section resume-avoid-break">
+                        ${renderMyResume3SectionHeading("教育经历", "book")}
+                        <div class="my-resume3-flow-block">
+                            ${renderMyResume3EducationEntry(educationList[0], 0, educationList.length)}
+                        </div>
+                    </section>
+                `,
+                ...educationList.slice(1).map((item, index) => (`
+                    <div class="my-resume3-flow-block resume-avoid-break">
+                        ${renderMyResume3EducationEntry(item, index + 1, educationList.length)}
+                    </div>
+                `))
+            ]
+            : [
+                `
+                    <section class="my-resume3-section resume-avoid-break">
+                        ${renderMyResume3SectionHeading("教育经历", "book")}
+                        <p class="my-resume3-empty-state">可在左侧表单中填写教育背景</p>
+                    </section>
+                `
+            ]
+    });
 
     return {
         leftBlocks: [],

@@ -1,0 +1,490 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - heading "简历生成器" [level=1] [ref=e7]
+          - paragraph [ref=e8]: 实时编辑，所见即所得
+        - button " 生成 PDF" [ref=e9] [cursor=pointer]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: 
+            - text: 生成 PDF
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - button " 重置" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 
+            - text: 重置
+          - button " 导入" [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: 
+            - text: 导入
+          - button " 导出" [ref=e21] [cursor=pointer]:
+            - generic [ref=e22]: 
+            - text: 导出
+        - paragraph [ref=e24]:
+          - generic [ref=e25]: 
+          - text: 已恢复上次草稿。
+    - generic [ref=e26]:
+      - generic [ref=e284]:
+        - button " 个人信息" [ref=e285] [cursor=pointer]:
+          - generic [ref=e286]:
+            - generic [ref=e287]: 
+            - heading "个人信息" [level=2] [ref=e288]
+        - generic [ref=e289]:
+          - generic [ref=e290]:
+            - paragraph [ref=e291]: 头像设置
+            - generic [ref=e292]:
+              - generic [ref=e293] [cursor=pointer]:
+                - generic [ref=e294]: 
+                - text: 上传头像
+              - button " 调整头像" [disabled] [ref=e295]:
+                - generic [ref=e296]: 
+                - text: 调整头像
+            - generic [ref=e297]:
+              - paragraph [ref=e298]: 展示形状
+              - generic [ref=e299]:
+                - button "圆形" [ref=e300] [cursor=pointer]
+                - button "矩形" [ref=e301] [cursor=pointer]
+          - generic [ref=e302]:
+            - generic [ref=e303]:
+              - text: 文档标题
+              - textbox "文档标题" [ref=e304]: 张三的简历
+            - generic [ref=e305]:
+              - text: 姓名
+              - textbox "姓名" [ref=e306]: 张 三
+            - generic [ref=e307]:
+              - text: 目标岗位
+              - textbox "目标岗位" [ref=e308]: 高级前端开发工程师
+            - generic [ref=e309]:
+              - text: 个人简介
+              - textbox "个人简介" [ref=e310]: 拥有3年以上前端开发经验，熟练掌握React、Vue等主流前端框架。热爱技术，对用户体验和性能优化有深入研究。曾主导并成功交付多个大型企业级Web应用项目，具备良好的团队协作能力和项目管理能力。致力于通过技术创新解决业务痛点，提升产品价值。
+          - generic [ref=e311]:
+            - button " 联系方式 支持拖拽排序" [ref=e312] [cursor=pointer]:
+              - generic [ref=e313]:
+                - generic [ref=e314]: 
+                - paragraph [ref=e315]: 联系方式
+              - generic [ref=e316]: 支持拖拽排序
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 手机
+                    - generic:
+                      - button "" [disabled]:
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button " ":
+                      - generic:
+                        - generic: 
+                      - generic: 
+                    - textbox "请输入手机内容": 138-xxxx-xxxx
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 邮箱
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button " ":
+                      - generic:
+                        - generic: 
+                      - generic: 
+                    - textbox "请输入邮箱内容": zhangsan@qq.com
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 期望薪资
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button " ":
+                      - generic:
+                        - generic: 
+                      - generic: 
+                    - textbox "请输入期望薪资内容": 25K-35K
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 出生年月
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button " ":
+                      - generic:
+                        - generic: 
+                      - generic: 
+                    - textbox "请输入出生年月内容": "1998.08"
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 学历
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "" [disabled]:
+                        - generic: 
+                  - generic:
+                    - button " ":
+                      - generic:
+                        - generic: 
+                      - generic: 
+                    - textbox "请输入学历内容": 硕士
+      - generic [ref=e317]:
+        - button " 简历排版与主题" [ref=e318] [cursor=pointer]:
+          - generic [ref=e319]:
+            - generic [ref=e320]: 
+            - heading "简历排版与主题" [level=2] [ref=e321]
+        - generic [ref=e323]:
+          - generic [ref=e324]:
+            - generic [ref=e326]:
+              - paragraph [ref=e327]: 预览版式
+              - paragraph [ref=e328]: 使用同一份简历数据切换不同排版
+            - generic [ref=e329]:
+              - button "经典版" [ref=e330] [cursor=pointer]: 经典版
+              - button "卡片版" [ref=e332] [cursor=pointer]: 卡片版
+              - button "模板 1" [ref=e334] [cursor=pointer]: 模板 1
+              - button "模板 2" [ref=e336] [cursor=pointer]: 模板 2
+          - generic [ref=e338]:
+            - button " 字体 9 项" [ref=e339] [cursor=pointer]:
+              - generic [ref=e340]:
+                - generic [ref=e341]: 
+                - paragraph [ref=e342]: 字体
+              - generic [ref=e343]: 9 项
+            - generic [ref=e346]:
+              - generic [ref=e347]:
+                - generic [ref=e348]:
+                  - paragraph [ref=e349]: 正文
+                  - status "正文 80% 1 130%" [ref=e350]: 100%
+                - generic [ref=e351]:
+                  - generic [ref=e352]: 80%
+                  - slider [ref=e353] [cursor=pointer]: "1"
+                  - generic [ref=e354]: 130%
+              - generic [ref=e355]:
+                - generic [ref=e356]:
+                  - paragraph [ref=e357]: 基本信息文字大小
+                  - status "基本信息文字大小 90% 1 110%" [ref=e358]: 100%
+                - generic [ref=e359]:
+                  - generic [ref=e360]: 90%
+                  - slider [ref=e361] [cursor=pointer]: "1"
+                  - generic [ref=e362]: 110%
+              - generic [ref=e363]:
+                - generic [ref=e364]:
+                  - paragraph [ref=e365]: 模块标题
+                  - status "模块标题 80% 1 135%" [ref=e366]: 100%
+                - generic [ref=e367]:
+                  - generic [ref=e368]: 80%
+                  - slider [ref=e369] [cursor=pointer]: "1"
+                  - generic [ref=e370]: 135%
+              - generic [ref=e371]:
+                - generic [ref=e372]:
+                  - paragraph [ref=e373]: 姓名
+                  - status "姓名 75% 1 145%" [ref=e374]: 100%
+                - generic [ref=e375]:
+                  - generic [ref=e376]: 75%
+                  - slider [ref=e377] [cursor=pointer]: "1"
+                  - generic [ref=e378]: 145%
+              - generic [ref=e379]:
+                - generic [ref=e380]:
+                  - paragraph [ref=e381]: 目标岗位
+                  - status "目标岗位 80% 1 130%" [ref=e382]: 100%
+                - generic [ref=e383]:
+                  - generic [ref=e384]: 80%
+                  - slider [ref=e385] [cursor=pointer]: "1"
+                  - generic [ref=e386]: 130%
+              - generic [ref=e387]:
+                - generic [ref=e388]:
+                  - paragraph [ref=e389]: 基本信息图标
+                  - status "基本信息图标 80% 1 130%" [ref=e390]: 100%
+                - generic [ref=e391]:
+                  - generic [ref=e392]: 80%
+                  - slider [ref=e393] [cursor=pointer]: "1"
+                  - generic [ref=e394]: 130%
+              - generic [ref=e395]:
+                - generic [ref=e396]:
+                  - paragraph [ref=e397]: 技能组名称
+                  - status "技能组名称 80% 1 135%" [ref=e398]: 100%
+                - generic [ref=e399]:
+                  - generic [ref=e400]: 80%
+                  - slider [ref=e401] [cursor=pointer]: "1"
+                  - generic [ref=e402]: 135%
+              - generic [ref=e403]:
+                - generic [ref=e404]:
+                  - paragraph [ref=e405]: 技能标签
+                  - status "技能标签 80% 1 130%" [ref=e406]: 100%
+                - generic [ref=e407]:
+                  - generic [ref=e408]: 80%
+                  - slider [ref=e409] [cursor=pointer]: "1"
+                  - generic [ref=e410]: 130%
+              - generic [ref=e411]:
+                - generic [ref=e412]:
+                  - paragraph [ref=e413]: 工作/项目元信息
+                  - status "工作/项目元信息 80% 1 130%" [ref=e414]: 100%
+                - generic [ref=e415]:
+                  - generic [ref=e416]: 80%
+                  - slider [ref=e417] [cursor=pointer]: "1"
+                  - generic [ref=e418]: 130%
+          - generic [ref=e419]:
+            - paragraph [ref=e421]: 简历主题主色
+            - paragraph [ref=e422]: 纯粹单色
+            - generic [ref=e423]:
+              - button "严谨商务蓝" [ref=e424] [cursor=pointer]
+              - button "严谨极简黑" [ref=e425] [cursor=pointer]
+              - button "深海蓝" [ref=e426] [cursor=pointer]
+              - button "靛青蓝" [ref=e427] [cursor=pointer]
+              - button "翡翠绿" [ref=e428] [cursor=pointer]
+              - button "水鸭青" [ref=e429] [cursor=pointer]
+              - button "暮光紫" [ref=e430] [cursor=pointer]
+              - button "洋红紫" [ref=e431] [cursor=pointer]
+              - button "玫瑰粉" [ref=e432] [cursor=pointer]
+              - button "琥珀棕" [ref=e433] [cursor=pointer]
+              - button "活力橙" [ref=e434] [cursor=pointer]
+              - button "极简灰" [ref=e435] [cursor=pointer]
+              - button "大地灰" [ref=e436] [cursor=pointer]
+              - button "纯粹黑" [ref=e437] [cursor=pointer]
+            - paragraph [ref=e438]: 设计感双拼
+            - generic [ref=e439]:
+              - button "珊瑚海" [ref=e440] [cursor=pointer]
+              - button "日落橘" [ref=e441] [cursor=pointer]
+              - button "赛博紫" [ref=e442] [cursor=pointer]
+              - button "青柠蓝" [ref=e443] [cursor=pointer]
+              - button "蜜桃粉" [ref=e444] [cursor=pointer]
+              - button "薰衣草" [ref=e445] [cursor=pointer]
+              - button "薄荷冰" [ref=e446] [cursor=pointer]
+              - button "极光黑" [ref=e447] [cursor=pointer]
+          - generic [ref=e448]:
+            - generic [ref=e450]:
+              - paragraph [ref=e451]: 基本信息图标配色
+              - paragraph [ref=e452]: 智能无限循环取色
+            - generic [ref=e453]:
+              - button "统一主色" [ref=e454] [cursor=pointer]: 统一主色
+              - button "经典原味" [ref=e457] [cursor=pointer]: 经典原味
+              - button "马卡龙" [ref=e462] [cursor=pointer]: 马卡龙
+              - button "莫兰迪" [ref=e467] [cursor=pointer]: 莫兰迪
+              - button "赛博霓虹" [ref=e472] [cursor=pointer]: 赛博霓虹
+              - button "海蓝之吻" [ref=e477] [cursor=pointer]: 海蓝之吻
+              - button "森林大地" [ref=e482] [cursor=pointer]: 森林大地
+              - button "黄昏暖阳" [ref=e487] [cursor=pointer]: 黄昏暖阳
+          - generic [ref=e492]:
+            - generic [ref=e494]:
+              - paragraph [ref=e495]: 专业技能标签配色
+              - paragraph [ref=e496]: 控制简历中技能方块的风格
+            - generic [ref=e497]:
+              - button "主题浅色" [ref=e498] [cursor=pointer]: 主题浅色
+              - button "主题描边" [ref=e500] [cursor=pointer]: 主题描边
+              - button "经典灰" [ref=e502] [cursor=pointer]: 经典灰
+              - button "石板灰" [ref=e504] [cursor=pointer]: 石板灰
+              - button "深沉灰" [ref=e506] [cursor=pointer]: 深沉灰
+          - generic [ref=e508]:
+            - generic [ref=e509]:
+              - generic [ref=e510]:
+                - paragraph [ref=e511]: 显示经历时间轴
+                - paragraph [ref=e512]: 关闭后隐藏工作经历与项目经验左侧时间轴
+              - button [ref=e513] [cursor=pointer]
+            - generic [ref=e515]:
+              - generic [ref=e516]:
+                - paragraph [ref=e517]: 彩色工作时间轴竖线
+                - paragraph [ref=e518]: 仅控制工作经历时间轴竖线是否跟随后台主色
+              - button [ref=e519] [cursor=pointer]
+            - generic [ref=e521]:
+              - generic [ref=e522]:
+                - paragraph [ref=e523]: 极简扁平图标
+                - paragraph [ref=e524]: 开启后去除简历图标上的立体高光阴影
+              - button [ref=e525] [cursor=pointer]
+      - generic [ref=e527]:
+        - generic [ref=e528]:
+          - generic [ref=e529]:
+            - button "拖拽排序" [ref=e530]:
+              - generic [ref=e531]: 
+            - button " 专业技能" [ref=e532] [cursor=pointer]:
+              - generic [ref=e533]: 
+              - heading "专业技能" [level=2] [ref=e534]
+            - button "+ 新增" [ref=e536] [cursor=pointer]
+          - text:       +
+        - generic [ref=e537]:
+          - generic [ref=e538]:
+            - button "拖拽排序" [ref=e539]:
+              - generic [ref=e540]: 
+            - button " 工作经历" [ref=e541] [cursor=pointer]:
+              - generic [ref=e542]: 
+              - heading "工作经历" [level=2] [ref=e543]
+            - button "+ 新增" [ref=e545] [cursor=pointer]
+          - text:     +
+        - generic [ref=e546]:
+          - generic [ref=e547]:
+            - button "拖拽排序" [ref=e548]:
+              - generic [ref=e549]: 
+            - button " 项目经验" [ref=e550] [cursor=pointer]:
+              - generic [ref=e551]: 
+              - heading "项目经验" [level=2] [ref=e552]
+            - button "+ 新增" [ref=e554] [cursor=pointer]
+          - text:     +
+        - generic [ref=e555]:
+          - generic [ref=e556]:
+            - button "拖拽排序" [ref=e557]:
+              - generic [ref=e558]: 
+            - button " 教育背景" [ref=e559] [cursor=pointer]:
+              - generic [ref=e560]: 
+              - heading "教育背景" [level=2] [ref=e561]
+            - button "+ 新增" [ref=e563] [cursor=pointer]
+          - text:     +
+  - main [ref=e102]:
+    - generic [ref=e104]:
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - article [ref=e108]:
+            - generic [ref=e110]:
+              - img "Profile Picture"
+            - generic [ref=e111]:
+              - heading "张 三" [level=1] [ref=e112]
+              - paragraph [ref=e113]: 高级前端开发工程师
+          - article [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e117]: 
+              - heading "联系方式" [level=3] [ref=e119]
+            - list [ref=e120]:
+              - listitem [ref=e121]:
+                - generic [ref=e124]: 
+                - paragraph [ref=e126]: 138-xxxx-xxxx
+              - listitem [ref=e127]:
+                - generic [ref=e130]: 
+                - paragraph [ref=e132]: zhangsan@qq.com
+              - listitem [ref=e133]:
+                - generic [ref=e136]: 
+                - paragraph [ref=e138]: 25K-35K
+              - listitem [ref=e139]:
+                - generic [ref=e142]: 
+                - paragraph [ref=e144]: "1998.08"
+              - listitem [ref=e145]:
+                - generic [ref=e148]: 
+                - paragraph [ref=e150]: 硕士
+          - article [ref=e151]:
+            - generic [ref=e152]:
+              - generic [ref=e154]: 
+              - heading "专业技能" [level=3] [ref=e156]
+            - generic [ref=e157]:
+              - generic [ref=e158]:
+                - paragraph [ref=e159]: 编程语言
+                - generic [ref=e160]:
+                  - generic [ref=e161]: JavaScript
+                  - generic [ref=e162]: TypeScript
+                  - generic [ref=e163]: Python
+                  - generic [ref=e164]: HTML/CSS
+              - generic [ref=e165]:
+                - paragraph [ref=e166]: 框架与工具
+                - generic [ref=e167]:
+                  - generic [ref=e168]: React
+                  - generic [ref=e169]: Vue.js
+                  - generic [ref=e170]: Node.js
+                  - generic [ref=e171]: Git
+                  - generic [ref=e172]: Webpack
+              - generic [ref=e173]:
+                - paragraph [ref=e174]: 语言能力
+                - generic [ref=e175]:
+                  - generic [ref=e176]: 英语 (CET-6 580)
+                  - generic [ref=e177]: 普通话 (一级乙等)
+        - generic [ref=e178]:
+          - article [ref=e179]:
+            - generic [ref=e180]:
+              - generic [ref=e182]: 
+              - heading "关于我" [level=3] [ref=e184]
+            - paragraph [ref=e185]: 拥有3年以上前端开发经验，熟练掌握React、Vue等主流前端框架。热爱技术，对用户体验和性能优化有深入研究。曾主导并成功交付多个大型企业级Web应用项目，具备良好的团队协作能力和项目管理能力。致力于通过技术创新解决业务痛点，提升产品价值。
+          - article [ref=e186]:
+            - generic [ref=e187]:
+              - generic [ref=e189]: 
+              - heading "工作经历" [level=3] [ref=e191]
+            - generic [ref=e192]:
+              - article [ref=e193]:
+                - generic [ref=e196]:
+                  - generic [ref=e197]:
+                    - heading "北京某某科技有限公司" [level=4] [ref=e199]
+                    - generic [ref=e200]: 2022.07 - 至今
+                  - paragraph [ref=e201]: 前端开发组长
+                  - list [ref=e202]:
+                    - listitem [ref=e203]: • 负责公司核心SAAS平台的架构设计与前端重构，采用 React + TypeScript，将页面首屏加载时间降低了 40%。
+                    - listitem [ref=e204]: • 带领5人前端团队，制定代码规范并引入CI/CD自动化部署流程，提升团队整体研发效率约30%。
+                    - listitem [ref=e205]: • 主导开发内部通用组件库，提取了30+个基础业务组件，极大减少了各业务线的重复开发工作。
+              - article [ref=e206]:
+                - generic [ref=e208]:
+                  - generic [ref=e209]:
+                    - heading "上海某某互联网公司" [level=4] [ref=e211]
+                    - generic [ref=e212]: 2020.07 - 2022.06
+                  - paragraph [ref=e213]: 前端开发工程师
+                  - list [ref=e214]:
+                    - listitem [ref=e215]: • 参与电商PC端及H5端页面的日常迭代开发，使用 Vue.js 与后端工程师紧密配合。
+                    - listitem [ref=e216]: • 实现了大型营销活动的复杂交互抽奖转盘及动画效果，活动期间稳定支撑10w+ QPS。
+                    - listitem [ref=e217]: • 优化了大量的冗余CSS及无用依赖，使得整体打包体积缩小了25%。
+      - generic [ref=e218]: 分页分割区域 · 第 1/2 页
+      - generic [ref=e220]:
+        - article [ref=e222]:
+          - generic [ref=e223]:
+            - generic [ref=e225]: 
+            - heading "教育背景" [level=3] [ref=e227]
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - heading "北京某某大学" [level=4] [ref=e231]
+                - paragraph [ref=e232]: 计算机科学与技术 - 本科
+              - generic [ref=e233]: 2016.09 - 2020.06
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - heading "北京某某大学" [level=4] [ref=e236]
+                - paragraph [ref=e237]: 软件工程 - 硕士
+              - generic [ref=e238]: 2020.09 - 2023.06
+        - article [ref=e240]:
+          - generic [ref=e241]:
+            - generic [ref=e243]: 
+            - heading "项目经验" [level=3] [ref=e245]
+          - generic [ref=e246]:
+            - article [ref=e247]:
+              - generic [ref=e251]:
+                - generic [ref=e252]:
+                  - generic [ref=e253]:
+                    - heading "企业级数据可视化大屏" [level=4] [ref=e254]
+                    - generic [ref=e255]: 独立负责
+                  - generic [ref=e256]:
+                    - paragraph [ref=e257]: 基于 ECharts 和 Three.js 开发的大型数据监控大屏，对接WebSocket实现数据的实时动态更新与3D地图交互展示。
+                    - list [ref=e258]:
+                      - listitem [ref=e259]: • 从 0 到 1 完成多维监控驾驶舱搭建，覆盖实时态势、预警播报与 3D 地图联动展示。
+                      - listitem [ref=e260]: • 接入 WebSocket 推流并优化可视化渲染节奏，保证大屏在高频刷新场景下仍能保持稳定体验。
+                  - generic [ref=e261]:
+                    - generic [ref=e262]: Vue3
+                    - generic [ref=e263]: ECharts
+                    - generic [ref=e264]: WebSocket
+                - generic [ref=e265]: 2023.03 - 2023.10
+            - article [ref=e266]:
+              - generic [ref=e269]:
+                - generic [ref=e270]:
+                  - generic [ref=e271]:
+                    - heading "开源协同办公小程序" [level=4] [ref=e272]
+                    - generic [ref=e273]: 核心贡献者
+                  - generic [ref=e274]:
+                    - paragraph [ref=e275]: 一款支持多人实时协作编辑的微信小程序。解决了复杂网络环境下的数据同步冲突问题，获得了 2K+ GitHub Stars。
+                    - list [ref=e276]:
+                      - listitem [ref=e277]: • 参与多人协作编辑链路设计，重点处理弱网环境下的数据同步冲突与离线恢复问题。
+                      - listitem [ref=e278]: • 项目上线后累计获得 2K+ GitHub Stars，并沉淀出可复用的小程序协同编辑方案。
+                  - generic [ref=e279]:
+                    - generic [ref=e280]: Taro
+                    - generic [ref=e281]: Redux
+                    - generic [ref=e282]: Node.js
+                - generic [ref=e283]: 2022.05 - 2022.12
