@@ -43,7 +43,7 @@ npm run preview:cloudflare
 根目录 `package.json` 没有 `npm test` 脚本，但仓库里有自动化测试文件：
 
 ```bash
-node --test app-contracts.test.js resume-layout-controls.test.js
+node --test app-contracts.test.js resume-layout-controls.test.js resume-layout-spacing-scope.test.js
 ```
 
 ### `editor-next/`

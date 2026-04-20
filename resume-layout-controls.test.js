@@ -144,7 +144,7 @@ test("layout control settings expose typography plus the bounded spacing/layout 
 test("layout control formatter keeps font %, spacing px, and line-height x semantics", () => {
     assert.equal(formatResumeLayoutControlValue("fontScale", 1), "100%");
     assert.equal(formatResumeLayoutControlValue("moduleMarginYScale", 1, { layout: "classic" }), "40px");
-    assert.equal(formatResumeLayoutControlValue("moduleMarginYScale", 1, { layout: "cards" }), "23.4px");
+    assert.equal(formatResumeLayoutControlValue("moduleMarginYScale", 1, { layout: "cards" }), "11.7px");
     assert.equal(formatResumeLayoutControlValue("moduleMarginXScale", 1, { layout: "classic" }), "0px");
     assert.equal(formatResumeLayoutControlValue("bodyLineHeightScale", 1.12), "1.12x");
 });

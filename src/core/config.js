@@ -20,6 +20,10 @@ export const RESUME_LAYOUT_OPTIONS = [
     { key: RESUME_LAYOUT_MY_RESUME3, label: "模板 2", description: "单栏 my-resume3 排版" }
 ];
 
+export function isExperienceWorkBadgeEnabledByLayout(layout) {
+    return layout === RESUME_LAYOUT_MY_RESUME || layout === RESUME_LAYOUT_MY_RESUME3;
+}
+
 export const PROFESSIONAL_SKILLS_MODE_OPTIONS = [
     { key: PROFESSIONAL_SKILLS_MODE_SKILLS, label: "标签分组", description: "使用 skills 分组标签展示" },
     { key: PROFESSIONAL_SKILLS_MODE_TEXT, label: "文本摘要", description: "使用 professionalSkillsText 文本展示" }
@@ -196,8 +200,6 @@ export const sampleResumeData = {
             company: "北京某某科技有限公司",
             period: "2022.07 - 至今",
             highlight: true,
-            workBadgeEnabled: true,
-            workBadgeLabel: DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
             bullets: [
                 "负责公司核心SAAS平台的架构设计与前端重构，采用 React + TypeScript，将页面首屏加载时间降低了 40%。",
                 "带领5人前端团队，制定代码规范并引入CI/CD自动化部署流程，提升团队整体研发效率约30%。",
@@ -209,8 +211,6 @@ export const sampleResumeData = {
             company: "上海某某互联网公司",
             period: "2020.07 - 2022.06",
             highlight: false,
-            workBadgeEnabled: false,
-            workBadgeLabel: "",
             bullets: [
                 "参与电商PC端及H5端页面的日常迭代开发，使用 Vue.js 与后端工程师紧密配合。",
                 "实现了大型营销活动的复杂交互抽奖转盘及动画效果，活动期间稳定支撑10w+ QPS。",
@@ -221,6 +221,7 @@ export const sampleResumeData = {
     projects: [
         {
             name: "企业级数据可视化大屏",
+            iconBadgeLabel: "",
             badge: "独立负责",
             badgeStyle: "primary",
             period: "2023.03 - 2023.10",
@@ -233,6 +234,7 @@ export const sampleResumeData = {
         },
         {
             name: "开源协同办公小程序",
+            iconBadgeLabel: "",
             badge: "核心贡献者",
             badgeStyle: "secondary",
             period: "2022.05 - 2022.12",

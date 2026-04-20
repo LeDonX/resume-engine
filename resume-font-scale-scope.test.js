@@ -48,6 +48,7 @@ test("excluded typography selectors stay outside the 正文 fontScale scope", ()
         [".resume-skill-tag", "--resume-skill-tag-scale"],
         [".resume-tech-tag", "--resume-work-project-meta-scale"],
         [".resume-project-badge", "--resume-work-project-meta-scale"],
+        [".resume-project-icon-badge", "--resume-work-project-meta-scale"],
         [".resume-entry-title", "--resume-work-project-meta-scale"],
         [".resume-entry-company", "--resume-work-project-meta-scale"],
         [".resume-entry-role", "--resume-work-project-meta-scale"],
@@ -93,6 +94,7 @@ test("excluded typography selectors stay outside the 正文 fontScale scope", ()
         [".my-resume3-work-entry .my-resume3-date", "--resume-work-project-meta-scale"],
         [".my-resume3-project-title", "--resume-work-project-meta-scale"],
         [".my-resume3-project-badge", "--resume-work-project-meta-scale"],
+        [".my-resume3-project-icon-badge", null],
         [".my-resume3-project-tag", "--resume-work-project-meta-scale"],
         [".my-resume3-project-date", "--resume-work-project-meta-scale"],
         [".my-resume3-empty-state", null]
@@ -158,6 +160,7 @@ test("shared work badge keeps template 1 visual contract across layout wrappers"
     assert.ok(sharedBadgeBlocks.some((block) => block.includes("color: #f59e0b")));
     assert.ok(sharedBadgeBlocks.some((block) => block.includes("padding: 0.14rem 0.42rem")));
     assert.ok(sharedBadgeBlocks.some((block) => block.includes("border-radius: 0.38rem")));
+    assert.ok(sharedBadgeBlocks.some((block) => block.includes("vertical-align: middle")));
 
     const primaryOverrideBlocks = getRuleBlocks(".resume-work-badge.resume-primary-badge");
     assert.ok(primaryOverrideBlocks.some((block) => block.includes("background: #fff7ed")));
@@ -175,4 +178,35 @@ test("shared work badge keeps template 1 visual contract across layout wrappers"
         false,
         ".my-resume3-experience-badge should not override shared badge color"
     );
+});
+
+test("project icon badge keeps a separate class contract while reusing the shared visual style", () => {
+    const projectBlocks = getRuleBlocks(".resume-project-icon-badge");
+    assert.ok(projectBlocks.some((block) => block.includes("background: #fff7ed")));
+    assert.ok(projectBlocks.some((block) => block.includes("color: #f59e0b")));
+    assert.ok(projectBlocks.some((block) => block.includes("padding: 0.14rem 0.42rem")));
+    assert.ok(projectBlocks.some((block) => block.includes("border-radius: 0.38rem")));
+    assert.ok(projectBlocks.some((block) => block.includes("vertical-align: middle")));
+
+    const myResume3Blocks = getRuleBlocks(".my-resume3-project-icon-badge");
+    assert.equal(
+        myResume3Blocks.some((block) => block.includes("background:")),
+        false,
+        ".my-resume3-project-icon-badge should not override shared badge background"
+    );
+    assert.equal(
+        myResume3Blocks.some((block) => block.includes("color:")),
+        false,
+        ".my-resume3-project-icon-badge should not override shared badge color"
+    );
+});
+
+test("my-resume3 work heading aligns company, role, and badge on one centerline", () => {
+    const titleBlocks = getRuleBlocks(".my-resume3-work-entry .my-resume3-timeline-title");
+    assert.ok(titleBlocks.some((block) => block.includes("display: inline-flex")));
+    assert.ok(titleBlocks.some((block) => block.includes("flex-wrap: wrap")));
+    assert.ok(titleBlocks.some((block) => block.includes("align-items: center")));
+
+    const badgeBlocks = getRuleBlocks(".my-resume3-experience-badge");
+    assert.ok(badgeBlocks.some((block) => block.includes("align-self: center")));
 });

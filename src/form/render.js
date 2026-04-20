@@ -27,6 +27,9 @@ import {
     normalizeSectionOrder,
     normalizeProfessionalSkillsMode,
     renderDynamicIcon,
+    resolveExperienceWorkBadgeEnabled,
+    resolveExperienceWorkBadgeLabel,
+    resolveProjectIconBadgeEnabled,
     resolveBasicInfoIcon,
     resolveIconColorToneForTheme
 } from "../core/resume-model.js";
@@ -646,8 +649,8 @@ function renderExperiencesForm({ resumeData, panelState }) {
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">时间<input name="experience-period-${index}" class="${inputClass}" data-section="experiences" data-index="${index}" data-field="period" value="${escapeHtml(item.period)}"></label>
                 </div>
                 <label class="mt-1 flex w-fit cursor-pointer items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100"><input name="experience-highlight-${index}" type="checkbox" class="mt-0.5 h-4 w-4 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-blue-500" data-section="experiences" data-index="${index}" data-field="highlight" ${item.highlight ? "checked" : ""}><span class="grid gap-0.5"><span class="text-[12px] font-bold text-slate-600">启用文本高亮</span><span class="text-[10px] text-slate-400">工作内容支持 **...** 强调重点</span></span></label>
-                <label class="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100"><input name="experience-work-badge-enabled-${index}" type="checkbox" class="h-4 w-4 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-blue-500" data-section="experiences" data-index="${index}" data-field="workBadgeEnabled" ${item.workBadgeEnabled ? "checked" : ""}><span class="text-[12px] font-bold text-slate-600">显示经历徽章</span></label>
-                ${item.workBadgeEnabled ? `<label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">经历徽章文案<input name="experience-work-badge-label-${index}" class="${inputClass}" data-section="experiences" data-index="${index}" data-field="workBadgeLabel" value="${escapeHtml(item.workBadgeLabel || DEFAULT_EXPERIENCE_WORK_BADGE_LABEL)}" placeholder="${escapeHtml(DEFAULT_EXPERIENCE_WORK_BADGE_LABEL)}"></label>` : ""}
+                <label class="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100"><input name="experience-work-badge-enabled-${index}" type="checkbox" class="h-4 w-4 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-blue-500" data-section="experiences" data-index="${index}" data-field="workBadgeEnabled" ${resolveExperienceWorkBadgeEnabled(item, resumeData.resumeLayout) ? "checked" : ""}><span class="text-[12px] font-bold text-slate-600">显示经历徽章</span></label>
+                ${resolveExperienceWorkBadgeEnabled(item, resumeData.resumeLayout) ? `<label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">经历徽章文案<input name="experience-work-badge-label-${index}" class="${inputClass}" data-section="experiences" data-index="${index}" data-field="workBadgeLabel" value="${escapeHtml(resolveExperienceWorkBadgeLabel(item, resumeData.resumeLayout))}" placeholder="${escapeHtml(DEFAULT_EXPERIENCE_WORK_BADGE_LABEL)}"></label>` : ""}
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">工作内容 <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal ml-1">（每行一段描述）</span><textarea name="experience-bullets-${index}" class="${textareaClass}" data-section="experiences" data-index="${index}" data-field="bullets" data-multiline="true">${escapeHtml(arrayToLines(item.bullets))}</textarea></label>
             </div>
         </div>
@@ -682,16 +685,20 @@ function renderProjectsForm({ resumeData, panelState }) {
             </div>
             <div class="grid gap-3.5">
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">项目名称<input name="project-name-${index}" class="${inputClass}" data-section="projects" data-index="${index}" data-field="name" value="${escapeHtml(item.name)}"></label>
+                <label class="flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:bg-slate-100"><input name="project-icon-badge-enabled-${index}" type="checkbox" class="h-4 w-4 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-blue-500" data-section="projects" data-index="${index}" data-field="iconBadgeEnabled" ${resolveProjectIconBadgeEnabled(item, resumeData.resumeLayout) ? "checked" : ""}><span class="text-[12px] font-bold text-slate-600">显示图标徽章</span></label>
+                <div class="grid grid-cols-2 gap-3">
+                    ${resolveProjectIconBadgeEnabled(item, resumeData.resumeLayout) ? `<label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">图标徽章文案<input name="project-icon-badge-label-${index}" class="${inputClass}" data-section="projects" data-index="${index}" data-field="iconBadgeLabel" value="${escapeHtml(item.iconBadgeLabel || "")}" placeholder="重点项目"></label>` : ""}
+                    <label class="${resolveProjectIconBadgeEnabled(item, resumeData.resumeLayout) ? "block" : "col-span-2 block"} text-[11px] font-bold uppercase tracking-wider text-slate-500">项目时间<input name="project-period-${index}" class="${inputClass}" data-section="projects" data-index="${index}" data-field="period" value="${escapeHtml(item.period || "")}"></label>
+                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">角色 / 徽章文案<input name="project-badge-${index}" class="${inputClass}" data-section="projects" data-index="${index}" data-field="badge" value="${escapeHtml(item.badge)}"></label>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">项目时间<input name="project-period-${index}" class="${inputClass}" data-section="projects" data-index="${index}" data-field="period" value="${escapeHtml(item.period || "")}"></label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">徽章样式
+                        <select name="project-badge-style-${index}" class="mt-1.5 w-full appearance-none rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-800 transition-all hover:bg-slate-200/60 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10" data-section="projects" data-index="${index}" data-field="badgeStyle">
+                            <option value="primary" ${item.badgeStyle === "primary" ? "selected" : ""}>🟢 主色（跟随主题）</option>
+                            <option value="secondary" ${item.badgeStyle === "secondary" ? "selected" : ""}>⚪️ 次级（灰色）</option>
+                        </select>
+                    </label>
                 </div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">徽章样式
-                    <select name="project-badge-style-${index}" class="mt-1.5 w-full appearance-none rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-800 transition-all hover:bg-slate-200/60 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10" data-section="projects" data-index="${index}" data-field="badgeStyle">
-                        <option value="primary" ${item.badgeStyle === "primary" ? "selected" : ""}>🟢 主色（跟随主题）</option>
-                        <option value="secondary" ${item.badgeStyle === "secondary" ? "selected" : ""}>⚪️ 次级（灰色）</option>
-                    </select>
-                </label>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">技术栈 <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal ml-1">（每行输入一个）</span><textarea name="project-techs-${index}" class="${textareaClass} !min-h-[80px]" data-section="projects" data-index="${index}" data-field="techs" data-multiline="true">${escapeHtml(arrayToLines(item.techs))}</textarea></label>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">项目亮点 <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal ml-1">（每行一条）</span><textarea name="project-highlights-${index}" class="${textareaClass}" data-section="projects" data-index="${index}" data-field="highlights" data-multiline="true">${escapeHtml(arrayToLines(item.highlights || []))}</textarea></label>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">项目描述<textarea name="project-description-${index}" class="${textareaClass}" data-section="projects" data-index="${index}" data-field="description">${escapeHtml(item.description)}</textarea></label>

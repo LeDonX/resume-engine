@@ -1,3 +1,8 @@
+import {
+    RESUME_LAYOUT_CLASSIC,
+    isExperienceWorkBadgeEnabledByLayout
+} from "./config.js";
+
 export function createEducation() {
     return { degree: "", school: "", period: "" };
 }
@@ -6,12 +11,22 @@ export function createSkillGroup() {
     return { name: "", items: [] };
 }
 
-export function createExperience() {
-    return { title: "", company: "", period: "", highlight: false, workBadgeEnabled: false, workBadgeLabel: "", bullets: [] };
+export function createExperience(resumeLayout = RESUME_LAYOUT_CLASSIC) {
+    return { title: "", company: "", period: "", highlight: false, workBadgeEnabled: isExperienceWorkBadgeEnabledByLayout(resumeLayout), workBadgeLabel: "", bullets: [] };
 }
 
 export function createProject() {
-    return { name: "", badge: "", badgeStyle: "secondary", period: "", description: "", highlights: [], techs: [] };
+    return {
+        name: "",
+        iconBadgeEnabled: false,
+        iconBadgeLabel: "",
+        badge: "",
+        badgeStyle: "secondary",
+        period: "",
+        description: "",
+        highlights: [],
+        techs: []
+    };
 }
 
 export function cloneData(data) {

@@ -830,7 +830,10 @@ body {
             --resume-cards-padding-y: calc(8.2mm * var(--resume-page-padding-y-scale, 1));
             --resume-cards-padding-x: calc(8.2mm * var(--resume-page-padding-x-scale, 1));
             --resume-cards-padding: var(--resume-cards-padding-y) var(--resume-cards-padding-x);
-            --resume-cards-section-gap: calc(6.2mm * var(--resume-module-margin-y-scale, 1));
+            --resume-cards-columns-width: calc(var(--resume-page-width) - (var(--resume-cards-padding-x) * 2) - var(--resume-cards-gap));
+            --resume-cards-left-width: calc(var(--resume-cards-columns-width) * var(--resume-cards-left-ratio));
+            --resume-cards-right-width: calc(var(--resume-cards-columns-width) * var(--resume-cards-right-ratio));
+            --resume-cards-section-gap: calc(3.1mm * var(--resume-module-margin-y-scale, 1));
         }
 
         .resume-layout-cards .resume-sheet {
@@ -1657,9 +1660,11 @@ body {
         }
 
         .resume-work-badge,
-        .my-resume-highlight-badge {
+        .my-resume-highlight-badge,
+        .resume-project-icon-badge {
             display: inline-flex;
             align-items: center;
+            vertical-align: middle;
             gap: 0.26rem;
             padding: 0.14rem 0.42rem;
             border-radius: 0.38rem;
@@ -2206,24 +2211,35 @@ body {
         }
 
         .my-resume3-work-entry .my-resume3-timeline-title {
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
             font-size: calc(1.18rem * var(--resume-work-project-meta-scale, 1));
         }
 
         .my-resume3-timeline-title-main {
+            display: inline-flex;
+            align-items: center;
             color: var(--resume-my3-text);
+            line-height: 1;
         }
 
         .my-resume3-timeline-separator {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             margin: 0 0.62rem;
             color: #cbd5e1;
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            line-height: 1;
         }
 
         .my-resume3-work-role {
+            display: inline-flex;
+            align-items: center;
             color: var(--resume-my3-accent);
             font-size: calc(1.06rem * var(--resume-work-project-meta-scale, 1));
             font-weight: 700;
+            line-height: 1;
         }
 
         .my-resume3-education-role {
@@ -2243,9 +2259,13 @@ body {
         }
 
         .my-resume3-experience-badge {
+            align-self: center;
             flex-shrink: 0;
-            margin-left: 0.62rem;
-            vertical-align: middle;
+        }
+
+        .my-resume3-project-icon-badge {
+            align-self: center;
+            flex-shrink: 0;
         }
 
         .my-resume3-work-entry .my-resume3-date,
@@ -3168,6 +3188,7 @@ body {
             .resume-skill-tag,
             .resume-tech-tag,
             .resume-project-badge,
+            .resume-project-icon-badge,
             .resume-work-badge,
             .resume-entry-flag,
             .resume-period-pill,
@@ -3370,6 +3391,7 @@ body {
             .resume-page[data-resume-layout="cards"] .resume-skill-tag,
             .resume-page[data-resume-layout="cards"] .resume-tech-tag,
             .resume-page[data-resume-layout="cards"] .resume-project-badge,
+            .resume-page[data-resume-layout="cards"] .resume-project-icon-badge,
             .resume-page[data-resume-layout="cards"] .resume-period-pill,
             .resume-page[data-resume-layout="cards"] .resume-profile-avatar-shell {
                 filter: none !important;

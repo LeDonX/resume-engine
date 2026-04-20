@@ -49,7 +49,7 @@ const RESUME_LAYOUT_SPACING_DISPLAY_BASES = Object.freeze({
         pagePaddingXScale: Object.freeze({ baseValue: 3, unit: "rem" })
     }),
     [RESUME_LAYOUT_CARDS]: Object.freeze({
-        moduleMarginYScale: Object.freeze({ baseValue: 6.2, unit: "mm" }),
+        moduleMarginYScale: Object.freeze({ baseValue: 3.1, unit: "mm" }),
         moduleMarginXScale: Object.freeze({ baseValue: 6.2, unit: "mm" }),
         modulePaddingYScale: Object.freeze({ baseValue: 2, unit: "rem" }),
         modulePaddingXScale: Object.freeze({ baseValue: 2, unit: "rem" }),

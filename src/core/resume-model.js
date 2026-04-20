@@ -13,6 +13,7 @@ import {
     RESUME_LAYOUT_MY_RESUME3,
     RESUME_LAYOUT_OPTIONS,
     RESUME_THEME_OPTIONS,
+    isExperienceWorkBadgeEnabledByLayout,
     sampleResumeData
 } from "./config.js";
 import {
@@ -128,6 +129,39 @@ export function getResumeLayoutLabel(value) {
 
 export function getResumeThemeOption(themeKey) {
     return RESUME_THEME_OPTIONS.find((option) => option.key === normalizeResumeTheme(themeKey)) || RESUME_THEME_OPTIONS[0];
+}
+
+export function resolveExperienceWorkBadgeEnabled(item, resumeLayout) {
+    if (item && hasOwn(item, "workBadgeEnabled")) {
+        return Boolean(item.workBadgeEnabled);
+    }
+
+    const legacyWorkBadgeLabel = pickText(item?.highlightLabel, "").trim();
+    const workBadgeLabel = pickText(item?.workBadgeLabel, legacyWorkBadgeLabel).trim();
+    if (workBadgeLabel) {
+        return true;
+    }
+
+    return isExperienceWorkBadgeEnabledByLayout(normalizeResumeLayout(resumeLayout));
+}
+
+export function resolveExperienceWorkBadgeLabel(item, resumeLayout) {
+    const legacyWorkBadgeLabel = pickText(item?.highlightLabel, "").trim();
+    const workBadgeLabel = pickText(item?.workBadgeLabel, legacyWorkBadgeLabel).trim();
+
+    if (!resolveExperienceWorkBadgeEnabled(item, resumeLayout)) {
+        return workBadgeLabel;
+    }
+
+    return workBadgeLabel || DEFAULT_EXPERIENCE_WORK_BADGE_LABEL;
+}
+
+export function resolveProjectIconBadgeEnabled(project, resumeLayout) {
+    if (project && hasOwn(project, "iconBadgeEnabled")) {
+        return Boolean(project.iconBadgeEnabled);
+    }
+
+    return Boolean(pickText(project?.iconBadgeLabel, "").trim());
 }
 
 function hexToRgb(hexColor) {
@@ -351,8 +385,10 @@ export function resolveBasicInfoIcon(item) {
     return getBasicInfoIconByPreset(pickText(item?.iconPreset, ""));
 }
 
-export function buildProjectRenderModel(project) {
+export function buildProjectRenderModel(project, resumeLayout) {
     const name = pickText(project?.name, "").trim();
+    const iconBadgeEnabled = resolveProjectIconBadgeEnabled(project, resumeLayout);
+    const iconBadgeLabel = iconBadgeEnabled ? pickText(project?.iconBadgeLabel, "").trim() : "";
     const badge = pickText(project?.badge, "").trim();
     const badgeStyle = pickText(project?.badgeStyle, "secondary") === "primary" ? "primary" : "secondary";
     const period = pickText(project?.period, "").trim();
@@ -362,19 +398,21 @@ export function buildProjectRenderModel(project) {
 
     return {
         name,
+        iconBadgeEnabled,
+        iconBadgeLabel,
         badge,
         badgeStyle,
         period,
         description,
         highlights,
         techs,
-        hasRenderableContent: Boolean(name || badge || period || description || highlights.length || techs.length)
+        hasRenderableContent: Boolean(name || iconBadgeLabel || badge || period || description || highlights.length || techs.length)
     };
 }
 
-export function getRenderableProjects(projects) {
+export function getRenderableProjects(projects, resumeLayout) {
     return pickArray(projects)
-        .map((project) => buildProjectRenderModel(project))
+        .map((project) => buildProjectRenderModel(project, resumeLayout))
         .filter((project) => project.hasRenderableContent);
 }
 
@@ -481,21 +519,37 @@ export function normalizeResumeData(rawData) {
             const highlight = Boolean(item?.highlight);
             const legacyWorkBadgeLabel = pickText(item?.highlightLabel, "").trim();
             const workBadgeLabel = pickText(item?.workBadgeLabel, legacyWorkBadgeLabel).trim();
-            const workBadgeEnabled = item && hasOwn(item, "workBadgeEnabled")
-                ? Boolean(item.workBadgeEnabled)
-                : Boolean(legacyWorkBadgeLabel);
-            return {
+            const experienceData = {
                 title: pickText(item?.title, ""),
                 company: pickText(item?.company, ""),
                 period: pickText(item?.period, ""),
                 highlight,
-                workBadgeEnabled,
-                workBadgeLabel: workBadgeEnabled ? (workBadgeLabel || DEFAULT_EXPERIENCE_WORK_BADGE_LABEL) : workBadgeLabel,
+                workBadgeLabel,
                 bullets: normalizeStringArray(item?.bullets)
             };
+
+            if (item && hasOwn(item, "workBadgeEnabled")) {
+                experienceData.workBadgeEnabled = Boolean(item.workBadgeEnabled);
+            }
+
+            return experienceData;
         }),
         projects: pickArray(projectsSource).map((item) => {
-            const { hasRenderableContent, ...projectData } = buildProjectRenderModel(item);
+            const projectData = {
+                name: pickText(item?.name, ""),
+                iconBadgeLabel: pickText(item?.iconBadgeLabel, ""),
+                badge: pickText(item?.badge, ""),
+                badgeStyle: pickText(item?.badgeStyle, "secondary") === "primary" ? "primary" : "secondary",
+                period: pickText(item?.period, ""),
+                description: pickText(item?.description, ""),
+                highlights: normalizeStringArray(item?.highlights),
+                techs: normalizeStringArray(item?.techs)
+            };
+
+            if (item && hasOwn(item, "iconBadgeEnabled")) {
+                projectData.iconBadgeEnabled = Boolean(item.iconBadgeEnabled);
+            }
+
             return projectData;
         })
     };

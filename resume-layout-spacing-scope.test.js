@@ -30,6 +30,13 @@ test("spacing controls stay wired only to page shells, module boundaries, surfac
     assert.match(rootThemeRule, /--resume-card-padding-y:\s*calc\(1\.25rem \* var\(--resume-module-padding-y-scale, 1\)\)/);
     assert.match(rootThemeRule, /--resume-card-padding-x:\s*calc\(1\.25rem \* var\(--resume-module-padding-x-scale, 1\)\)/);
 
+    const cardsThemeRule = getRuleBlocks(".resume-layout-cards.resume-theme-shell")[0];
+    assert.match(cardsThemeRule, /--resume-cards-gap:\s*calc\(6\.2mm \* var\(--resume-module-margin-x-scale, 1\)\)/);
+    assert.match(cardsThemeRule, /--resume-cards-columns-width:\s*calc\(var\(--resume-page-width\) - \(var\(--resume-cards-padding-x\) \* 2\) - var\(--resume-cards-gap\)\)/);
+    assert.match(cardsThemeRule, /--resume-cards-left-width:\s*calc\(var\(--resume-cards-columns-width\) \* var\(--resume-cards-left-ratio\)\)/);
+    assert.match(cardsThemeRule, /--resume-cards-right-width:\s*calc\(var\(--resume-cards-columns-width\) \* var\(--resume-cards-right-ratio\)\)/);
+    assert.match(cardsThemeRule, /--resume-cards-section-gap:\s*calc\(3\.1mm \* var\(--resume-module-margin-y-scale, 1\)\)/);
+
     const bodyLineHeightSelectors = [
         ".resume-summary-text",
         ".resume-layout-cards .resume-project-description",
@@ -81,6 +88,21 @@ test("spacing controls stay wired only to page shells, module boundaries, surfac
     ];
 
     for (const [selector, expectedVar] of moduleMarginSelectors) {
+        const blocks = getRuleBlocks(selector);
+        assert.ok(
+            blocks.some((block) => block.includes(expectedVar)),
+            `${selector} should use ${expectedVar}`
+        );
+    }
+
+    const cardsWidthSelectors = [
+        [".resume-layout-cards .resume-left", "--resume-cards-left-width"],
+        [".resume-layout-cards .resume-right", "--resume-cards-right-width"],
+        [".resume-page[data-resume-layout=\"cards\"] .resume-left", "--resume-cards-left-width"],
+        [".resume-page[data-resume-layout=\"cards\"] .resume-right", "--resume-cards-right-width"]
+    ];
+
+    for (const [selector, expectedVar] of cardsWidthSelectors) {
         const blocks = getRuleBlocks(selector);
         assert.ok(
             blocks.some((block) => block.includes(expectedVar)),

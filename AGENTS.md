@@ -126,7 +126,7 @@ editor-next/index.html
 ### 根应用
 
 ```bash
-node --test app-contracts.test.js resume-layout-controls.test.js
+node --test app-contracts.test.js resume-layout-controls.test.js resume-layout-spacing-scope.test.js
 npm run build
 ```
 

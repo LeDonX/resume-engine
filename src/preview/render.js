@@ -21,6 +21,8 @@ import {
     normalizeResumeLayout,
     normalizeSectionOrder,
     renderDynamicIcon,
+    resolveExperienceWorkBadgeEnabled,
+    resolveExperienceWorkBadgeLabel,
     resolveBasicInfoIcon,
     resolveIconColorToneForTheme
 } from "../core/resume-model.js";
@@ -153,18 +155,23 @@ function renderExperienceRichText(text, enabled, emphasisClass = "") {
         .join("");
 }
 
-function resolveExperienceWorkBadgeLabel(item) {
-    const label = pickText(item?.workBadgeLabel, "").trim();
-    return label || DEFAULT_EXPERIENCE_WORK_BADGE_LABEL;
-}
-
-function renderExperienceWorkBadge(item, badgeClass) {
-    if (!item?.workBadgeEnabled) {
+function renderExperienceWorkBadge(item, badgeClass, resumeLayout) {
+    if (!resolveExperienceWorkBadgeEnabled(item, resumeLayout)) {
         return "";
     }
 
     const classes = ["resume-work-badge", badgeClass].filter(Boolean).join(" ");
-    return `<span class="${classes}">${renderMyResumeIcon("award", "my-resume-badge-icon")}<span>${escapeHtml(resolveExperienceWorkBadgeLabel(item))}</span></span>`;
+    return `<span class="${classes}">${renderMyResumeIcon("award", "my-resume-badge-icon")}<span>${escapeHtml(resolveExperienceWorkBadgeLabel(item, resumeLayout))}</span></span>`;
+}
+
+function renderProjectIconBadge(project, badgeClass = "") {
+    const label = pickText(project?.iconBadgeLabel, "").trim();
+    if (!label) {
+        return "";
+    }
+
+    const classes = ["resume-project-icon-badge", badgeClass].filter(Boolean).join(" ");
+    return `<span class="${classes}">${renderMyResumeIcon("award", "my-resume-badge-icon")}<span>${escapeHtml(label)}</span></span>`;
 }
 
 function renderClassicExperienceItem(item, index, total, renderOptions) {
@@ -175,7 +182,7 @@ function renderClassicExperienceItem(item, index, total, renderOptions) {
         ? `${spacingClass} resume-classic-entry relative pl-6 border-l-2 ${lineClass} resume-avoid-break`.trim()
         : `${spacingClass} resume-classic-entry relative resume-avoid-break`.trim();
     const highlightEnabled = Boolean(item?.highlight);
-    const workBadge = renderExperienceWorkBadge(item, "resume-primary-badge resume-entry-flag");
+    const workBadge = renderExperienceWorkBadge(item, "resume-primary-badge resume-entry-flag", renderOptions.resumeLayout);
     const bullets = normalizeStringArray(item.bullets)
         .map((bullet) => (`<li>${renderExperienceRichText(bullet, highlightEnabled)}</li>`))
         .join("");
@@ -207,9 +214,10 @@ function renderClassicProjectCard(project) {
     )).join("");
     const badgeText = projectInfo.badge;
     const badgeHtml = badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : "";
+    const iconBadgeHtml = renderProjectIconBadge(projectInfo);
     const periodHtml = projectInfo.period ? `<span class="resume-period-pill">${escapeHtml(projectInfo.period)}</span>` : "";
-    const metaHtml = (badgeHtml || periodHtml)
-        ? `<div class="flex flex-wrap items-center justify-end gap-2">${badgeHtml}${periodHtml}</div>`
+    const metaHtml = (badgeHtml || iconBadgeHtml || periodHtml)
+        ? `<div class="flex flex-wrap items-center justify-end gap-2">${badgeHtml}${iconBadgeHtml}${periodHtml}</div>`
         : "";
     const highlightsHtml = projectInfo.highlights.length
         ? `<ul class="resume-bullet-list">${projectInfo.highlights.map((highlight) => (`<li>${escapeHtml(highlight)}</li>`)).join("")}</ul>`
@@ -226,7 +234,7 @@ function renderClassicProjectCard(project) {
     return `
         <div class="resume-classic-project-card resume-avoid-break rounded-lg border border-gray-100 bg-gray-50 transition-shadow hover:shadow-md">
             <div class="resume-classic-project-head flex items-center justify-between gap-4">
-                <h4 class="resume-classic-project-title font-bold text-gray-800">${escapeHtml(projectInfo.name || "未填写项目名称")}</h4>
+                <h4 class="resume-classic-project-title flex flex-wrap items-center gap-2 font-bold text-gray-800"><span class="min-w-0">${escapeHtml(projectInfo.name || "未填写项目名称")}</span></h4>
                 ${metaHtml}
             </div>
             ${detailsHtml}
@@ -316,7 +324,7 @@ function buildClassicExperienceSectionBlocks(data) {
 
 function buildClassicProjectSectionBlocks(data) {
     const blocks = [];
-    const projectList = getRenderableProjects(data.projects);
+    const projectList = getRenderableProjects(data.projects, data.resumeLayout);
 
     if (projectList.length) {
         const projectCards = projectList.map((project) => renderClassicProjectCard(project));
@@ -589,7 +597,7 @@ function buildCardExperienceSectionBlocks(data, iconShadowClass) {
 }
 
 function buildCardProjectSectionBlocks(data, iconShadowClass) {
-    const projectList = getRenderableProjects(data.projects);
+    const projectList = getRenderableProjects(data.projects, data.resumeLayout);
 
     return [
         `
@@ -613,7 +621,7 @@ function renderCardExperienceItem(item, index, total, useThemeTimeline, showExpe
     const roleText = pickText(item?.title, "").trim();
     const periodText = pickText(item?.period, "").trim();
     const highlightEnabled = Boolean(item?.highlight);
-    const workBadge = renderExperienceWorkBadge(item, "resume-primary-badge resume-entry-flag");
+    const workBadge = renderExperienceWorkBadge(item, "resume-primary-badge resume-entry-flag", RESUME_LAYOUT_CARDS);
     const bullets = normalizeStringArray(item?.bullets)
         .map((bullet) => (`<li>${renderExperienceRichText(bullet, highlightEnabled)}</li>`))
         .join("");
@@ -647,6 +655,8 @@ function renderCardProjectCard(project, index, total, showExperienceTimeline) {
     const badgeClass = badgeStyle === "primary"
         ? "resume-primary-badge resume-project-badge"
         : "resume-project-secondary-badge resume-project-badge";
+    const iconBadgeHtml = renderProjectIconBadge(projectInfo);
+    const periodHtml = projectInfo.period ? `<span class="resume-period-pill resume-period-pill-tight">${escapeHtml(projectInfo.period)}</span>` : "";
     const dotClass = "resume-project-timeline-dot";
     const highlightsHtml = projectInfo.highlights.length
         ? `<ul class="resume-bullet-list">${projectInfo.highlights.map((highlight) => (`<li>${escapeHtml(highlight)}</li>`)).join("")}</ul>`
@@ -673,11 +683,12 @@ function renderCardProjectCard(project, index, total, showExperienceTimeline) {
                         <div class="resume-project-title-row">
                             <h4 class="resume-entry-title">${escapeHtml(projectInfo.name || "未填写项目名称")}</h4>
                             ${badgeText ? `<span class="${badgeClass}">${escapeHtml(badgeText)}</span>` : ""}
+                            ${iconBadgeHtml}
+                            ${periodHtml}
                         </div>
                         ${detailsHtml}
                         ${techTags}
                     </div>
-                    ${projectInfo.period ? `<span class="resume-period-pill resume-period-pill-tight">${escapeHtml(projectInfo.period)}</span>` : ""}
                 </div>
             </div>
         </article>
@@ -892,7 +903,7 @@ function renderMyResumeExperienceEntry(item, index, total) {
     const company = pickText(item?.company, "").trim() || "未填写公司";
     const role = pickText(item?.title, "").trim();
     const period = pickText(item?.period, "").trim();
-    const workBadge = renderExperienceWorkBadge(item, "my-resume-highlight-badge");
+    const workBadge = renderExperienceWorkBadge(item, "my-resume-highlight-badge", RESUME_LAYOUT_MY_RESUME);
     const showTail = index < total - 1;
     const roleRow = role
         ? `
@@ -908,7 +919,7 @@ function renderMyResumeExperienceEntry(item, index, total) {
             <span class="my-resume-experience-dot" aria-hidden="true"></span>
             <div class="my-resume-experience-body">
                 <div class="my-resume-experience-top">
-                    <div class="flex min-w-0 flex-wrap items-baseline gap-2">
+                    <div class="flex min-w-0 flex-wrap items-center gap-2">
                         <h3 class="my-resume-experience-company min-w-0">${escapeHtml(company)}</h3>
                         ${workBadge}
                     </div>
@@ -922,22 +933,20 @@ function renderMyResumeExperienceEntry(item, index, total) {
 }
 
 function renderMyResumeProjectCard(project) {
-    const title = pickText(project?.name, "").trim() || "未填写项目名称";
-    const badge = pickText(project?.badge, "").trim();
-    const badgeStyle = pickText(project?.badgeStyle, "secondary") === "primary" ? "primary" : "secondary";
-    const period = pickText(project?.period, "").trim();
-    const description = pickText(project?.description, "").trim();
-    const highlights = normalizeStringArray(project?.highlights);
-    const tags = normalizeStringArray(project?.techs);
-    const badgeClass = badgeStyle === "primary"
+    const projectInfo = buildProjectRenderModel(project);
+    const title = projectInfo.name || "未填写项目名称";
+    const badge = projectInfo.badge;
+    const period = projectInfo.period;
+    const badgeClass = projectInfo.badgeStyle === "primary"
         ? "resume-primary-badge resume-project-badge"
         : "resume-project-secondary-badge resume-project-badge";
-    const detailsHtml = description || highlights.length
+    const iconBadgeHtml = renderProjectIconBadge(projectInfo);
+    const detailsHtml = projectInfo.description || projectInfo.highlights.length
         ? `
             <div class="my-resume-project-details">
-                ${description ? `<p class="my-resume-project-description">${escapeHtml(description)}</p>` : ""}
-                ${highlights.length
-                    ? `<ul class="resume-bullet-list">${highlights.map((highlight) => (`<li>${renderMyResumeHighlightedText(highlight)}</li>`)).join("")}</ul>`
+                ${projectInfo.description ? `<p class="my-resume-project-description">${escapeHtml(projectInfo.description)}</p>` : ""}
+                ${projectInfo.highlights.length
+                    ? `<ul class="resume-bullet-list">${projectInfo.highlights.map((highlight) => (`<li>${renderMyResumeHighlightedText(highlight)}</li>`)).join("")}</ul>`
                     : ""}
             </div>
         `
@@ -953,13 +962,14 @@ function renderMyResumeProjectCard(project) {
                             <span>${escapeHtml(title)}</span>
                         </h3>
                         ${badge ? `<span class="${badgeClass}">${escapeHtml(badge)}</span>` : ""}
+                        ${iconBadgeHtml}
                     </div>
                     ${period
                         ? `<div class="mt-1"><span class="my-resume-period">${renderMyResumeIcon("calendar", "my-resume-period-icon")}<span>${escapeHtml(period)}</span></span></div>`
                         : ""}
                 </div>
-                ${tags.length
-                    ? `<div class="my-resume-project-tags">${tags.map((tag) => (`<span class="my-resume-project-tag">${escapeHtml(tag)}</span>`)).join("")}</div>`
+                ${projectInfo.techs.length
+                    ? `<div class="my-resume-project-tags">${projectInfo.techs.map((tag) => (`<span class="my-resume-project-tag">${escapeHtml(tag)}</span>`)).join("")}</div>`
                     : ""}
             </div>
             ${detailsHtml}
@@ -1008,7 +1018,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
         || pickText(item?.period, "").trim()
         || normalizeStringArray(item?.bullets).length
     ));
-    const projectList = getRenderableProjects(data.projects);
+    const projectList = getRenderableProjects(data.projects, data.resumeLayout);
     const educationList = pickArray(data.education).filter((item) => (
         pickText(item?.school, "").trim()
         || pickText(item?.degree, "").trim()
@@ -1352,7 +1362,7 @@ function renderMyResume3ExperienceEntry(item, index, total) {
     const role = pickText(item?.title, "").trim();
     const period = pickText(item?.period, "").trim();
     const highlightEnabled = Boolean(item?.highlight);
-    const workBadge = renderExperienceWorkBadge(item, "my-resume3-experience-badge");
+    const workBadge = renderExperienceWorkBadge(item, "my-resume3-experience-badge", RESUME_LAYOUT_MY_RESUME3);
     const details = normalizeStringArray(item?.bullets);
     const showTail = index < total - 1;
 
@@ -1365,9 +1375,9 @@ function renderMyResume3ExperienceEntry(item, index, total) {
                     <div class="my-resume3-work-heading">
                         <h3 class="my-resume3-timeline-title">
                             <span class="my-resume3-timeline-title-main">${escapeHtml(company)}</span>
-                            ${workBadge}
                             ${role ? `<span class="my-resume3-timeline-separator">/</span><span class="my-resume3-work-role">${escapeHtml(role)}</span>` : ""}
                         </h3>
+                        ${workBadge}
                     </div>
                     ${period ? `<span class="my-resume3-date">${escapeHtml(period)}</span>` : ""}
                 </div>
@@ -1403,18 +1413,16 @@ function renderMyResume3EducationEntry(item, index, total) {
 }
 
 function renderMyResume3ProjectCard(project) {
-    const title = pickText(project?.name, "").trim() || "未填写项目名称";
-    const badge = pickText(project?.badge, "").trim();
-    const badgeStyle = pickText(project?.badgeStyle, "secondary") === "primary" ? "primary" : "secondary";
-    const period = pickText(project?.period, "").trim();
-    const tags = normalizeStringArray(project?.techs);
-    const highlights = normalizeStringArray(project?.highlights);
-    const description = pickText(project?.description, "").trim();
-    const detailsHtml = description || highlights.length
+    const projectInfo = buildProjectRenderModel(project);
+    const title = projectInfo.name || "未填写项目名称";
+    const badge = projectInfo.badge;
+    const period = projectInfo.period;
+    const iconBadgeHtml = renderProjectIconBadge(projectInfo, "my-resume3-project-icon-badge");
+    const detailsHtml = projectInfo.description || projectInfo.highlights.length
         ? `
             <div class="my-resume3-project-details">
-                ${description ? `<p class="my-resume3-project-description">${renderMyResume3RichText(description)}</p>` : ""}
-                ${highlights.length ? renderMyResume3BulletList(highlights) : ""}
+                ${projectInfo.description ? `<p class="my-resume3-project-description">${renderMyResume3RichText(projectInfo.description)}</p>` : ""}
+                ${projectInfo.highlights.length ? renderMyResume3BulletList(projectInfo.highlights) : ""}
             </div>
         `
         : "";
@@ -1425,10 +1433,11 @@ function renderMyResume3ProjectCard(project) {
                 <div class="my-resume3-project-copy">
                     <div class="my-resume3-project-title-row">
                         <h3 class="my-resume3-project-title">${escapeHtml(title)}</h3>
-                        ${badge ? `<span class="my-resume3-project-badge my-resume3-project-badge-${badgeStyle}">${escapeHtml(badge)}</span>` : ""}
+                        ${badge ? `<span class="my-resume3-project-badge my-resume3-project-badge-${projectInfo.badgeStyle}">${escapeHtml(badge)}</span>` : ""}
+                        ${iconBadgeHtml}
                     </div>
-                    ${tags.length
-                        ? `<div class="my-resume3-project-tags">${tags.map((tag) => (`<span class="my-resume3-project-tag">${escapeHtml(tag)}</span>`)).join("")}</div>`
+                    ${projectInfo.techs.length
+                        ? `<div class="my-resume3-project-tags">${projectInfo.techs.map((tag) => (`<span class="my-resume3-project-tag">${escapeHtml(tag)}</span>`)).join("")}</div>`
                         : ""}
                 </div>
                 ${period ? `<span class="my-resume3-date my-resume3-project-date">${escapeHtml(period)}</span>` : ""}
@@ -1450,7 +1459,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
         || pickText(item?.period, "").trim()
         || normalizeStringArray(item?.bullets).length
     ));
-    const projectList = getRenderableProjects(data.projects);
+    const projectList = getRenderableProjects(data.projects, data.resumeLayout);
     const educationList = pickArray(data.education).filter((item) => (
         pickText(item?.school, "").trim()
         || pickText(item?.degree, "").trim()

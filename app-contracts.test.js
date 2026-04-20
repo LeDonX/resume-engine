@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+    DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
     RESUME_REORDERABLE_SECTION_IDS,
     PROFESSIONAL_SKILLS_MODE_SKILLS,
     PROFESSIONAL_SKILLS_MODE_TEXT,
@@ -9,10 +10,12 @@ import {
     RESUME_LAYOUT_CLASSIC,
     RESUME_LAYOUT_MY_RESUME,
     RESUME_LAYOUT_MY_RESUME3,
+    isExperienceWorkBadgeEnabledByLayout,
     createInitialPanelState,
     sampleResumeData
 } from "./src/core/config.js";
-import { normalizeResumeData } from "./src/core/resume-model.js";
+import { createExperience, createProject } from "./src/core/utils.js";
+import { normalizeResumeData, resolveExperienceWorkBadgeEnabled, resolveExperienceWorkBadgeLabel, resolveProjectIconBadgeEnabled } from "./src/core/resume-model.js";
 import { renderFormHtml } from "./src/form/render.js";
 import { getAvatarImageSource } from "./src/avatar/avatar-utils.js";
 import { buildLayoutColumnBlocks } from "./src/preview/render.js";
@@ -182,12 +185,150 @@ test("experience work badge normalizes separately from highlight and migrates le
 
     assert.equal(normalized.experiences[0].highlight, true);
     assert.equal("highlightLabel" in normalized.experiences[0], false);
-    assert.equal(normalized.experiences[0].workBadgeEnabled, false);
+    assert.equal("workBadgeEnabled" in normalized.experiences[0], false);
     assert.equal(normalized.experiences[0].workBadgeLabel, "");
-    assert.equal(normalized.experiences[1].workBadgeEnabled, true);
+    assert.equal(resolveExperienceWorkBadgeEnabled(normalized.experiences[0], RESUME_LAYOUT_CLASSIC), false);
+    assert.equal(resolveExperienceWorkBadgeEnabled(normalized.experiences[0], RESUME_LAYOUT_MY_RESUME), true);
+    assert.equal("workBadgeEnabled" in normalized.experiences[1], false);
+    assert.equal(resolveExperienceWorkBadgeEnabled(normalized.experiences[1], RESUME_LAYOUT_CLASSIC), true);
     assert.equal(normalized.experiences[1].workBadgeLabel, "草稿中暂存的文案");
+    assert.equal(normalized.experiences[2].workBadgeEnabled, true);
     assert.equal(normalized.experiences[2].workBadgeLabel, "关键履历");
-    assert.equal(normalized.experiences[3].workBadgeLabel, "重点经历");
+    assert.equal(normalized.experiences[3].workBadgeLabel, "");
+    assert.equal(resolveExperienceWorkBadgeLabel(normalized.experiences[3], RESUME_LAYOUT_CLASSIC), DEFAULT_EXPERIENCE_WORK_BADGE_LABEL);
+});
+
+test("work badge defaults follow layout only when the toggle is absent", () => {
+    const classic = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_CLASSIC,
+        experiences: [
+            {
+                title: "前端负责人",
+                company: "某科技公司",
+                period: "2022 - 至今",
+                highlight: false,
+                bullets: ["负责核心项目"]
+            }
+        ]
+    });
+
+    const myResume = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME,
+        experiences: [
+            {
+                title: "模板经历",
+                company: "某科技公司",
+                period: "2022 - 至今",
+                highlight: false,
+                bullets: ["负责核心项目"]
+            }
+        ]
+    });
+
+    const explicitChoice = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME,
+        experiences: [
+            {
+                title: "显式关闭经历",
+                company: "某科技公司",
+                period: "2022 - 至今",
+                highlight: false,
+                workBadgeEnabled: false,
+                bullets: ["负责核心项目"]
+            }
+        ]
+    });
+
+    assert.equal("workBadgeEnabled" in classic.experiences[0], false);
+    assert.equal(resolveExperienceWorkBadgeEnabled(classic.experiences[0], classic.resumeLayout), false);
+    assert.equal(resolveExperienceWorkBadgeEnabled(myResume.experiences[0], myResume.resumeLayout), true);
+    assert.equal(isExperienceWorkBadgeEnabledByLayout(RESUME_LAYOUT_CLASSIC), false);
+    assert.equal(isExperienceWorkBadgeEnabledByLayout(RESUME_LAYOUT_CARDS), false);
+    assert.equal(isExperienceWorkBadgeEnabledByLayout(RESUME_LAYOUT_MY_RESUME), true);
+    assert.equal(isExperienceWorkBadgeEnabledByLayout(RESUME_LAYOUT_MY_RESUME3), true);
+    assert.equal(explicitChoice.experiences[0].workBadgeEnabled, false);
+    assert.equal(resolveExperienceWorkBadgeEnabled(explicitChoice.experiences[0], RESUME_LAYOUT_MY_RESUME3), false);
+});
+
+test("project icon badge stays explicit-or-legacy and stays separate from the existing project text badge", () => {
+    const classic = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_CLASSIC,
+        projects: [
+            {
+                name: "统一中台",
+                iconBadgeLabel: "重点项目",
+                badge: "核心贡献者",
+                badgeStyle: "primary",
+                period: "2023",
+                description: "项目描述",
+                highlights: ["项目亮点"],
+                techs: ["React"]
+            },
+            {
+                name: "普通项目",
+                badge: "次级徽章",
+                badgeStyle: "secondary",
+                period: "2022",
+                description: "",
+                highlights: [],
+                techs: []
+            }
+        ]
+    });
+
+    const myResume = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME,
+        projects: [
+            {
+                name: "模板项目",
+                iconBadgeLabel: "重点项目",
+                badge: "核心贡献者",
+                badgeStyle: "primary"
+            }
+        ]
+    });
+
+    const explicitChoice = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME,
+        projects: [
+            {
+                name: "显式关闭项目",
+                iconBadgeEnabled: false,
+                iconBadgeLabel: "重点项目",
+                badge: "核心贡献者",
+                badgeStyle: "primary"
+            }
+        ]
+    });
+
+    assert.equal("iconBadgeEnabled" in classic.projects[0], false);
+    assert.equal(resolveProjectIconBadgeEnabled(classic.projects[0], classic.resumeLayout), true);
+    assert.equal(classic.projects[0].iconBadgeLabel, "重点项目");
+    assert.equal(classic.projects[0].badge, "核心贡献者");
+    assert.equal(resolveProjectIconBadgeEnabled(myResume.projects[0], myResume.resumeLayout), true);
+    assert.equal(explicitChoice.projects[0].iconBadgeEnabled, false);
+    assert.equal(resolveProjectIconBadgeEnabled(explicitChoice.projects[0], RESUME_LAYOUT_MY_RESUME3), false);
+    assert.equal(resolveProjectIconBadgeEnabled(classic.projects[1], RESUME_LAYOUT_MY_RESUME3), false);
+});
+
+test("newly created experiences follow the current layout work badge default", () => {
+    assert.equal(createExperience(RESUME_LAYOUT_CLASSIC).workBadgeEnabled, false);
+    assert.equal(createExperience(RESUME_LAYOUT_CARDS).workBadgeEnabled, false);
+    assert.equal(createExperience(RESUME_LAYOUT_MY_RESUME).workBadgeEnabled, true);
+    assert.equal(createExperience(RESUME_LAYOUT_MY_RESUME3).workBadgeEnabled, true);
+});
+
+test("newly created projects start with icon badge disabled regardless of layout", () => {
+    assert.equal(createProject(RESUME_LAYOUT_CLASSIC).iconBadgeEnabled, false);
+    assert.equal(createProject(RESUME_LAYOUT_CARDS).iconBadgeEnabled, false);
+    assert.equal(createProject(RESUME_LAYOUT_MY_RESUME).iconBadgeEnabled, false);
+    assert.equal(createProject(RESUME_LAYOUT_MY_RESUME3).iconBadgeEnabled, false);
 });
 
 test("form renderer exposes separate experience text highlight and work badge controls", () => {
@@ -227,6 +368,144 @@ test("form renderer exposes separate experience text highlight and work badge co
     assert.equal(html.includes('value="不应显示"'), false);
 });
 
+test("form renderer exposes a dedicated project icon badge toggle and only shows the label input when enabled", () => {
+    const enabledHtml = renderFormHtml({
+        resumeData: normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: RESUME_LAYOUT_MY_RESUME,
+            projects: [
+                {
+                    name: "统一中台",
+                    iconBadgeEnabled: true,
+                    iconBadgeLabel: "重点项目",
+                    badge: "核心贡献者",
+                    badgeStyle: "primary",
+                    period: "2023",
+                    description: "项目描述",
+                    highlights: ["项目亮点"],
+                    techs: ["React"]
+                }
+            ]
+        }),
+        panelState: createInitialPanelState(),
+        activeBasicInfoPickerIndex: -1,
+        avatarCropState: null
+    });
+
+    const disabledHtml = renderFormHtml({
+        resumeData: normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: RESUME_LAYOUT_CLASSIC,
+            projects: [
+                {
+                    name: "统一中台",
+                    iconBadgeEnabled: false,
+                    iconBadgeLabel: "重点项目",
+                    badge: "核心贡献者",
+                    badgeStyle: "primary",
+                    period: "2023",
+                    description: "项目描述",
+                    highlights: ["项目亮点"],
+                    techs: ["React"]
+                }
+            ]
+        }),
+        panelState: createInitialPanelState(),
+        activeBasicInfoPickerIndex: -1,
+        avatarCropState: null
+    });
+
+    assert.ok(enabledHtml.includes('data-field="iconBadgeEnabled" checked'));
+    assert.ok(enabledHtml.includes('data-field="iconBadgeLabel" value="重点项目"'));
+    assert.ok(enabledHtml.includes('data-field="badge" value="核心贡献者"'));
+    assert.ok(enabledHtml.includes('data-field="badgeStyle"'));
+    assert.ok(disabledHtml.includes('data-field="iconBadgeEnabled"'));
+    assert.equal(disabledHtml.includes('data-field="iconBadgeEnabled" checked'), false);
+    assert.equal(disabledHtml.includes('data-field="iconBadgeLabel" value="重点项目"'), false);
+    assert.ok(disabledHtml.includes('data-field="badge" value="核心贡献者"'));
+});
+
+test("project icon badge no longer follows layout defaults when the toggle is absent", () => {
+    const projectIconBadgeText = "重点项目";
+    const layouts = [RESUME_LAYOUT_CLASSIC, RESUME_LAYOUT_CARDS, RESUME_LAYOUT_MY_RESUME, RESUME_LAYOUT_MY_RESUME3];
+
+    for (const layout of layouts) {
+        const data = normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: layout,
+            experiences: [],
+            projects: [
+                {
+                    name: "统一中台",
+                    iconBadgeLabel: projectIconBadgeText,
+                    badge: "核心贡献者",
+                    badgeStyle: "primary",
+                    period: "2023",
+                    description: "项目描述",
+                    highlights: ["项目亮点"],
+                    techs: ["React"]
+                }
+            ]
+        });
+        const blocks = buildLayoutColumnBlocks(layout, data, getAvatarImageSource(data.profileImage));
+        const html = `${blocks.leftBlocks.join("\n")}\n${blocks.rightBlocks.join("\n")}`;
+
+        assert.equal((html.match(/resume-project-icon-badge/g) || []).length, 1, `${layout} should preserve legacy label-only project icon badges when the toggle is absent`);
+    }
+
+    const explicitOffData = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME,
+        experiences: [],
+        projects: [
+            {
+                name: "统一中台",
+                iconBadgeEnabled: false,
+                iconBadgeLabel: projectIconBadgeText,
+                badge: "核心贡献者",
+                badgeStyle: "primary"
+            }
+        ]
+    });
+    const explicitOffBlocks = buildLayoutColumnBlocks(RESUME_LAYOUT_MY_RESUME, explicitOffData, getAvatarImageSource(explicitOffData.profileImage));
+    const explicitOffHtml = `${explicitOffBlocks.leftBlocks.join("\n")}\n${explicitOffBlocks.rightBlocks.join("\n")}`;
+    assert.equal((explicitOffHtml.match(/resume-project-icon-badge/g) || []).length, 0);
+
+    const explicitOnData = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_CLASSIC,
+        experiences: [],
+        projects: [
+            {
+                name: "统一中台",
+                iconBadgeEnabled: true,
+                iconBadgeLabel: projectIconBadgeText,
+                badge: "核心贡献者",
+                badgeStyle: "primary"
+            }
+        ]
+    });
+    const explicitOnBlocks = buildLayoutColumnBlocks(RESUME_LAYOUT_CLASSIC, explicitOnData, getAvatarImageSource(explicitOnData.profileImage));
+    const explicitOnHtml = `${explicitOnBlocks.leftBlocks.join("\n")}\n${explicitOnBlocks.rightBlocks.join("\n")}`;
+    assert.equal((explicitOnHtml.match(/resume-project-icon-badge/g) || []).length, 1);
+
+    const blankLabelData = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME3,
+        experiences: [],
+        projects: [
+            {
+                name: "统一中台",
+                badge: "核心贡献者",
+                badgeStyle: "primary"
+            }
+        ]
+    });
+    const blankLabelBlocks = buildLayoutColumnBlocks(RESUME_LAYOUT_MY_RESUME3, blankLabelData, getAvatarImageSource(blankLabelData.profileImage));
+    const blankLabelHtml = `${blankLabelBlocks.leftBlocks.join("\n")}\n${blankLabelBlocks.rightBlocks.join("\n")}`;
+    assert.equal((blankLabelHtml.match(/resume-project-icon-badge/g) || []).length, 0);
+});
+
 test("all layouts render work badges independently of highlight with the shared award icon", () => {
     const experienceBadgeText = "重点主导";
     const badgeCompanyText = "徽章公司";
@@ -244,7 +523,7 @@ test("all layouts render work badges independently of highlight with the shared 
         [RESUME_LAYOUT_CLASSIC]: [badgeRoleText, experienceBadgeText, badgeCompanyText],
         [RESUME_LAYOUT_CARDS]: [badgeCompanyText, experienceBadgeText, badgeRoleText],
         [RESUME_LAYOUT_MY_RESUME]: [badgeCompanyText, experienceBadgeText, badgePeriodText, badgeRoleText],
-        [RESUME_LAYOUT_MY_RESUME3]: [badgeCompanyText, experienceBadgeText, badgeRoleText]
+        [RESUME_LAYOUT_MY_RESUME3]: [badgeCompanyText, badgeRoleText, experienceBadgeText]
     };
 
     for (const layout of layouts) {
@@ -291,6 +570,122 @@ test("all layouts render work badges independently of highlight with the shared 
         assert.ok(html.includes(expectedWorkBadgeClassByLayout[layout]), `${layout} should keep the expected work badge wrapper classes`);
         assert.ok(html.includes(projectBadgeText), `${layout} should keep project badge rendering intact`);
         assertOrderedFragments(html, expectedWorkBadgeOrderByLayout[layout]);
+    }
+});
+
+test("all layouts render project icon badges separately from the existing text badge", () => {
+    const projectIconBadgeText = "重点项目";
+    const projectTextBadgeText = "核心贡献者";
+    const projectTitleText = "统一中台";
+    const projectPeriodText = "2023";
+    const layouts = [RESUME_LAYOUT_CLASSIC, RESUME_LAYOUT_CARDS, RESUME_LAYOUT_MY_RESUME, RESUME_LAYOUT_MY_RESUME3];
+    const expectedProjectTextBadgeClassByLayout = {
+        [RESUME_LAYOUT_CLASSIC]: "resume-classic-project-badge",
+        [RESUME_LAYOUT_CARDS]: "resume-project-badge",
+        [RESUME_LAYOUT_MY_RESUME]: "resume-project-badge",
+        [RESUME_LAYOUT_MY_RESUME3]: "my-resume3-project-badge"
+    };
+    const expectedProjectIconBadgeClassByLayout = {
+        [RESUME_LAYOUT_CLASSIC]: 'class="resume-project-icon-badge"',
+        [RESUME_LAYOUT_CARDS]: 'class="resume-project-icon-badge"',
+        [RESUME_LAYOUT_MY_RESUME]: 'class="resume-project-icon-badge"',
+        [RESUME_LAYOUT_MY_RESUME3]: 'class="resume-project-icon-badge my-resume3-project-icon-badge"'
+    };
+
+    for (const layout of layouts) {
+        const data = normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: layout,
+            experiences: [],
+            projects: [
+                {
+                    name: projectTitleText,
+                    iconBadgeEnabled: true,
+                    iconBadgeLabel: projectIconBadgeText,
+                    badge: projectTextBadgeText,
+                    badgeStyle: "primary",
+                    period: "2023",
+                    description: "项目描述",
+                    highlights: ["项目亮点"],
+                    techs: ["React"]
+                }
+            ]
+        });
+        const blocks = buildLayoutColumnBlocks(layout, data, getAvatarImageSource(data.profileImage));
+        const html = `${blocks.leftBlocks.join("\n")}\n${blocks.rightBlocks.join("\n")}`;
+
+        assert.equal((html.match(/resume-project-icon-badge/g) || []).length, 1, `${layout} should render the project icon badge once`);
+        assert.equal((html.match(/resume-work-badge/g) || []).length, 0, `${layout} should keep experience badge classes out of project rows`);
+        assert.equal((html.match(/my-resume-badge-icon/g) || []).length, 1, `${layout} should reuse the shared award icon once for the project icon badge`);
+        assert.ok(html.includes(expectedProjectIconBadgeClassByLayout[layout]), `${layout} should keep the expected project icon badge wrapper classes`);
+        assert.ok(html.includes(expectedProjectTextBadgeClassByLayout[layout]), `${layout} should keep the existing project text badge class contract`);
+        assert.ok(html.includes(projectIconBadgeText), `${layout} should render the project icon badge label`);
+        assert.ok(html.includes(projectTextBadgeText), `${layout} should keep the existing project text badge label`);
+        assertOrderedFragments(html, [projectTitleText, projectTextBadgeText, projectIconBadgeText]);
+    }
+});
+
+test("cards project row keeps the period inside the title row instead of a separate right column", () => {
+    const data = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_CARDS,
+        experiences: [],
+        projects: [
+            {
+                name: "统一中台",
+                iconBadgeEnabled: true,
+                iconBadgeLabel: "重点项目",
+                badge: "核心贡献者",
+                badgeStyle: "primary",
+                period: "2023",
+                description: "项目描述",
+                highlights: ["项目亮点"],
+                techs: ["React"]
+            }
+        ]
+    });
+    const blocks = buildLayoutColumnBlocks(RESUME_LAYOUT_CARDS, data, getAvatarImageSource(data.profileImage));
+    const html = `${blocks.leftBlocks.join("\n")}\n${blocks.rightBlocks.join("\n")}`;
+    const titleRowMatch = html.match(/<div class="resume-project-title-row">([\s\S]*?)<\/div>/);
+
+    assert.ok(titleRowMatch, "cards should render a project title row");
+    const titleRowHtml = titleRowMatch[1];
+    assertOrderedFragments(titleRowHtml, ["统一中台", "核心贡献者", "重点项目", "2023"]);
+});
+
+test("work badge alignment hooks stay in place across all layouts", () => {
+    const layouts = [RESUME_LAYOUT_CLASSIC, RESUME_LAYOUT_CARDS, RESUME_LAYOUT_MY_RESUME, RESUME_LAYOUT_MY_RESUME3];
+    const expectedAlignmentHookByLayout = {
+        [RESUME_LAYOUT_CLASSIC]: 'class="resume-classic-entry-title flex flex-wrap items-center gap-2 font-bold text-gray-800"',
+        [RESUME_LAYOUT_CARDS]: 'class="resume-entry-company flex flex-wrap items-center gap-2"',
+        [RESUME_LAYOUT_MY_RESUME]: 'class="flex min-w-0 flex-wrap items-center gap-2"'
+    };
+
+    for (const layout of layouts) {
+        const data = normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: layout,
+            experiences: [
+                {
+                    title: "徽章岗位",
+                    company: "徽章公司",
+                    period: "2020 - 2022",
+                    highlight: false,
+                    workBadgeEnabled: true,
+                    workBadgeLabel: "主导项目",
+                    bullets: ["参与日常迭代"]
+                }
+            ]
+        });
+        const blocks = buildLayoutColumnBlocks(layout, data, getAvatarImageSource(data.profileImage));
+        const html = `${blocks.leftBlocks.join("\n")}\n${blocks.rightBlocks.join("\n")}`;
+
+        if (layout !== RESUME_LAYOUT_MY_RESUME3) {
+            assert.ok(
+                html.includes(expectedAlignmentHookByLayout[layout]),
+                `${layout} should keep the expected inline centering hook for the work badge row`
+            );
+        }
     }
 });
 

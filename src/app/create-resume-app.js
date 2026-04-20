@@ -312,7 +312,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
             list[index][field] = value;
         }
 
-        if (section === "experiences" && (field === "highlight" || field === "workBadgeEnabled")) {
+        if ((section === "experiences" && (field === "highlight" || field === "workBadgeEnabled")) || (section === "projects" && field === "iconBadgeEnabled")) {
             renderAll();
             saveDraft();
             return;
@@ -573,7 +573,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
         if (action === "add-skill") { resumeData.skills.push(createSkillGroup()); panelState.skills = false; }
         if (action === "remove-skill") removeItem(resumeData.skills, index);
 
-        if (action === "add-experience") { resumeData.experiences.push(createExperience()); panelState.experiences = false; }
+        if (action === "add-experience") { resumeData.experiences.push(createExperience(resumeData.resumeLayout)); panelState.experiences = false; }
         if (action === "remove-experience") removeItem(resumeData.experiences, index);
 
         if (action === "add-project") { resumeData.projects.push(createProject()); panelState.projects = false; }
