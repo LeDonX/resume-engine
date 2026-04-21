@@ -145,8 +145,37 @@ test("layout control formatter keeps font %, spacing px, and line-height x seman
     assert.equal(formatResumeLayoutControlValue("fontScale", 1), "100%");
     assert.equal(formatResumeLayoutControlValue("moduleMarginYScale", 1, { layout: "classic" }), "40px");
     assert.equal(formatResumeLayoutControlValue("moduleMarginYScale", 1, { layout: "cards" }), "11.7px");
+    assert.equal(formatResumeLayoutControlValue("pagePaddingYScale", 1, { layout: "cards" }), "11.7px");
+    assert.equal(formatResumeLayoutControlValue("pagePaddingXScale", 1, { layout: "cards" }), "11.7px");
     assert.equal(formatResumeLayoutControlValue("moduleMarginXScale", 1, { layout: "classic" }), "0px");
+    assert.equal(formatResumeLayoutControlValue("pagePaddingXScale", 1, { layout: "classic" }), "48px");
     assert.equal(formatResumeLayoutControlValue("bodyLineHeightScale", 1.12), "1.12x");
+});
+
+test("layout control formatter keeps cards parity while other layouts keep their original X bases", () => {
+    assert.equal(
+        formatResumeLayoutControlValue("moduleMarginXScale", 1, { layout: "cards" }),
+        formatResumeLayoutControlValue("moduleMarginYScale", 1, { layout: "cards" }),
+        "cards module margin axes should share the same display base"
+    );
+    assert.equal(
+        formatResumeLayoutControlValue("pagePaddingXScale", 1, { layout: "cards" }),
+        formatResumeLayoutControlValue("pagePaddingYScale", 1, { layout: "cards" }),
+        "cards page padding axes should share the same display base"
+    );
+
+    for (const layout of ["classic", "my-resume", "my-resume3"]) {
+        assert.equal(
+            formatResumeLayoutControlValue("moduleMarginXScale", 1, { layout }),
+            "0px",
+            `${layout} module margin X should revert to its original delta-style default`
+        );
+        assert.equal(
+            formatResumeLayoutControlValue("pagePaddingXScale", 1, { layout }),
+            "48px",
+            `${layout} page padding X should revert to its original wider base`
+        );
+    }
 });
 
 test("normalization clamps new axis-specific controls and falls back from legacy broad fields", () => {

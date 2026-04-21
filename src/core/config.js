@@ -69,6 +69,120 @@ export const BASIC_INFO_PRESETS = [
     { id: "education", label: "学历", value: "硕士", iconPreset: "education", iconMode: "preset", customIcon: "" }
 ];
 
+export const BASIC_INFO_ICON_SET_OPTIONS = [
+    { key: "font-awesome", label: "Font Awesome", description: "四个模板都使用当前 Font Awesome 实心图标" },
+    { key: "my-resume", label: "模板 1 线性", description: "四个模板都使用模板 1 的线性 SVG 图标" },
+    { key: "my-resume3", label: "模板 2 几何", description: "四个模板都使用模板 2 的几何 SVG 图标" }
+];
+
+export const SECTION_TITLE_ICON_SET_OPTIONS = [
+    { key: "classic", label: "经典标题组", description: "使用经典版当前的标题图标组合" },
+    { key: "cards", label: "卡片标题组", description: "使用卡片版当前的标题图标组合" },
+    { key: "my-resume", label: "模板 1 标题组", description: "使用模板 1 的线性标题图标" },
+    { key: "my-resume3", label: "模板 2 标题组", description: "使用模板 2 的几何标题图标" }
+];
+
+export const LEGACY_FOLLOW_LAYOUT_ICON_SET = "follow-layout";
+
+export function getDefaultBasicInfoIconSetForLayout(layout) {
+    if (layout === RESUME_LAYOUT_MY_RESUME) {
+        return RESUME_LAYOUT_MY_RESUME;
+    }
+    if (layout === RESUME_LAYOUT_MY_RESUME3) {
+        return RESUME_LAYOUT_MY_RESUME3;
+    }
+    return "font-awesome";
+}
+
+export function getDefaultSectionTitleIconSetForLayout(layout) {
+    if (layout === RESUME_LAYOUT_CARDS) {
+        return RESUME_LAYOUT_CARDS;
+    }
+    if (layout === RESUME_LAYOUT_MY_RESUME) {
+        return RESUME_LAYOUT_MY_RESUME;
+    }
+    if (layout === RESUME_LAYOUT_MY_RESUME3) {
+        return RESUME_LAYOUT_MY_RESUME3;
+    }
+    return RESUME_LAYOUT_CLASSIC;
+}
+
+const fontAwesomeBasicInfoIconMap = BASIC_INFO_ICON_OPTIONS.reduce((result, option) => {
+    result[option.key] = `fa:${option.icon}`;
+    return result;
+}, {});
+
+export const BASIC_INFO_ICON_SET_MAPS = {
+    "font-awesome": fontAwesomeBasicInfoIconMap,
+    "my-resume": {
+        phone: "my:phone",
+        email: "my:mail",
+        salary: "my:wallet",
+        birth: "my:calendar",
+        education: "my:graduation",
+        location: "my:mapPin",
+        website: "my:link",
+        profile: "my:userCircle",
+        role: "my:briefcase",
+        company: "my:building",
+        calendar: "my:clock",
+        status: "my:award"
+    },
+    "my-resume3": {
+        phone: "my3:phone",
+        email: "my3:mail",
+        salary: "my3:wallet",
+        birth: "my3:calendar",
+        education: "my3:cap",
+        location: "my3:pin",
+        website: "my3:link",
+        profile: "my3:user",
+        role: "my3:briefcase",
+        company: "my3:building",
+        calendar: "my3:clock",
+        status: "my3:award"
+    }
+};
+
+export const SECTION_TITLE_ICON_SET_MAPS = {
+    classic: {
+        contact: "fa:fas fa-envelope",
+        basicInfo: "fa:fas fa-envelope",
+        summary: "fa:fas fa-user-tie",
+        skills: "fa:fas fa-wand-magic-sparkles",
+        experiences: "fa:fas fa-briefcase",
+        projects: "fa:fas fa-project-diagram",
+        education: "fa:fas fa-user-graduate"
+    },
+    cards: {
+        contact: "fa:fas fa-envelope",
+        basicInfo: "fa:fas fa-envelope",
+        summary: "fa:fas fa-user",
+        skills: "fa:fas fa-wand-magic-sparkles",
+        experiences: "fa:fas fa-briefcase",
+        projects: "fa:fas fa-code",
+        education: "fa:fas fa-user-graduate"
+    },
+    "my-resume": {
+        contact: "my:mail",
+        basicInfo: "my:mail",
+        summary: "my:user",
+        skills: "my:layers",
+        experiences: "my:briefcase",
+        projects: "my:zap",
+        education: "my:graduation"
+    },
+    "my-resume3": {
+        contact: "my3:mail",
+        basicInfo: "my3:mail",
+        summary: "my3:user",
+        skills: "my3:code",
+        experiences: "my3:briefcase",
+        projects: "my3:layers",
+        education: "my3:book"
+    }
+};
+
 export const BASIC_INFO_COLORS = [
     { key: "theme", label: "跟随主题" },
     { key: "slate", label: "石板灰", bg: "bg-slate-100", text: "text-slate-700" },
@@ -178,6 +292,8 @@ export const sampleResumeData = {
     avatarImageMeta: null,
     avatarFrame: { ...DEFAULT_AVATAR_FRAME },
     avatarShape: AVATAR_SHAPE_CIRCLE,
+    basicInfoIconSet: getDefaultBasicInfoIconSetForLayout(RESUME_LAYOUT_CLASSIC),
+    sectionTitleIconSet: getDefaultSectionTitleIconSetForLayout(RESUME_LAYOUT_CLASSIC),
     basicInfo: BASIC_INFO_PRESETS,
     professionalSkillsMode: PROFESSIONAL_SKILLS_MODE_SKILLS,
     sectionOrder: [...RESUME_REORDERABLE_SECTION_IDS],

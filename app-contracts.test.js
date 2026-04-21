@@ -10,12 +10,21 @@ import {
     RESUME_LAYOUT_CLASSIC,
     RESUME_LAYOUT_MY_RESUME,
     RESUME_LAYOUT_MY_RESUME3,
+    getDefaultBasicInfoIconSetForLayout,
+    getDefaultSectionTitleIconSetForLayout,
     isExperienceWorkBadgeEnabledByLayout,
     createInitialPanelState,
     sampleResumeData
 } from "./src/core/config.js";
 import { createExperience, createProject } from "./src/core/utils.js";
-import { normalizeResumeData, resolveExperienceWorkBadgeEnabled, resolveExperienceWorkBadgeLabel, resolveProjectIconBadgeEnabled } from "./src/core/resume-model.js";
+import {
+    normalizeResumeData,
+    resolveBasicInfoIcon,
+    resolveExperienceWorkBadgeEnabled,
+    resolveExperienceWorkBadgeLabel,
+    resolveProjectIconBadgeEnabled,
+    resolveSectionTitleIcon
+} from "./src/core/resume-model.js";
 import { renderFormHtml } from "./src/form/render.js";
 import { getAvatarImageSource } from "./src/avatar/avatar-utils.js";
 import { buildLayoutColumnBlocks } from "./src/preview/render.js";
@@ -48,6 +57,180 @@ test("layout builders keep returning left/right block arrays for every layout", 
     }
 });
 
+test("basic info and section title icon sets normalize independently with concrete per-layout defaults", () => {
+    const layouts = [RESUME_LAYOUT_CLASSIC, RESUME_LAYOUT_CARDS, RESUME_LAYOUT_MY_RESUME, RESUME_LAYOUT_MY_RESUME3];
+    const {
+        basicInfoIconSet: _basicInfoIconSet,
+        sectionTitleIconSet: _sectionTitleIconSet,
+        ...sampleWithoutIconSetDefaults
+    } = sampleResumeData;
+
+    for (const layout of layouts) {
+        const missingDefaults = normalizeResumeData({
+            ...sampleWithoutIconSetDefaults,
+            resumeLayout: layout
+        });
+        const legacyFollowLayout = normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: layout,
+            basicInfoIconSet: "follow-layout",
+            sectionTitleIconSet: "follow-layout"
+        });
+
+        assert.equal(missingDefaults.basicInfoIconSet, getDefaultBasicInfoIconSetForLayout(layout));
+        assert.equal(missingDefaults.sectionTitleIconSet, getDefaultSectionTitleIconSetForLayout(layout));
+        assert.equal(legacyFollowLayout.basicInfoIconSet, getDefaultBasicInfoIconSetForLayout(layout));
+        assert.equal(legacyFollowLayout.sectionTitleIconSet, getDefaultSectionTitleIconSetForLayout(layout));
+    }
+
+    const forcedSets = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_CLASSIC,
+        basicInfoIconSet: "my-resume3",
+        sectionTitleIconSet: "my-resume"
+    });
+
+    assert.equal(resolveBasicInfoIcon(normalizeResumeData({
+        ...sampleWithoutIconSetDefaults,
+        resumeLayout: RESUME_LAYOUT_CLASSIC
+    }).basicInfo[0], {
+        iconSet: getDefaultBasicInfoIconSetForLayout(RESUME_LAYOUT_CLASSIC),
+        resumeLayout: RESUME_LAYOUT_CLASSIC
+    }), "fa:fas fa-phone");
+    assert.equal(resolveBasicInfoIcon(normalizeResumeData({
+        ...sampleWithoutIconSetDefaults,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME
+    }).basicInfo[0], {
+        iconSet: getDefaultBasicInfoIconSetForLayout(RESUME_LAYOUT_MY_RESUME),
+        resumeLayout: RESUME_LAYOUT_MY_RESUME
+    }), "my:phone");
+    assert.equal(resolveBasicInfoIcon(forcedSets.basicInfo[0], {
+        iconSet: forcedSets.basicInfoIconSet,
+        resumeLayout: forcedSets.resumeLayout
+    }), "my3:phone");
+    assert.equal(resolveSectionTitleIcon("summary", forcedSets.resumeLayout, forcedSets.sectionTitleIconSet), "my:user");
+});
+
+test("custom basic info icon still overrides the global personal-info icon set", () => {
+    const data = normalizeResumeData({
+        ...sampleResumeData,
+        basicInfoIconSet: "my-resume3",
+        basicInfo: sampleResumeData.basicInfo.map((item, index) => index === 0
+            ? { ...item, iconMode: "custom", customIcon: "fas fa-star" }
+            : item)
+    });
+
+    assert.equal(resolveBasicInfoIcon(data.basicInfo[0], {
+        iconSet: data.basicInfoIconSet,
+        resumeLayout: data.resumeLayout
+    }), "fa:fas fa-star");
+});
+
+test("section title switching keeps each layout heading shell and only swaps icon tokens", () => {
+    const cases = [
+        {
+            layout: RESUME_LAYOUT_CLASSIC,
+            sectionTitleIconSet: RESUME_LAYOUT_CARDS,
+            sectionKey: "summary",
+            expectedIconToken: "fa:fas fa-user",
+            expectedShell: "resume-classic-section-heading",
+            forbiddenShells: ["resume-card-title-row", "my-resume-section-heading-row", "my-resume3-section-heading-row"]
+        },
+        {
+            layout: RESUME_LAYOUT_CARDS,
+            sectionTitleIconSet: RESUME_LAYOUT_CLASSIC,
+            sectionKey: "projects",
+            expectedIconToken: "fa:fas fa-project-diagram",
+            expectedShell: "resume-card-title-row",
+            forbiddenShells: ["resume-classic-section-heading", "my-resume-section-heading-row", "my-resume3-section-heading-row"]
+        },
+        {
+            layout: RESUME_LAYOUT_MY_RESUME,
+            sectionTitleIconSet: RESUME_LAYOUT_CLASSIC,
+            sectionKey: "summary",
+            expectedIconToken: "fa:fas fa-user-tie",
+            expectedShell: "my-resume-section-heading-row",
+            forbiddenShells: ["resume-classic-section-heading", "resume-card-title-row", "my-resume3-section-heading-row"]
+        },
+        {
+            layout: RESUME_LAYOUT_MY_RESUME3,
+            sectionTitleIconSet: RESUME_LAYOUT_MY_RESUME,
+            sectionKey: "skills",
+            expectedIconToken: "my:layers",
+            expectedShell: "my-resume3-section-heading-row",
+            forbiddenShells: ["resume-classic-section-heading", "resume-card-title-row", "my-resume-section-heading-row"]
+        }
+    ];
+
+    for (const testCase of cases) {
+        const data = normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: testCase.layout,
+            sectionTitleIconSet: testCase.sectionTitleIconSet,
+            useFlatIcons: false
+        });
+        const blocks = buildLayoutColumnBlocks(testCase.layout, data, getAvatarImageSource(data.profileImage));
+        const html = `${blocks.leftBlocks.join("\n")}\n${blocks.rightBlocks.join("\n")}`;
+
+        assert.equal(resolveSectionTitleIcon(testCase.sectionKey, testCase.layout, testCase.sectionTitleIconSet), testCase.expectedIconToken);
+        assert.ok(html.includes(testCase.expectedShell), `${testCase.layout} should keep its current heading wrapper`);
+        for (const forbiddenShell of testCase.forbiddenShells) {
+            assert.equal(html.includes(forbiddenShell), false, `${testCase.layout} should not switch to ${forbiddenShell}`);
+        }
+    }
+
+    const cardsData = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_CARDS,
+        sectionTitleIconSet: RESUME_LAYOUT_CLASSIC,
+        useFlatIcons: false
+    });
+    const cardsBlocks = buildLayoutColumnBlocks(cardsData.resumeLayout, cardsData, getAvatarImageSource(cardsData.profileImage));
+    const cardsHtml = `${cardsBlocks.leftBlocks.join("\n")}\n${cardsBlocks.rightBlocks.join("\n")}`;
+
+    assert.ok(cardsHtml.includes("resume-card-title-row-lg"), "cards should keep large section title rows");
+    assert.ok(cardsHtml.includes("resume-card-icon-about"), "cards should keep tone classes on title icons");
+    assert.ok(cardsHtml.includes("0_6px_14px_var(--resume-accent-glow)"), "cards should keep title icon shadow styling when flat icons are off");
+});
+
+test("personal-info icon libraries use semantically aligned mappings for obvious slots", () => {
+    const slotCases = [
+        { iconSet: "my-resume", slot: "salary", expectedToken: "my:wallet" },
+        { iconSet: "my-resume", slot: "birth", expectedToken: "my:calendar" },
+        { iconSet: "my-resume", slot: "profile", expectedToken: "my:userCircle" },
+        { iconSet: "my-resume", slot: "company", expectedToken: "my:building" },
+        { iconSet: "my-resume", slot: "status", expectedToken: "my:award" },
+        { iconSet: "my-resume3", slot: "salary", expectedToken: "my3:wallet" },
+        { iconSet: "my-resume3", slot: "birth", expectedToken: "my3:calendar" },
+        { iconSet: "my-resume3", slot: "profile", expectedToken: "my3:user" },
+        { iconSet: "my-resume3", slot: "company", expectedToken: "my3:building" },
+        { iconSet: "my-resume3", slot: "status", expectedToken: "my3:award" }
+    ];
+
+    for (const { iconSet, slot, expectedToken } of slotCases) {
+        assert.equal(resolveBasicInfoIcon({ iconPreset: slot }, {
+            iconSet,
+            resumeLayout: RESUME_LAYOUT_CLASSIC
+        }), expectedToken, `${iconSet} should map ${slot} to a semantically related icon`);
+    }
+});
+
+test("form html exposes separate icon set controls for personal info and section titles", () => {
+    const html = renderFormHtml({
+        resumeData: normalizeResumeData(sampleResumeData),
+        panelState: createInitialPanelState(),
+        activeBasicInfoPickerIndex: -1,
+        avatarCropState: null
+    });
+
+    assert.match(html, /个人信息图标样式/);
+    assert.match(html, /模块标题图标样式/);
+    assert.match(html, /data-action="set-basic-info-icon-set"/);
+    assert.match(html, /data-action="set-section-title-icon-set"/);
+    assert.equal(html.includes("跟随版式默认"), false);
+    assert.equal(html.includes('data-icon-set="follow-layout"'), false);
+});
+
 test("draft storage payload keeps the avatar sidecar sentinel contract", () => {
     const profileImage = "data:image/png;base64,ZmFrZQ==";
     const payload = buildDraftStoragePayload({
@@ -75,6 +258,20 @@ test("draft storage payload round-trips sectionOrder", () => {
 
     assert.deepEqual(payload.data.sectionOrder, expectedOrder);
     assert.deepEqual(parsed.draftData.sectionOrder, expectedOrder);
+});
+
+test("draft storage payload round-trips icon set selectors", () => {
+    const payload = buildDraftStoragePayload(normalizeResumeData({
+        ...sampleResumeData,
+        basicInfoIconSet: "my-resume3",
+        sectionTitleIconSet: "cards"
+    }));
+    const parsed = parseDraftStoragePayload(JSON.stringify(payload));
+
+    assert.equal(payload.data.basicInfoIconSet, "my-resume3");
+    assert.equal(payload.data.sectionTitleIconSet, "cards");
+    assert.equal(parsed.draftData.basicInfoIconSet, "my-resume3");
+    assert.equal(parsed.draftData.sectionTitleIconSet, "cards");
 });
 
 test("draft storage payload keeps spacing/layout controls as flat top-level fields", () => {

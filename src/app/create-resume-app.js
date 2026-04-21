@@ -7,6 +7,8 @@ import {
     RENDER_MODE_PRINT,
     RENDER_MODE_SCREEN,
     RESUME_LAYOUT_CLASSIC,
+    getDefaultBasicInfoIconSetForLayout,
+    getDefaultSectionTitleIconSetForLayout,
     createInitialPanelState,
     sampleResumeData
 } from "../core/config.js";
@@ -33,8 +35,10 @@ import {
 } from "../avatar/avatar-utils.js";
 import {
     getResumeLayoutLabel,
+    normalizeBasicInfoIconSet,
     normalizeProfessionalSkillsMode,
     normalizeSectionOrder,
+    normalizeSectionTitleIconSet,
     getResumeThemeOption,
     normalizeResumeData,
     normalizeResumeLayout,
@@ -68,6 +72,16 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
     let printRestoreTimer = null;
     let statusTimer = null;
     let lastPersistedSnapshot = null;
+    let basicInfoIconSetExplicit = false;
+    let sectionTitleIconSetExplicit = false;
+
+    function syncIconSetSelectionModes(data = resumeData) {
+        const currentLayout = normalizeResumeLayout(data?.resumeLayout);
+        basicInfoIconSetExplicit = normalizeBasicInfoIconSet(data?.basicInfoIconSet) !== getDefaultBasicInfoIconSetForLayout(currentLayout);
+        sectionTitleIconSetExplicit = normalizeSectionTitleIconSet(data?.sectionTitleIconSet) !== getDefaultSectionTitleIconSetForLayout(currentLayout);
+    }
+
+    syncIconSetSelectionModes(resumeData);
 
     function setCleanSnapshot(snapshot) {
         lastPersistedSnapshot = snapshot ? cloneData(snapshot) : null;
@@ -413,6 +427,28 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
             return;
         }
 
+        if (action === "set-basic-info-icon-set") {
+            const nextIconSet = normalizeBasicInfoIconSet(pickText(button?.dataset?.iconSet, getDefaultBasicInfoIconSetForLayout(resumeData.resumeLayout)));
+            basicInfoIconSetExplicit = true;
+            if (resumeData.basicInfoIconSet !== nextIconSet) {
+                resumeData.basicInfoIconSet = nextIconSet;
+                renderAll();
+                saveDraft();
+            }
+            return;
+        }
+
+        if (action === "set-section-title-icon-set") {
+            const nextIconSet = normalizeSectionTitleIconSet(pickText(button?.dataset?.iconSet, getDefaultSectionTitleIconSetForLayout(resumeData.resumeLayout)));
+            sectionTitleIconSetExplicit = true;
+            if (resumeData.sectionTitleIconSet !== nextIconSet) {
+                resumeData.sectionTitleIconSet = nextIconSet;
+                renderAll();
+                saveDraft();
+            }
+            return;
+        }
+
         if (action === "toggle-section") {
             const sectionId = button.dataset.sectionId;
             if (sectionId) {
@@ -519,10 +555,20 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
                 return;
             }
             const previousLayout = resumeData.resumeLayout;
+            const previousBasicInfoIconSet = resumeData.basicInfoIconSet;
+            const previousSectionTitleIconSet = resumeData.sectionTitleIconSet;
             resumeData.resumeLayout = nextLayout;
+            if (!basicInfoIconSetExplicit) {
+                resumeData.basicInfoIconSet = getDefaultBasicInfoIconSetForLayout(nextLayout);
+            }
+            if (!sectionTitleIconSetExplicit) {
+                resumeData.sectionTitleIconSet = getDefaultSectionTitleIconSetForLayout(nextLayout);
+            }
             renderAll();
             if (!saveDraft()) {
                 resumeData.resumeLayout = previousLayout;
+                resumeData.basicInfoIconSet = previousBasicInfoIconSet;
+                resumeData.sectionTitleIconSet = previousSectionTitleIconSet;
                 renderAll();
                 setStatus("版式保存失败：无法写入本地草稿。", "error");
                 return;
@@ -653,6 +699,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
 
     function resetData() {
         resumeData = normalizeResumeData(cloneData(sampleResumeData));
+        syncIconSetSelectionModes(resumeData);
         renderAll();
         const didPersist = saveDraft({ showAvatarWarning: true });
         setStatus(
@@ -691,6 +738,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
             const text = await file.text();
             const parsed = JSON.parse(text);
             resumeData = normalizeResumeData(parsed);
+            syncIconSetSelectionModes(resumeData);
             await hydrateAvatarStateIfNeeded(resumeData);
             renderAll();
             const didPersist = saveDraft({
@@ -791,6 +839,7 @@ export function createResumeApp({ dom, windowRef = window, documentRef = documen
             setStatus("正在使用默认示例数据。", "info");
         }
 
+        syncIconSetSelectionModes(resumeData);
         setCleanSnapshot(resumeData);
         renderAll();
 

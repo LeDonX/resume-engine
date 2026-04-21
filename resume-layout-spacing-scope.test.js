@@ -26,16 +26,29 @@ test("spacing controls stay wired only to page shells, module boundaries, surfac
     assert.match(rootThemeRule, /--resume-cards-section-gap:\s*calc\(4mm \* var\(--resume-module-margin-y-scale, 1\)\)/);
     assert.match(rootThemeRule, /--resume-module-inline-boundary-offset:\s*calc\(\(var\(--resume-module-margin-x-scale, 1\) - 1\) \* 2rem\)/);
     assert.match(rootThemeRule, /--resume-classic-left-padding:\s*calc\(2rem \* var\(--resume-page-padding-y-scale, 1\)\) calc\(2rem \* var\(--resume-page-padding-x-scale, 1\)\)/);
+    assert.match(rootThemeRule, /--resume-classic-right-padding-x:\s*calc\(3rem \* var\(--resume-page-padding-x-scale, 1\)\)/);
     assert.match(rootThemeRule, /--resume-classic-section-gap:\s*calc\(2\.5rem \* var\(--resume-module-margin-y-scale, 1\)\)/);
     assert.match(rootThemeRule, /--resume-card-padding-y:\s*calc\(1\.25rem \* var\(--resume-module-padding-y-scale, 1\)\)/);
     assert.match(rootThemeRule, /--resume-card-padding-x:\s*calc\(1\.25rem \* var\(--resume-module-padding-x-scale, 1\)\)/);
 
     const cardsThemeRule = getRuleBlocks(".resume-layout-cards.resume-theme-shell")[0];
-    assert.match(cardsThemeRule, /--resume-cards-gap:\s*calc\(6\.2mm \* var\(--resume-module-margin-x-scale, 1\)\)/);
+    assert.match(cardsThemeRule, /--resume-cards-gap:\s*calc\(3\.1mm \* var\(--resume-module-margin-x-scale, 1\)\)/);
+    assert.match(cardsThemeRule, /--resume-cards-padding-y:\s*calc\(3\.1mm \* var\(--resume-page-padding-y-scale, 1\)\)/);
+    assert.match(cardsThemeRule, /--resume-cards-padding-x:\s*calc\(3\.1mm \* var\(--resume-page-padding-x-scale, 1\)\)/);
     assert.match(cardsThemeRule, /--resume-cards-columns-width:\s*calc\(var\(--resume-page-width\) - \(var\(--resume-cards-padding-x\) \* 2\) - var\(--resume-cards-gap\)\)/);
     assert.match(cardsThemeRule, /--resume-cards-left-width:\s*calc\(var\(--resume-cards-columns-width\) \* var\(--resume-cards-left-ratio\)\)/);
     assert.match(cardsThemeRule, /--resume-cards-right-width:\s*calc\(var\(--resume-cards-columns-width\) \* var\(--resume-cards-right-ratio\)\)/);
     assert.match(cardsThemeRule, /--resume-cards-section-gap:\s*calc\(3\.1mm \* var\(--resume-module-margin-y-scale, 1\)\)/);
+
+    const cardsPrintSheetRule = getRuleBlocks('.resume-page[data-resume-layout="cards"] .resume-sheet')[0];
+    assert.match(cardsPrintSheetRule, /padding:\s*var\(--resume-cards-padding\)\s*!important/);
+    assert.match(cardsPrintSheetRule, /gap:\s*var\(--resume-cards-gap\)\s*!important/);
+
+    const myResumeThemeRule = getRuleBlocks(".resume-layout-my-resume.resume-theme-shell")[0];
+    assert.match(myResumeThemeRule, /--resume-my-page-padding-x:\s*calc\(3rem \* var\(--resume-page-padding-x-scale, 1\)\)/);
+
+    const myResume3ThemeRule = getRuleBlocks(".resume-layout-my-resume3.resume-theme-shell")[0];
+    assert.match(myResume3ThemeRule, /--resume-my3-page-padding-x:\s*calc\(3rem \* var\(--resume-page-padding-x-scale, 1\)\)/);
 
     const bodyLineHeightSelectors = [
         ".resume-summary-text",
@@ -56,6 +69,7 @@ test("spacing controls stay wired only to page shells, module boundaries, surfac
     const pagePaddingSelectors = [
         [".resume-layout-classic .resume-left", "--resume-classic-left-padding"],
         [".resume-layout-classic .resume-right", "--resume-classic-right-padding-y"],
+        [".resume-layout-classic .resume-right", "--resume-classic-right-padding-x"],
         [".resume-layout-cards .resume-sheet", "--resume-cards-padding"],
         [".resume-layout-my-resume .resume-right", "--resume-my-page-padding-x"],
         [".resume-layout-my-resume3 .resume-right", "--resume-my3-page-padding-x"]

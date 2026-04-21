@@ -1,0 +1,111 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - heading "简历生成器" [level=1] [ref=e7]
+          - paragraph [ref=e8]: 实时编辑，所见即所得
+        - button " 生成 PDF" [ref=e9] [cursor=pointer]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: 
+            - text: 生成 PDF
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - button " 重置" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 
+            - text: 重置
+          - button " 导入" [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: 
+            - text: 导入
+          - button " 导出" [ref=e21] [cursor=pointer]:
+            - generic [ref=e22]: 
+            - text: 导出
+        - paragraph [ref=e24]:
+          - generic [ref=e25]: 
+          - text: 已恢复上次草稿。
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - button " 个人信息" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: 
+            - heading "个人信息" [level=2] [ref=e31]
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - paragraph [ref=e34]: 头像设置
+            - generic [ref=e35]
+            - generic [ref=e40]
+          - generic [ref=e45]:
+            - generic [ref=e46]
+            - generic [ref=e48]
+            - generic [ref=e50]
+            - generic [ref=e52]
+          - generic [ref=e54]:
+            - button " 联系方式 支持拖拽排序" [ref=e55] [cursor=pointer]
+            - generic
+      - generic [ref=e60]:
+        - button " 简历排版与主题" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]:
+            - generic [ref=e63]: 
+            - heading "简历排版与主题" [level=2] [ref=e64]
+        - text:  
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - button "拖拽排序" [ref=e68]
+            - button " 专业技能" [ref=e70] [cursor=pointer]
+            - button "+ 新增" [ref=e74] [cursor=pointer]
+          - text:       +
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - button "拖拽排序" [ref=e77]
+            - button " 工作经历" [ref=e79] [cursor=pointer]
+            - button "+ 新增" [ref=e83] [cursor=pointer]
+          - text:     +
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - button "拖拽排序" [ref=e86]
+            - button " 项目经验" [ref=e88] [cursor=pointer]
+            - button "+ 新增" [ref=e92] [cursor=pointer]
+          - text:     +
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - button "拖拽排序" [ref=e95]
+            - button " 教育背景" [ref=e97] [cursor=pointer]
+            - button "+ 新增" [ref=e101] [cursor=pointer]
+          - text:     +
+  - main [ref=e102]:
+    - generic [ref=e104]:
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - article [ref=e108]:
+            - generic [ref=e110]
+            - generic [ref=e111]
+          - article [ref=e114]:
+            - generic [ref=e115]
+            - list [ref=e120]
+          - article [ref=e151]:
+            - generic [ref=e152]
+            - generic [ref=e157]
+        - generic [ref=e178]:
+          - article [ref=e179]:
+            - generic [ref=e180]
+            - paragraph [ref=e185]: 拥有3年以上前端开发经验，熟练掌握React、Vue等主流前端框架。热爱技术，对用户体验和性能优化有深入研究。曾主导并成功交付多个大型企业级Web应用项目，具备良好的团队协作能力和项目管理能力。致力于通过技术创新解决业务痛点，提升产品价值。
+          - article [ref=e186]:
+            - generic [ref=e187]
+            - generic [ref=e192]
+      - generic [ref=e220]: 分页分割区域 · 第 1/2 页
+      - generic [ref=e222]:
+        - article [ref=e224]:
+          - generic [ref=e225]:
+            - generic [ref=e227]: 
+            - heading "教育背景" [level=3] [ref=e229]
+          - generic [ref=e230]:
+            - generic [ref=e231]
+            - generic [ref=e236]
+        - article [ref=e242]:
+          - generic [ref=e243]:
+            - generic [ref=e245]: 
+            - heading "项目经验" [level=3] [ref=e247]
+          - generic [ref=e248]:
+            - article [ref=e249]
+            - article [ref=e268]

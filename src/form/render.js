@@ -4,6 +4,7 @@ import {
     AVATAR_SHAPE_CIRCLE,
     AVATAR_SHAPE_RECTANGLE,
     BASIC_INFO_COLORS,
+    BASIC_INFO_ICON_SET_OPTIONS,
     BASIC_INFO_ICON_OPTIONS,
     DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
     ICON_PALETTE_OPTIONS,
@@ -17,6 +18,7 @@ import {
     RESUME_LAYOUT_MY_RESUME,
     RESUME_LAYOUT_OPTIONS,
     RESUME_THEME_OPTIONS,
+    SECTION_TITLE_ICON_SET_OPTIONS,
     FALLBACK_AVATAR
 } from "../core/config.js";
 import { arrayToLines, escapeHtml, pickText } from "../core/utils.js";
@@ -30,7 +32,9 @@ import {
     resolveExperienceWorkBadgeEnabled,
     resolveExperienceWorkBadgeLabel,
     resolveProjectIconBadgeEnabled,
+    resolveBasicInfoIconSetSelection,
     resolveBasicInfoIcon,
+    resolveSectionTitleIconSetSelection,
     resolveIconColorToneForTheme
 } from "../core/resume-model.js";
 import {
@@ -68,6 +72,23 @@ function renderBasicInfoPicker(index, selectedPreset, selectedMode) {
                     <i class="${option.icon} text-sm"></i>
                 </span>
                 <span class="text-[10px] font-bold ${isActive ? 'text-blue-700' : 'text-slate-500'}">${option.label}</span>
+            </button>
+        `;
+    }).join("");
+}
+
+function renderThemeOptionButtons(options, activeKey, action, dataKey) {
+    return options.map((option) => {
+        const isActive = activeKey === option.key;
+        return `
+            <button
+                type="button"
+                data-action="${action}"
+                data-${dataKey}="${option.key}"
+                class="rounded-xl border px-3 py-3 text-left transition-all ${isActive ? 'border-blue-400 bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300'}"
+            >
+                <span class="block text-[11px] font-bold">${option.label}</span>
+                <span class="mt-1 block text-[10px] font-medium leading-relaxed ${isActive ? 'text-blue-600/90' : 'text-slate-400'}">${option.description}</span>
             </button>
         `;
     }).join("");
@@ -206,6 +227,8 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
     const isThemeCollapsed = panelState.theme;
     const isFontCollapsed = panelState.font ?? false;
     const isSpacingCollapsed = panelState.spacing ?? true;
+    const activeBasicInfoIconSet = resolveBasicInfoIconSetSelection(resumeData.basicInfoIconSet, activeLayout);
+    const activeSectionTitleIconSet = resolveSectionTitleIconSetSelection(resumeData.sectionTitleIconSet, activeLayout);
     const renderLayoutControl = (control) => {
         const settings = RESUME_LAYOUT_CONTROL_SETTINGS[control.key];
         const value = clampResumeLayoutControl(control.key, resumeData[control.key]);
@@ -235,7 +258,10 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
     `;
 
     const contactBlocks = resumeData.basicInfo.map((item, index) => {
-        const iconClass = resolveBasicInfoIcon(item);
+        const iconClass = resolveBasicInfoIcon(item, {
+            iconSet: activeBasicInfoIconSet,
+            resumeLayout: resumeData.resumeLayout
+        });
         const showPicker = activeBasicInfoPickerIndex === index;
         const disableUp = index === 0;
         const disableDown = index === resumeData.basicInfo.length - 1;
@@ -418,6 +444,28 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
                         </div>
                     </div>
                     <div class="border-t border-slate-200/60 pt-4">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <div>
+                                <p class="text-[12px] font-bold text-slate-700">个人信息图标样式</p>
+                                <p class="text-[9px] text-slate-400 font-medium mt-0.5">单独控制个人信息 / 联系方式里的图标套装</p>
+                            </div>
+                        </div>
+                        <div class="grid gap-2 sm:grid-cols-2">
+                            ${renderThemeOptionButtons(BASIC_INFO_ICON_SET_OPTIONS, activeBasicInfoIconSet, "set-basic-info-icon-set", "icon-set")}
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200/60 pt-4 mt-4">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <div>
+                                <p class="text-[12px] font-bold text-slate-700">模块标题图标样式</p>
+                                <p class="text-[9px] text-slate-400 font-medium mt-0.5">单独控制模块标题前的图标风格</p>
+                            </div>
+                        </div>
+                        <div class="grid gap-2 sm:grid-cols-2">
+                            ${renderThemeOptionButtons(SECTION_TITLE_ICON_SET_OPTIONS, activeSectionTitleIconSet, "set-section-title-icon-set", "icon-set")}
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200/60 pt-4 mt-4">
                         <div class="flex items-center justify-between mb-2.5">
                             <div>
                                 <p class="text-[12px] font-bold text-slate-700">基本信息图标配色</p>

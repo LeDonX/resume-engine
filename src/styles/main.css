@@ -826,9 +826,9 @@ body {
         .resume-layout-cards.resume-theme-shell {
             --resume-cards-left-ratio: 0.32;
             --resume-cards-right-ratio: 0.68;
-            --resume-cards-gap: calc(6.2mm * var(--resume-module-margin-x-scale, 1));
-            --resume-cards-padding-y: calc(8.2mm * var(--resume-page-padding-y-scale, 1));
-            --resume-cards-padding-x: calc(8.2mm * var(--resume-page-padding-x-scale, 1));
+            --resume-cards-gap: calc(3.1mm * var(--resume-module-margin-x-scale, 1));
+            --resume-cards-padding-y: calc(3.1mm * var(--resume-page-padding-y-scale, 1));
+            --resume-cards-padding-x: calc(3.1mm * var(--resume-page-padding-x-scale, 1));
             --resume-cards-padding: var(--resume-cards-padding-y) var(--resume-cards-padding-x);
             --resume-cards-columns-width: calc(var(--resume-page-width) - (var(--resume-cards-padding-x) * 2) - var(--resume-cards-gap));
             --resume-cards-left-width: calc(var(--resume-cards-columns-width) * var(--resume-cards-left-ratio));

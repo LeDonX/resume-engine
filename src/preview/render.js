@@ -21,10 +21,13 @@ import {
     normalizeResumeLayout,
     normalizeSectionOrder,
     renderDynamicIcon,
+    renderIconToken,
     resolveExperienceWorkBadgeEnabled,
     resolveExperienceWorkBadgeLabel,
     resolveBasicInfoIcon,
-    resolveIconColorToneForTheme
+    resolveBasicInfoIconSlot,
+    resolveIconColorToneForTheme,
+    resolveSectionTitleIcon
 } from "../core/resume-model.js";
 import {
     getAvatarFrameContainerClass,
@@ -44,7 +47,10 @@ function renderClassicBasicInfo(basicInfo, renderOptions) {
     const shadowClass = renderOptions.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]";
 
     const items = list.map((info, index) => {
-        const icon = escapeHtml(resolveBasicInfoIcon(info));
+        const icon = resolveBasicInfoIcon(info, {
+            iconSet: renderOptions.basicInfoIconSet,
+            resumeLayout: renderOptions.resumeLayout
+        });
         const text = escapeHtml(pickText(info.value, ""));
         const currentColorOverride = info.iconColor || "theme";
         const globalPaletteKey = renderOptions.iconPalette || "theme";
@@ -60,6 +66,19 @@ function renderClassicBasicInfo(basicInfo, renderOptions) {
     }).join("");
 
     return `<ul class="resume-classic-basic-info-list">${items}</ul>`;
+}
+
+function renderClassicSectionHeading(title, iconToken) {
+    return `
+        <div class="resume-classic-section-heading flex items-center">
+            <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full">${renderIconToken(iconToken, "text-lg")}</div>
+            <h3 class="resume-classic-section-heading-title font-bold text-gray-800">${escapeHtml(title)}</h3>
+        </div>
+    `;
+}
+
+function renderClassicSectionTitle(title, data, sectionKey, defaultVariant = "icon") {
+    return renderResolvedSectionTitle(title, sectionKey, data);
 }
 
 function renderClassicEducation(education) {
@@ -247,7 +266,7 @@ function buildClassicEducationSectionBlocks(data) {
     return [
         `
             <div class="resume-classic-section resume-avoid-break">
-                <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">教育背景</h3>
+                ${renderClassicSectionTitle("教育背景", data, "education", "plain")}
                 ${renderClassicEducation(data.education)}
             </div>
         `
@@ -262,7 +281,7 @@ function buildClassicGroupedSkillsSectionBlocks(data) {
     return [
         `
             <div class="resume-classic-section resume-avoid-break">
-                <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">专业技能</h3>
+                ${renderClassicSectionTitle("专业技能", data, "skills", "plain")}
                 ${renderClassicSkills(data.skills)}
             </div>
         `
@@ -277,10 +296,7 @@ function buildClassicSkillsTextSectionBlocks(data) {
     return [
         `
             <div class="resume-classic-section resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-wand-magic-sparkles text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">专业技能</h3>
-                </div>
+                ${renderResolvedSectionTitle("专业技能", "skills", data)}
                 ${renderClassicSkillsText(data.professionalSkillsText)}
             </div>
         `
@@ -295,10 +311,7 @@ function buildClassicExperienceSectionBlocks(data) {
         const experienceItems = experienceList.map((item, index) => renderClassicExperienceItem(item, index, experienceList.length, data));
         blocks.push(`
             <div class="resume-classic-section resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
-                </div>
+                ${renderResolvedSectionTitle("工作经历", "experiences", data)}
                 ${experienceItems[0]}
             </div>
         `);
@@ -312,10 +325,7 @@ function buildClassicExperienceSectionBlocks(data) {
 
     blocks.push(`
         <div class="resume-classic-section resume-avoid-break">
-            <div class="resume-classic-section-heading flex items-center">
-                <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-briefcase text-lg"></i></div>
-                <h3 class="resume-classic-section-heading-title font-bold text-gray-800">工作经历</h3>
-            </div>
+            ${renderResolvedSectionTitle("工作经历", "experiences", data)}
             <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写工作经历</p>
         </div>
     `);
@@ -330,10 +340,7 @@ function buildClassicProjectSectionBlocks(data) {
         const projectCards = projectList.map((project) => renderClassicProjectCard(project));
         blocks.push(`
             <div class="resume-classic-section-tight resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
-                </div>
+                ${renderResolvedSectionTitle("项目经验", "projects", data)}
                 ${projectCards[0]}
             </div>
         `);
@@ -348,10 +355,7 @@ function buildClassicProjectSectionBlocks(data) {
 
     blocks.push(`
         <div class="resume-avoid-break">
-            <div class="resume-classic-section-heading flex items-center">
-                <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-project-diagram text-lg"></i></div>
-                <h3 class="resume-classic-section-heading-title font-bold text-gray-800">项目经验</h3>
-            </div>
+            ${renderResolvedSectionTitle("项目经验", "projects", data)}
             <p class="resume-classic-empty-state text-gray-500">可在左侧表单中填写项目经验</p>
         </div>
     `);
@@ -377,7 +381,7 @@ function buildClassicLeftColumnBlocks(data, profileImage) {
     if (basicInfoContent) {
         blocks.push(`
             <div class="resume-classic-section resume-avoid-break">
-                <h3 class="resume-section-divider resume-classic-section-title border-b-2 font-bold text-gray-800">基本信息</h3>
+                ${renderClassicSectionTitle("基本信息", data, "basicInfo", "plain")}
                 ${basicInfoContent}
             </div>
         `);
@@ -401,10 +405,7 @@ function buildClassicRightColumnBlocks(data) {
         `,
         `
             <div class="resume-classic-section resume-avoid-break">
-                <div class="resume-classic-section-heading flex items-center">
-                    <div class="resume-section-icon resume-classic-section-icon flex items-center justify-center rounded-full"><i class="fas fa-user-tie text-lg"></i></div>
-                    <h3 class="resume-classic-section-heading-title font-bold text-gray-800">个人简介</h3>
-                </div>
+                ${renderResolvedSectionTitle("个人简介", "summary", data)}
                 <p class="resume-classic-summary-text text-justify text-gray-600">${escapeHtml(summaryText)}</p>
             </div>
         `
@@ -418,10 +419,10 @@ function buildClassicRightColumnBlocks(data) {
     return blocks;
 }
 
-function renderCardSectionHeader(title, iconClass, iconToneClass = "", iconShadowClass = "", large = false) {
+function renderCardSectionHeader(title, iconToken, iconToneClass = "", iconShadowClass = "", large = false) {
     return `
         <div class="resume-card-title-row${large ? " resume-card-title-row-lg" : ""}">
-            <div class="resume-section-icon resume-card-title-icon ${iconToneClass} ${iconShadowClass}"><i class="${escapeHtml(iconClass)} ${large ? "text-base" : "text-sm"}"></i></div>
+            <div class="resume-section-icon resume-card-title-icon ${iconToneClass} ${iconShadowClass}">${renderIconToken(iconToken, large ? "text-base" : "text-sm")}</div>
             <div class="min-w-0 flex-1">
                 <h3 class="resume-card-title${large ? " resume-card-title-lg" : ""}">${escapeHtml(title)}</h3>
             </div>
@@ -436,7 +437,10 @@ function renderCardBasicInfo(basicInfo, renderOptions) {
     const shadowClass = renderOptions.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]";
 
     const items = list.map((info, index) => {
-        const icon = escapeHtml(resolveBasicInfoIcon(info));
+        const icon = resolveBasicInfoIcon(info, {
+            iconSet: renderOptions.basicInfoIconSet,
+            resumeLayout: renderOptions.resumeLayout
+        });
         const text = escapeHtml(pickText(info.value, ""));
         const currentColorOverride = info.iconColor || "theme";
         const globalPaletteKey = renderOptions.iconPalette || "theme";
@@ -472,7 +476,8 @@ function renderCardEducationEntry(item) {
     `;
 }
 
-function buildCardEducationBlocks(education, iconShadowClass) {
+function buildCardEducationBlocks(data, iconShadowClass) {
+    const education = data.education;
     const list = pickArray(education).filter((item) => (
         pickText(item?.school, "").trim()
         || pickText(item?.degree, "").trim()
@@ -486,7 +491,7 @@ function buildCardEducationBlocks(education, iconShadowClass) {
     return [
         `
             <article class="resume-card resume-side-section-card resume-card-widget resume-avoid-break">
-            ${renderCardSectionHeader("教育背景", "fas fa-user-graduate", "resume-card-icon-education", iconShadowClass)}
+            ${renderResolvedSectionTitle("教育背景", "education", data, { iconShadowClass })}
                 ${body}
             </article>
         `
@@ -544,13 +549,13 @@ function renderCardSkillsText(skillsText) {
         : '<p class="resume-empty-state">可在左侧表单中填写专业技能</p>';
 }
 
-function buildCardSkillBlocks(skills, iconShadowClass, badgeColorPref) {
-    const body = renderCardSkillsBody(skills, badgeColorPref);
+function buildCardSkillBlocks(data, iconShadowClass, badgeColorPref) {
+    const body = renderCardSkillsBody(data.skills, badgeColorPref);
 
     return [
         `
             <article class="resume-card resume-side-section-card resume-card-widget resume-avoid-break">
-            ${renderCardSectionHeader("专业技能", "fas fa-wand-magic-sparkles", "resume-card-icon-skills", iconShadowClass)}
+            ${renderResolvedSectionTitle("专业技能", "skills", data, { iconShadowClass })}
                 ${body}
             </article>
         `
@@ -565,7 +570,7 @@ function buildCardSkillsTextSectionBlocks(data, iconShadowClass) {
     return [
         `
             <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-avoid-break">
-                ${renderCardSectionHeader("专业技能", "fas fa-wand-magic-sparkles", "resume-card-icon-skills", iconShadowClass, true)}
+                ${renderResolvedSectionTitle("专业技能", "skills", data, { iconShadowClass, large: true })}
                 <div class="resume-section-card-body">
                     ${renderCardSkillsText(data.professionalSkillsText)}
                 </div>
@@ -585,7 +590,7 @@ function buildCardExperienceSectionBlocks(data, iconShadowClass) {
     return [
         `
             <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-experience-section-card resume-avoid-break">
-                ${renderCardSectionHeader("工作经历", "fas fa-briefcase", "resume-card-icon-experience", iconShadowClass, true)}
+                ${renderResolvedSectionTitle("工作经历", "experiences", data, { iconShadowClass, large: true })}
                 <div class="resume-section-card-body resume-card-timeline-list">
                     ${experienceList.length
                         ? experienceList.map((item, index) => renderCardExperienceItem(item, index, experienceList.length, data.useThemeTimeline, data.showExperienceTimeline)).join("")
@@ -602,7 +607,7 @@ function buildCardProjectSectionBlocks(data, iconShadowClass) {
     return [
         `
             <article class="resume-card resume-card-lg resume-card-widget resume-section-card resume-project-section-card resume-avoid-break">
-                ${renderCardSectionHeader("项目经验", "fas fa-code", "resume-card-icon-project", iconShadowClass, true)}
+                ${renderResolvedSectionTitle("项目经验", "projects", data, { iconShadowClass, large: true })}
                 <div class="resume-section-card-body resume-card-timeline-list">
                     ${projectList.length
                         ? projectList.map((item, index) => renderCardProjectCard(item, index, projectList.length, data.showExperienceTimeline)).join("")
@@ -721,16 +726,16 @@ function buildCardLeftColumnBlocks(data, profileImage) {
 
     blocks.push(`
         <article class="resume-card resume-card-widget resume-contact-card resume-avoid-break">
-            ${renderCardSectionHeader("联系方式", "fas fa-envelope", "resume-card-icon-contact", iconShadowClass)}
+            ${renderResolvedSectionTitle("联系方式", "contact", data, { iconShadowClass })}
             ${basicInfoContent || '<p class="resume-empty-state">可在左侧表单中填写联系方式</p>'}
         </article>
     `);
 
     appendOrderedBlocks(blocks, getOrderedSectionIds(data), {
-        education: buildCardEducationBlocks(data.education, iconShadowClass),
+        education: buildCardEducationBlocks(data, iconShadowClass),
         skills: isProfessionalSkillsTextMode(data)
             ? []
-            : buildCardSkillBlocks(data.skills, iconShadowClass, data.skillBadgeColor || "theme-soft")
+            : buildCardSkillBlocks(data, iconShadowClass, data.skillBadgeColor || "theme-soft")
     });
     return blocks;
 }
@@ -741,7 +746,7 @@ function buildCardRightColumnBlocks(data) {
     const blocks = [
         `
             <article class="resume-card resume-card-lg resume-card-widget resume-summary-card resume-avoid-break">
-                ${renderCardSectionHeader("关于我", "fas fa-user", "resume-card-icon-about", iconShadowClass, true)}
+                ${renderResolvedSectionTitle("关于我", "summary", data, { iconShadowClass, large: true })}
                 <p class="resume-summary-text">${escapeHtml(summaryText)}</p>
             </article>
         `
@@ -757,43 +762,7 @@ function buildCardRightColumnBlocks(data) {
 }
 
 function renderMyResumeIcon(name, className = "") {
-    const iconClass = className ? ` class="${className}"` : "";
-    const baseAttrs = `viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"${iconClass}`;
-    const icons = {
-        phone: `<svg ${baseAttrs}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.77.62 2.62a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.46-1.28a2 2 0 0 1 2.11-.45c.85.29 1.72.5 2.62.62A2 2 0 0 1 22 16.92Z"/></svg>`,
-        mail: `<svg ${baseAttrs}><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/><path d="m22 7-10 7L2 7"/></svg>`,
-        userCircle: `<svg ${baseAttrs}><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0 1 12 0"/><circle cx="12" cy="12" r="10"/></svg>`,
-        link: `<svg ${baseAttrs}><path d="M10 13a5 5 0 0 0 7.07 0l1.41-1.41a5 5 0 0 0-7.07-7.07L10.6 5.32"/><path d="M14 11a5 5 0 0 0-7.07 0l-1.41 1.41a5 5 0 0 0 7.07 7.07l.79-.79"/></svg>`,
-        clock: `<svg ${baseAttrs}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
-        mapPin: `<svg ${baseAttrs}><path d="M12 21s-6-4.35-6-10a6 6 0 0 1 12 0c0 5.65-6 10-6 10Z"/><circle cx="12" cy="11" r="2.5"/></svg>`,
-        user: `<svg ${baseAttrs}><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>`,
-        layers: `<svg ${baseAttrs}><path d="m12 3 9 4.5-9 4.5L3 7.5 12 3Z"/><path d="m3 12 9 4.5 9-4.5"/><path d="m3 16.5 9 4.5 9-4.5"/></svg>`,
-        briefcase: `<svg ${baseAttrs}><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/></svg>`,
-        calendar: `<svg ${baseAttrs}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M3 10h18"/></svg>`,
-        award: `<svg ${baseAttrs}><circle cx="12" cy="8" r="4"/><path d="m8.5 12.5-1 8L12 18l4.5 2.5-1-8"/></svg>`,
-        zap: `<svg ${baseAttrs}><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>`,
-        graduation: `<svg ${baseAttrs}><path d="m3 8 9-4 9 4-9 4-9-4Z"/><path d="M7 10.5v4.25c0 .48.24.93.65 1.19C8.96 16.79 10.43 17.5 12 17.5s3.04-.71 4.35-1.56c.41-.26.65-.71.65-1.19V10.5"/><path d="M21 9v6"/></svg>`
-    };
-
-    return icons[name] || icons.user;
-}
-
-function pickMyResumeInfoIcon(item) {
-    const lookup = [item?.id, item?.iconPreset, item?.label]
-        .map((value) => pickText(value, "").trim().toLowerCase())
-        .filter(Boolean)
-        .join(" ");
-
-    if (lookup.includes("phone") || lookup.includes("手机")) return "phone";
-    if (lookup.includes("email") || lookup.includes("邮箱")) return "mail";
-    if (lookup.includes("birth") || lookup.includes("年龄") || lookup.includes("出生")) return "userCircle";
-    if (lookup.includes("website") || lookup.includes("github") || lookup.includes("网站") || lookup.includes("link")) return "link";
-    if (lookup.includes("location") || lookup.includes("城市") || lookup.includes("地址")) return "mapPin";
-    if (lookup.includes("calendar") || lookup.includes("time") || lookup.includes("经验") || lookup.includes("工龄")) return "clock";
-    if (lookup.includes("education") || lookup.includes("学历")) return "graduation";
-    if (lookup.includes("company") || lookup.includes("公司") || lookup.includes("role") || lookup.includes("岗位")) return "briefcase";
-    if (lookup.includes("profile") || lookup.includes("身份") || lookup.includes("user")) return "user";
-    return "user";
+    return renderIconToken(`my:${name}`, className);
 }
 
 function buildMyResumeInitials(name) {
@@ -823,10 +792,10 @@ function getRenderableProfessionalSkillGroups(skills) {
         .filter((group) => group.name || group.items.length);
 }
 
-function renderMyResumeSectionHeading(title, iconName) {
+function renderMyResumeSectionHeading(title, iconToken) {
     return `
         <div class="my-resume-section-heading-row">
-            ${renderMyResumeIcon(iconName, "my-resume-section-icon")}
+            ${renderIconToken(iconToken, "my-resume-section-icon")}
             <h2 class="my-resume-section-heading">${escapeHtml(title)}</h2>
         </div>
     `;
@@ -1002,9 +971,13 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
         .slice(0, 6);
     const contactEntries = contactItems.map((item) => ({
         value: pickText(item?.value, "").trim(),
-        iconName: pickMyResumeInfoIcon(item)
+        iconSlot: resolveBasicInfoIconSlot(item),
+        iconToken: resolveBasicInfoIcon(item, {
+            iconSet: data.basicInfoIconSet,
+            resumeLayout: data.resumeLayout
+        })
     }));
-    const contactLinkIndex = contactEntries.findIndex((entry) => entry.iconName === "link");
+    const contactLinkIndex = contactEntries.findIndex((entry) => entry.iconSlot === "website");
     const contactRows = contactLinkIndex >= 2 && contactLinkIndex < contactEntries.length - 1
         ? [contactEntries.slice(0, contactLinkIndex), contactEntries.slice(contactLinkIndex)]
         : [contactEntries];
@@ -1038,8 +1011,8 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
                             <div class="my-resume-contact-row">
                                 ${row.map((entry) => (`
                                 <div class="my-resume-contact-item">
-                                    <span class="my-resume-contact-icon" aria-hidden="true">${renderMyResumeIcon(entry.iconName, "my-resume-contact-icon-svg")}</span>
-                                    <span class="my-resume-contact-text" data-contact-icon="${escapeHtml(entry.iconName)}">${escapeHtml(entry.value)}</span>
+                                    <span class="my-resume-contact-icon" aria-hidden="true">${renderIconToken(entry.iconToken, "my-resume-contact-icon-svg")}</span>
+                                    <span class="my-resume-contact-text" data-contact-icon="${escapeHtml(entry.iconSlot)}">${escapeHtml(entry.value)}</span>
                                 </div>
                                 `)).join("")}
                             </div>
@@ -1057,7 +1030,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
 
     blocks.push(`
         <section class="my-resume-section resume-avoid-break">
-            ${renderMyResumeSectionHeading("个人概况", "user")}
+            ${renderResolvedSectionTitle("个人概况", "summary", data)}
             ${summaryText
                 ? `<p class="my-resume-paragraph">${escapeHtml(summaryText)}</p>`
                 : '<p class="my-resume-empty-state">可在左侧表单中填写个人简介</p>'}
@@ -1068,7 +1041,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
         skills: [
             `
                 <section class="my-resume-section resume-avoid-break">
-                    ${renderMyResumeSectionHeading("专业技能", "layers")}
+                    ${renderResolvedSectionTitle("专业技能", "skills", data)}
                     ${showSkillsText
                         ? (skillsText
                             ? `<p class="my-resume-paragraph my-resume-skills-paragraph">${skillsText}</p>`
@@ -1081,7 +1054,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
             ? [
                 `
                     <section class="my-resume-section resume-avoid-break">
-                        ${renderMyResumeSectionHeading("工作经历", "briefcase")}
+                        ${renderResolvedSectionTitle("工作经历", "experiences", data)}
                         ${renderMyResumeExperienceEntry(experienceList[0], 0, experienceList.length)}
                     </section>
                 `,
@@ -1094,7 +1067,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
             : [
                 `
                     <section class="my-resume-section resume-avoid-break">
-                        ${renderMyResumeSectionHeading("工作经历", "briefcase")}
+                        ${renderResolvedSectionTitle("工作经历", "experiences", data)}
                         <p class="my-resume-empty-state">可在左侧表单中填写工作经历</p>
                     </section>
                 `
@@ -1103,7 +1076,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
             ? [
                 `
                     <section class="my-resume-section resume-avoid-break">
-                        ${renderMyResumeSectionHeading("核心项目", "zap")}
+                        ${renderResolvedSectionTitle("核心项目", "projects", data)}
                         ${renderMyResumeProjectCard(projectList[0])}
                     </section>
                 `,
@@ -1116,7 +1089,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
             : [
                 `
                     <section class="my-resume-section resume-avoid-break">
-                        ${renderMyResumeSectionHeading("核心项目", "zap")}
+                        ${renderResolvedSectionTitle("核心项目", "projects", data)}
                         <p class="my-resume-empty-state">可在左侧表单中填写项目经验</p>
                     </section>
                 `
@@ -1124,7 +1097,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
         education: [
             `
                 <section class="my-resume-section resume-avoid-break">
-                    ${renderMyResumeSectionHeading("教育背景", "graduation")}
+                    ${renderResolvedSectionTitle("教育背景", "education", data)}
                     ${educationList.length
                         ? `<div class="my-resume-education-list">${educationList.map((item) => {
                             const school = pickText(item?.school, "").trim();
@@ -1154,44 +1127,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
 }
 
 function renderMyResume3Icon(name, className = "") {
-    const iconClass = className ? ` class="${className}"` : "";
-    const icons = {
-        clock: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        cap: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 10v6M2 10l10-5 10 5-10 5z" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 12v5c3 3 9 3 12 0v-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        pin: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/></svg>`,
-        calendar: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="18" rx="2" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8"/><path d="M8 2v4M16 2v4M3 10h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        phone: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        mail: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="4" width="20" height="16" rx="2" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        github: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill="currentColor" fill-opacity="0.15"/><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 18c-4.51 2-5-2-7-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        link: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 0 7.07 0l1.41-1.41a5 5 0 0 0-7.07-7.07L10.6 5.32" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 0 0-7.07 0l-1.41 1.41a5 5 0 1 0 7.07 7.07l.79-.79" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        user: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="7" r="4" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        code: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8"/><path d="m9 10-3 2.5L9 15M15 10l3 2.5-3 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        briefcase: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="7" width="20" height="14" rx="2" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        layers: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 2 7 12 12 22 7 12 2" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m2 12 10 5 10-5M2 17l10 5 10-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-        book: `<svg${iconClass} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-    };
-
-    return icons[name] || icons.user;
-}
-
-function pickMyResume3InfoIcon(item) {
-    const labelText = pickText(item?.label, "").trim().toLowerCase();
-    const valueText = pickText(item?.value, "").trim().toLowerCase();
-    const lookup = [item?.id, item?.iconPreset, item?.label, item?.customIcon, valueText]
-        .map((value) => pickText(value, "").trim().toLowerCase())
-        .filter(Boolean)
-        .join(" ");
-
-    if (lookup.includes("github")) return "github";
-    if (lookup.includes("website") || lookup.includes("网址") || lookup.includes("网站") || lookup.includes("link") || valueText.includes("http") || valueText.includes("www.")) return "link";
-    if (lookup.includes("phone") || lookup.includes("手机") || lookup.includes("电话")) return "phone";
-    if (lookup.includes("mail") || lookup.includes("email") || lookup.includes("邮箱")) return "mail";
-    if (lookup.includes("location") || lookup.includes("城市") || lookup.includes("地址") || lookup.includes("居住")) return "pin";
-    if (lookup.includes("birth") || lookup.includes("年龄") || lookup.includes("生日") || lookup.includes("出生")) return "calendar";
-    if (lookup.includes("education") || lookup.includes("学历") || labelText.includes("学历")) return "cap";
-    if (lookup.includes("company") || lookup.includes("role") || lookup.includes("岗位") || lookup.includes("职位") || lookup.includes("身份")) return "briefcase";
-    if (lookup.includes("calendar") || lookup.includes("工龄") || lookup.includes("经验") || lookup.includes("年限")) return "clock";
-    return "user";
+    return renderIconToken(`my3:${name}`, className);
 }
 
 function buildMyResume3Initials(name) {
@@ -1241,13 +1177,52 @@ function renderMyResume3BulletList(items, emptyText = "") {
     `;
 }
 
-function renderMyResume3SectionHeading(title, iconName) {
+function renderMyResume3SectionHeading(title, iconToken) {
     return `
         <div class="my-resume3-section-heading-row">
-            <span class="my-resume3-section-icon-box" aria-hidden="true">${renderMyResume3Icon(iconName, "my-resume3-section-icon")}</span>
+            <span class="my-resume3-section-icon-box" aria-hidden="true">${renderIconToken(iconToken, "my-resume3-section-icon")}</span>
             <h2 class="my-resume3-section-heading">${escapeHtml(title)}</h2>
         </div>
     `;
+}
+
+function getCardSectionTitleToneClass(sectionKey) {
+    if (sectionKey === "education") {
+        return "resume-card-icon-education";
+    }
+    if (sectionKey === "skills") {
+        return "resume-card-icon-skills";
+    }
+    if (sectionKey === "experiences") {
+        return "resume-card-icon-experience";
+    }
+    if (sectionKey === "projects") {
+        return "resume-card-icon-project";
+    }
+    if (sectionKey === "contact" || sectionKey === "basicInfo") {
+        return "resume-card-icon-contact";
+    }
+    return "resume-card-icon-about";
+}
+
+function renderResolvedSectionTitle(title, sectionKey, data, options = {}) {
+    const resumeLayout = normalizeResumeLayout(data.resumeLayout);
+    const iconToken = resolveSectionTitleIcon(sectionKey, resumeLayout, data.sectionTitleIconSet);
+
+    if (resumeLayout === RESUME_LAYOUT_CARDS) {
+        const iconShadowClass = options.iconShadowClass ?? (data.useFlatIcons ? "" : "shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_6px_14px_var(--resume-accent-glow)]");
+        return renderCardSectionHeader(title, iconToken, getCardSectionTitleToneClass(sectionKey), iconShadowClass, Boolean(options.large));
+    }
+
+    if (resumeLayout === RESUME_LAYOUT_MY_RESUME) {
+        return renderMyResumeSectionHeading(title, iconToken);
+    }
+
+    if (resumeLayout === RESUME_LAYOUT_MY_RESUME3) {
+        return renderMyResume3SectionHeading(title, iconToken);
+    }
+
+    return renderClassicSectionHeading(title, iconToken);
 }
 
 function renderMyResume3SkillGroups(skills) {
@@ -1282,7 +1257,7 @@ function getMyResume3ExternalHref(value) {
     return "";
 }
 
-function shouldMyResume3MetaItemSpanWide(value, iconName, href) {
+function shouldMyResume3MetaItemSpanWide(value, iconSlot, href) {
     const compactValue = String(value ?? "")
         .trim()
         .replace(/^https?:\/\//i, "")
@@ -1294,24 +1269,28 @@ function shouldMyResume3MetaItemSpanWide(value, iconName, href) {
     }
     const pathSegments = compactValue.split("/").filter(Boolean);
     const hasComplexPath = /[?#]/.test(compactValue) || pathSegments.length > 2;
-    const wideThreshold = iconName === "github" ? 34 : 30;
+    const wideThreshold = iconSlot === "website" ? 34 : 30;
     return compactValue.length > wideThreshold || (compactValue.length > 24 && hasComplexPath);
 }
 
-function renderMyResume3MetaItem(item) {
+function renderMyResume3MetaItem(item, data) {
     const value = pickText(item?.value, "").trim();
     if (!value) return "";
 
-    const iconName = pickMyResume3InfoIcon(item);
+    const iconSlot = resolveBasicInfoIconSlot(item);
+    const iconToken = resolveBasicInfoIcon(item, {
+        iconSet: data.basicInfoIconSet,
+        resumeLayout: data.resumeLayout
+    });
     const href = getMyResume3ExternalHref(value);
-    const isWide = shouldMyResume3MetaItemSpanWide(value, iconName, href);
+    const isWide = shouldMyResume3MetaItemSpanWide(value, iconSlot, href);
     const textHtml = href
         ? `<a class="my-resume3-meta-text my-resume3-meta-link" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(value)}</a>`
         : `<span class="my-resume3-meta-text">${escapeHtml(value)}</span>`;
 
     return `
         <div class="my-resume3-meta-item${isWide ? " my-resume3-meta-item-wide" : ""}">
-            <span class="my-resume3-meta-icon" aria-hidden="true">${renderMyResume3Icon(iconName, "my-resume3-meta-icon-svg")}</span>
+            <span class="my-resume3-meta-icon" aria-hidden="true">${renderIconToken(iconToken, "my-resume3-meta-icon-svg")}</span>
             ${textHtml}
         </div>
     `;
@@ -1475,7 +1454,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
                             ${pickText(data.role, "").trim() ? `<span class="my-resume3-role-badge">${escapeHtml(pickText(data.role, ""))}</span>` : ""}
                         </div>
                         ${contactItems.length
-                            ? `<div class="my-resume3-meta-grid">${contactItems.map((item) => renderMyResume3MetaItem(item)).join("")}</div>`
+                            ? `<div class="my-resume3-meta-grid">${contactItems.map((item) => renderMyResume3MetaItem(item, data)).join("")}</div>`
                             : ""}
                     </div>
                     <div class="my-resume3-avatar-wrap">
@@ -1486,7 +1465,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
         `,
         `
             <section class="my-resume3-section resume-avoid-break">
-                ${renderMyResume3SectionHeading("个人概况", "user")}
+                ${renderResolvedSectionTitle("个人概况", "summary", data)}
                 ${summaryItems.length
                     ? renderMyResume3BulletList(summaryItems)
                     : '<p class="my-resume3-empty-state">可在左侧表单中填写个人概况</p>'}
@@ -1498,7 +1477,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
         skills: [
             `
                 <section class="my-resume3-section resume-avoid-break">
-                    ${renderMyResume3SectionHeading("专业技能", "code")}
+                    ${renderResolvedSectionTitle("专业技能", "skills", data)}
                     ${showSkillsText
                         ? (skillItems.length
                             ? renderMyResume3BulletList(skillItems)
@@ -1511,7 +1490,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
             ? [
                 `
                     <section class="my-resume3-section resume-avoid-break">
-                        ${renderMyResume3SectionHeading("工作经历", "briefcase")}
+                        ${renderResolvedSectionTitle("工作经历", "experiences", data)}
                         ${renderMyResume3ExperienceEntry(experienceList[0], 0, experienceList.length)}
                     </section>
                 `,
@@ -1524,7 +1503,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
             : [
                 `
                     <section class="my-resume3-section resume-avoid-break">
-                        ${renderMyResume3SectionHeading("工作经历", "briefcase")}
+                        ${renderResolvedSectionTitle("工作经历", "experiences", data)}
                         <p class="my-resume3-empty-state">可在左侧表单中填写工作经历</p>
                     </section>
                 `
@@ -1533,7 +1512,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
             ? [
                 `
                     <section class="my-resume3-section resume-avoid-break">
-                        ${renderMyResume3SectionHeading("项目经历", "layers")}
+                        ${renderResolvedSectionTitle("项目经历", "projects", data)}
                         ${renderMyResume3ProjectCard(projectList[0])}
                     </section>
                 `,
@@ -1546,7 +1525,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
             : [
                 `
                     <section class="my-resume3-section resume-avoid-break">
-                        ${renderMyResume3SectionHeading("项目经历", "layers")}
+                        ${renderResolvedSectionTitle("项目经历", "projects", data)}
                         <p class="my-resume3-empty-state">可在左侧表单中填写项目经验</p>
                     </section>
                 `
@@ -1555,7 +1534,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
             ? [
                 `
                     <section class="my-resume3-section resume-avoid-break">
-                        ${renderMyResume3SectionHeading("教育经历", "book")}
+                        ${renderResolvedSectionTitle("教育经历", "education", data)}
                         <div class="my-resume3-flow-block">
                             ${renderMyResume3EducationEntry(educationList[0], 0, educationList.length)}
                         </div>
@@ -1570,7 +1549,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
             : [
                 `
                     <section class="my-resume3-section resume-avoid-break">
-                        ${renderMyResume3SectionHeading("教育经历", "book")}
+                        ${renderResolvedSectionTitle("教育经历", "education", data)}
                         <p class="my-resume3-empty-state">可在左侧表单中填写教育背景</p>
                     </section>
                 `

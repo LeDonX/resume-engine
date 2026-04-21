@@ -50,11 +50,11 @@ const RESUME_LAYOUT_SPACING_DISPLAY_BASES = Object.freeze({
     }),
     [RESUME_LAYOUT_CARDS]: Object.freeze({
         moduleMarginYScale: Object.freeze({ baseValue: 3.1, unit: "mm" }),
-        moduleMarginXScale: Object.freeze({ baseValue: 6.2, unit: "mm" }),
+        moduleMarginXScale: Object.freeze({ baseValue: 3.1, unit: "mm" }),
         modulePaddingYScale: Object.freeze({ baseValue: 2, unit: "rem" }),
         modulePaddingXScale: Object.freeze({ baseValue: 2, unit: "rem" }),
-        pagePaddingYScale: Object.freeze({ baseValue: 8.2, unit: "mm" }),
-        pagePaddingXScale: Object.freeze({ baseValue: 8.2, unit: "mm" })
+        pagePaddingYScale: Object.freeze({ baseValue: 3.1, unit: "mm" }),
+        pagePaddingXScale: Object.freeze({ baseValue: 3.1, unit: "mm" })
     }),
     [RESUME_LAYOUT_MY_RESUME]: Object.freeze({
         moduleMarginYScale: Object.freeze({ baseValue: 2.35, unit: "rem" }),
