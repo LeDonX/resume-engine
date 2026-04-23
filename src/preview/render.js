@@ -58,9 +58,11 @@ function renderClassicBasicInfo(basicInfo, renderOptions) {
         const iconHtml = renderDynamicIcon(icon, finalColorKey, "resume-classic-basic-info-icon rounded-full text-[13px]", shadowClass);
 
         return `
-            <li class="resume-classic-basic-info-item flex items-start">
-                ${iconHtml}
-                <span class="resume-classic-basic-info-text min-w-0 flex-1 break-words text-gray-700">${text}</span>
+            <li class="resume-classic-basic-info-item">
+                <div class="resume-classic-basic-info-copy">
+                    ${iconHtml}
+                    <span class="resume-classic-basic-info-text min-w-0 flex-1 break-words text-gray-700">${text}</span>
+                </div>
             </li>
         `;
     }).join("");
@@ -977,7 +979,7 @@ function buildMyResumeLayoutBlocks(data, profileImage) {
             resumeLayout: data.resumeLayout
         })
     }));
-    const contactLinkIndex = contactEntries.findIndex((entry) => entry.iconSlot === "website");
+    const contactLinkIndex = contactEntries.findIndex((entry) => entry.iconSlot === "website" || entry.iconSlot === "github");
     const contactRows = contactLinkIndex >= 2 && contactLinkIndex < contactEntries.length - 1
         ? [contactEntries.slice(0, contactLinkIndex), contactEntries.slice(contactLinkIndex)]
         : [contactEntries];

@@ -1398,6 +1398,8 @@ body {
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            inline-size: calc(1rem * var(--resume-basic-info-icon-scale, 1));
+            block-size: calc(1rem * var(--resume-basic-info-icon-scale, 1));
             flex-shrink: 0;
             color: var(--resume-my-accent);
         }
@@ -1938,6 +1940,11 @@ body {
         }
 
         .my-resume3-meta-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            inline-size: calc(1.14rem * var(--resume-basic-info-icon-scale, 1));
+            block-size: calc(1.14rem * var(--resume-basic-info-icon-scale, 1));
             flex-shrink: 0;
             color: var(--resume-my3-accent);
         }
@@ -2447,7 +2454,14 @@ body {
         }
 
         .resume-classic-basic-info-item {
+            min-width: 0;
+        }
+
+        .resume-classic-basic-info-copy {
+            display: flex;
+            align-items: center;
             gap: 0.75rem;
+            min-width: 0;
         }
 
         .resume-classic-basic-info-icon {
@@ -2458,7 +2472,7 @@ body {
 
         .resume-classic-basic-info-text {
             font-size: calc(0.875rem * var(--resume-basic-info-scale, 1));
-            line-height: 2rem;
+            line-height: 1.45;
         }
 
         .resume-classic-stack-item-spaced {

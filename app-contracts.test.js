@@ -126,6 +126,15 @@ test("custom basic info icon still overrides the global personal-info icon set",
     }), "fa:fas fa-star");
 });
 
+test("shared default basic info presets replace expected salary with GitHub", () => {
+    const data = normalizeResumeData(sampleResumeData);
+
+    assert.equal(data.basicInfo[2].id, "github");
+    assert.equal(data.basicInfo[2].label, "GitHub");
+    assert.equal(data.basicInfo[2].iconPreset, "github");
+    assert.equal(data.basicInfo[2].value, "github.com/zhangsan");
+});
+
 test("section title switching keeps each layout heading shell and only swaps icon tokens", () => {
     const cases = [
         {
@@ -193,14 +202,30 @@ test("section title switching keeps each layout heading shell and only swaps ico
     assert.ok(cardsHtml.includes("0_6px_14px_var(--resume-accent-glow)"), "cards should keep title icon shadow styling when flat icons are off");
 });
 
+test("classic personal-info rows keep a dedicated centered wrapper instead of top-aligning the li shell", () => {
+    const data = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_CLASSIC,
+        basicInfo: sampleResumeData.basicInfo.map((item, index) => index === 2
+            ? { ...item, value: "github.com/example/with-a-long-handle" }
+            : item)
+    });
+    const blocks = buildLayoutColumnBlocks(data.resumeLayout, data, getAvatarImageSource(data.profileImage));
+    const html = blocks.leftBlocks.join("\n");
+
+    assert.equal(html.includes('resume-classic-basic-info-item flex items-start'), false);
+    assert.match(html, /<li class="resume-classic-basic-info-item">\s*<div class="resume-classic-basic-info-copy">/);
+});
+
 test("personal-info icon libraries use semantically aligned mappings for obvious slots", () => {
     const slotCases = [
-        { iconSet: "my-resume", slot: "salary", expectedToken: "my:wallet" },
+        { iconSet: "font-awesome", slot: "github", expectedToken: "fa:fab fa-github" },
+        { iconSet: "my-resume", slot: "github", expectedToken: "my:github" },
         { iconSet: "my-resume", slot: "birth", expectedToken: "my:calendar" },
         { iconSet: "my-resume", slot: "profile", expectedToken: "my:userCircle" },
         { iconSet: "my-resume", slot: "company", expectedToken: "my:building" },
         { iconSet: "my-resume", slot: "status", expectedToken: "my:award" },
-        { iconSet: "my-resume3", slot: "salary", expectedToken: "my3:wallet" },
+        { iconSet: "my-resume3", slot: "github", expectedToken: "my3:github" },
         { iconSet: "my-resume3", slot: "birth", expectedToken: "my3:calendar" },
         { iconSet: "my-resume3", slot: "profile", expectedToken: "my3:user" },
         { iconSet: "my-resume3", slot: "company", expectedToken: "my3:building" },

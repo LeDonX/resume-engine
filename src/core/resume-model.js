@@ -110,7 +110,7 @@ export function resolveBasicInfoIconSlot(item) {
 
     if (lookup.includes("phone") || lookup.includes("手机") || lookup.includes("电话")) return "phone";
     if (lookup.includes("mail") || lookup.includes("email") || lookup.includes("邮箱")) return "email";
-    if (lookup.includes("salary") || lookup.includes("薪资") || lookup.includes("薪酬")) return "salary";
+    if (lookup.includes("github")) return "github";
     if (lookup.includes("birth") || lookup.includes("生日") || lookup.includes("出生")) return "birth";
     if (lookup.includes("education") || lookup.includes("学历")) return "education";
     if (lookup.includes("location") || lookup.includes("地址") || lookup.includes("城市") || lookup.includes("居住")) return "location";
@@ -129,6 +129,7 @@ function renderMyResumeSvgIcon(name, className = "") {
     const icons = {
         phone: `<svg ${baseAttrs}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.77.62 2.62a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6.09 6.09l1.46-1.28a2 2 0 0 1 2.11-.45c.85.29 1.72.5 2.62.62A2 2 0 0 1 22 16.92Z"/></svg>`,
         mail: `<svg ${baseAttrs}><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/><path d="m22 7-10 7L2 7"/></svg>`,
+        github: `<svg ${baseAttrs}><path d="M9 19c-4.5 1.5-5-2-7-2"/><path d="M15 22v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7a5.44 5.44 0 0 0-1.5-3.75 5.07 5.07 0 0 0-.09-3.77s-1.18-.35-3.91 1.48a13.38 13.38 0 0 0-7 0C5.27.65 4.09 1 4.09 1A5.07 5.07 0 0 0 4 4.77a5.44 5.44 0 0 0-1.5 3.75c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 8 18.13V22"/></svg>`,
         userCircle: `<svg ${baseAttrs}><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0 1 12 0"/><circle cx="12" cy="12" r="10"/></svg>`,
         wallet: `<svg ${baseAttrs}><path d="M4 7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1H6a2 2 0 0 0-2 2V7Z"/><path d="M4 10a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7Z"/><circle cx="16" cy="13.5" r="1"/></svg>`,
         link: `<svg ${baseAttrs}><path d="M10 13a5 5 0 0 0 7.07 0l1.41-1.41a5 5 0 0 0-7.07-7.07L10.6 5.32"/><path d="M14 11a5 5 0 0 0-7.07 0l-1.41 1.41a5 5 0 0 0 7.07 7.07l.79-.79"/></svg>`,

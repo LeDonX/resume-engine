@@ -210,3 +210,45 @@ test("my-resume3 work heading aligns company, role, and badge on one centerline"
     const badgeBlocks = getRuleBlocks(".my-resume3-experience-badge");
     assert.ok(badgeBlocks.some((block) => block.includes("align-self: center")));
 });
+
+test("template 1 and template 2 personal-info icons use normalized square wrappers", () => {
+    const myResumeIconBlocks = getRuleBlocks(".my-resume-contact-icon");
+    assert.ok(myResumeIconBlocks.some((block) => block.includes("display: inline-flex")));
+    assert.ok(myResumeIconBlocks.some((block) => block.includes("align-items: center")));
+    assert.ok(myResumeIconBlocks.some((block) => block.includes("justify-content: center")));
+    assert.ok(
+        myResumeIconBlocks.some((block) => block.includes("inline-size: calc(1rem * var(--resume-basic-info-icon-scale, 1))"))
+    );
+    assert.ok(
+        myResumeIconBlocks.some((block) => block.includes("block-size: calc(1rem * var(--resume-basic-info-icon-scale, 1))"))
+    );
+
+    const myResumeIconSvgBlocks = getRuleBlocks(".my-resume-contact-icon-svg");
+    assert.ok(myResumeIconSvgBlocks.some((block) => block.includes("display: block")));
+    assert.ok(myResumeIconSvgBlocks.some((block) => block.includes("--resume-basic-info-icon-scale")));
+
+    const myResume3IconBlocks = getRuleBlocks(".my-resume3-meta-icon");
+    assert.ok(myResume3IconBlocks.some((block) => block.includes("display: inline-flex")));
+    assert.ok(myResume3IconBlocks.some((block) => block.includes("align-items: center")));
+    assert.ok(myResume3IconBlocks.some((block) => block.includes("justify-content: center")));
+    assert.ok(
+        myResume3IconBlocks.some((block) => block.includes("inline-size: calc(1.14rem * var(--resume-basic-info-icon-scale, 1))"))
+    );
+    assert.ok(
+        myResume3IconBlocks.some((block) => block.includes("block-size: calc(1.14rem * var(--resume-basic-info-icon-scale, 1))"))
+    );
+
+    const myResume3IconSvgBlocks = getRuleBlocks(".my-resume3-meta-icon-svg");
+    assert.ok(myResume3IconSvgBlocks.some((block) => block.includes("display: block")));
+    assert.ok(myResume3IconSvgBlocks.some((block) => block.includes("--resume-basic-info-icon-scale")));
+});
+
+test("classic basic info centers with a wrapper instead of fixed text line-height", () => {
+    const copyBlocks = getRuleBlocks(".resume-classic-basic-info-copy");
+    assert.ok(copyBlocks.some((block) => block.includes("display: flex")));
+    assert.ok(copyBlocks.some((block) => block.includes("align-items: center")));
+
+    const textBlocks = getRuleBlocks(".resume-classic-basic-info-text");
+    assert.equal(textBlocks.some((block) => block.includes("line-height: 2rem")), false);
+    assert.ok(textBlocks.some((block) => block.includes("line-height: 1.45")));
+});

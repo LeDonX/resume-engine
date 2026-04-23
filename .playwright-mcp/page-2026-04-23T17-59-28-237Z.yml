@@ -1,0 +1,344 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - heading "简历生成器" [level=1] [ref=e7]
+          - paragraph [ref=e8]: 实时编辑，所见即所得
+        - button " 生成 PDF" [ref=e9] [cursor=pointer]:
+          - generic [ref=e11]:
+            - generic [ref=e12]: 
+            - text: 生成 PDF
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - button " 重置" [ref=e15] [cursor=pointer]:
+            - generic [ref=e16]: 
+            - text: 重置
+          - button " 导入" [ref=e18] [cursor=pointer]:
+            - generic [ref=e19]: 
+            - text: 导入
+          - button " 导出" [ref=e21] [cursor=pointer]:
+            - generic [ref=e22]: 
+            - text: 导出
+        - paragraph [ref=e24]:
+          - generic [ref=e25]: 
+          - text: 已恢复上次草稿。
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - button " 个人信息" [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: 
+            - heading "个人信息" [level=2] [ref=e31]
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - paragraph [ref=e34]: 头像设置
+            - generic [ref=e35]:
+              - generic [ref=e36] [cursor=pointer]:
+                - generic [ref=e37]: 
+                - text: 上传头像
+              - button " 调整头像" [disabled] [ref=e38]:
+                - generic [ref=e39]: 
+                - text: 调整头像
+            - generic [ref=e40]:
+              - paragraph [ref=e41]: 展示形状
+              - generic [ref=e42]:
+                - button "圆形" [ref=e43] [cursor=pointer]
+                - button "矩形" [ref=e44] [cursor=pointer]
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - text: 文档标题
+              - textbox "文档标题" [ref=e47]: 张三的简历
+            - generic [ref=e48]:
+              - text: 姓名
+              - textbox "姓名" [ref=e49]: 张 三
+            - generic [ref=e50]:
+              - text: 目标岗位
+              - textbox "目标岗位" [ref=e51]: 高级前端开发工程师
+            - generic [ref=e52]:
+              - text: 个人简介
+              - textbox "个人简介" [ref=e53]: 拥有3年以上前端开发经验，熟练掌握React、Vue等主流前端框架。热爱技术，对用户体验和性能优化有深入研究。曾主导并成功交付多个大型企业级Web应用项目，具备良好的团队协作能力和项目管理能力。致力于通过技术创新解决业务痛点，提升产品价值。
+          - generic [ref=e54]:
+            - button " 联系方式 支持拖拽排序" [ref=e55] [cursor=pointer]:
+              - generic [ref=e56]:
+                - generic [ref=e57]: 
+                - paragraph [ref=e58]: 联系方式
+              - generic [ref=e59]: 支持拖拽排序
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 手机
+                    - generic:
+                      - button "" [disabled]:
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button "":
+                      - generic:
+                        - img
+                      - generic: 
+                    - textbox "请输入手机内容": 138-xxxx-xxxx
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 邮箱
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button "":
+                      - generic:
+                        - img
+                      - generic: 
+                    - textbox "请输入邮箱内容": zhangsan@qq.com
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 出生年月
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button "":
+                      - generic:
+                        - img
+                      - generic: 
+                    - textbox "请输入出生年月内容": "1998.08"
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: 学历
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "":
+                        - generic: 
+                  - generic:
+                    - button "":
+                      - generic:
+                        - img
+                      - generic: 
+                    - textbox "请输入学历内容": 硕士
+                - generic:
+                  - generic:
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - paragraph: GitHub
+                    - generic:
+                      - button "":
+                        - generic: 
+                      - button "" [disabled]:
+                        - generic: 
+                  - generic:
+                    - button "":
+                      - generic:
+                        - img
+                      - generic: 
+                    - textbox "请输入GitHub内容": github.com/zhangsan
+      - generic [ref=e60]:
+        - button " 简历排版与主题" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]:
+            - generic [ref=e63]: 
+            - heading "简历排版与主题" [level=2] [ref=e64]
+        - text:  
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - button "拖拽排序" [ref=e68]:
+              - generic [ref=e69]: 
+            - button " 专业技能" [ref=e70] [cursor=pointer]:
+              - generic [ref=e71]: 
+              - heading "专业技能" [level=2] [ref=e72]
+            - button "+ 新增" [ref=e74] [cursor=pointer]
+          - text:       +
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - button "拖拽排序" [ref=e77]:
+              - generic [ref=e78]: 
+            - button " 工作经历" [ref=e79] [cursor=pointer]:
+              - generic [ref=e80]: 
+              - heading "工作经历" [level=2] [ref=e81]
+            - button "+ 新增" [ref=e83] [cursor=pointer]
+          - text:     +
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - button "拖拽排序" [ref=e86]:
+              - generic [ref=e87]: 
+            - button " 项目经验" [ref=e88] [cursor=pointer]:
+              - generic [ref=e89]: 
+              - heading "项目经验" [level=2] [ref=e90]
+            - button "+ 新增" [ref=e92] [cursor=pointer]
+          - text:     +
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - button "拖拽排序" [ref=e95]:
+              - generic [ref=e96]: 
+            - button " 教育背景" [ref=e97] [cursor=pointer]:
+              - generic [ref=e98]: 
+              - heading "教育背景" [level=2] [ref=e99]
+            - button "+ 新增" [ref=e101] [cursor=pointer]
+          - text:     +
+  - main [ref=e102]:
+    - generic [ref=e104]:
+      - generic [ref=e107]:
+        - generic [ref=e109]:
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - heading "张 三" [level=1] [ref=e112]
+              - generic [ref=e113]: 高级前端开发工程师
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - img [ref=e117]
+                - generic [ref=e119]: 138-xxxx-xxxx
+              - generic [ref=e120]:
+                - img [ref=e122]
+                - generic [ref=e125]: zhangsan@qq.com
+              - generic [ref=e126]:
+                - img [ref=e128]
+                - generic [ref=e131]: "1998.08"
+              - generic [ref=e132]:
+                - img [ref=e134]
+                - generic [ref=e137]: 硕士
+              - generic [ref=e138]:
+                - img [ref=e140]
+                - link "github.com/zhangsan" [ref=e144] [cursor=pointer]:
+                  - /url: https://github.com/zhangsan
+          - generic [ref=e148]: 张三
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - img [ref=e152]
+            - heading "个人概况" [level=2] [ref=e155]
+          - list [ref=e156]:
+            - listitem [ref=e157]: 拥有3年以上前端开发经验，熟练掌握React、Vue等主流前端框架。热爱技术，对用户体验和性能优化有深入研究。曾主导并成功交付多个大型企业级Web应用项目，具备良好的团队协作能力和项目管理能力。致力于通过技术创新解决业务痛点，提升产品价值。
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - img [ref=e161]
+            - heading "专业技能" [level=2] [ref=e164]
+          - generic [ref=e165]:
+            - article [ref=e166]:
+              - heading "编程语言" [level=3] [ref=e167]
+              - generic [ref=e168]:
+                - generic [ref=e169]: JavaScript
+                - generic [ref=e170]: TypeScript
+                - generic [ref=e171]: Python
+                - generic [ref=e172]: HTML/CSS
+            - article [ref=e173]:
+              - heading "框架与工具" [level=3] [ref=e174]
+              - generic [ref=e175]:
+                - generic [ref=e176]: React
+                - generic [ref=e177]: Vue.js
+                - generic [ref=e178]: Node.js
+                - generic [ref=e179]: Git
+                - generic [ref=e180]: Webpack
+            - article [ref=e181]:
+              - heading "语言能力" [level=3] [ref=e182]
+              - generic [ref=e183]:
+                - generic [ref=e184]: 英语 (CET-6 580)
+                - generic [ref=e185]: 普通话 (一级乙等)
+        - generic [ref=e186]:
+          - generic [ref=e187]:
+            - img [ref=e189]
+            - heading "工作经历" [level=2] [ref=e192]
+          - article [ref=e193]:
+            - generic [ref=e196]:
+              - generic [ref=e197]:
+                - generic [ref=e198]:
+                  - heading "北京某某科技有限公司 / 前端开发组长" [level=3] [ref=e199]:
+                    - generic [ref=e200]: 北京某某科技有限公司
+                    - generic [ref=e201]: /
+                    - generic [ref=e202]: 前端开发组长
+                  - generic [ref=e203]:
+                    - img [ref=e204]
+                    - generic [ref=e207]: 重点经历
+                - generic [ref=e208]: 2022.07 - 至今
+              - list [ref=e209]:
+                - listitem [ref=e210]: 负责公司核心SAAS平台的架构设计与前端重构，采用 React + TypeScript，将页面首屏加载时间降低了 40%。
+                - listitem [ref=e211]: 带领5人前端团队，制定代码规范并引入CI/CD自动化部署流程，提升团队整体研发效率约30%。
+                - listitem [ref=e212]: 主导开发内部通用组件库，提取了30+个基础业务组件，极大减少了各业务线的重复开发工作。
+      - generic [ref=e213]: 分页分割区域 · 第 1/2 页
+      - generic [ref=e216]:
+        - article [ref=e218]:
+          - generic [ref=e221]:
+            - generic [ref=e222]:
+              - generic [ref=e223]:
+                - heading "上海某某互联网公司 / 前端开发工程师" [level=3] [ref=e224]:
+                  - generic [ref=e225]: 上海某某互联网公司
+                  - generic [ref=e226]: /
+                  - generic [ref=e227]: 前端开发工程师
+                - generic [ref=e228]:
+                  - img [ref=e229]
+                  - generic [ref=e232]: 重点经历
+              - generic [ref=e233]: 2020.07 - 2022.06
+            - list [ref=e234]:
+              - listitem [ref=e235]: 参与电商PC端及H5端页面的日常迭代开发，使用 Vue.js 与后端工程师紧密配合。
+              - listitem [ref=e236]: 实现了大型营销活动的复杂交互抽奖转盘及动画效果，活动期间稳定支撑10w+ QPS。
+              - listitem [ref=e237]: 优化了大量的冗余CSS及无用依赖，使得整体打包体积缩小了25%。
+        - generic [ref=e238]:
+          - generic [ref=e239]:
+            - img [ref=e241]
+            - heading "项目经历" [level=2] [ref=e244]
+          - article [ref=e245]:
+            - generic [ref=e246]:
+              - generic [ref=e247]:
+                - generic [ref=e248]:
+                  - heading "企业级数据可视化大屏" [level=3] [ref=e249]
+                  - generic [ref=e250]: 独立负责
+                - generic [ref=e251]:
+                  - generic [ref=e252]: Vue3
+                  - generic [ref=e253]: ECharts
+                  - generic [ref=e254]: WebSocket
+              - generic [ref=e255]: 2023.03 - 2023.10
+            - generic [ref=e256]:
+              - paragraph [ref=e257]: 基于 ECharts 和 Three.js 开发的大型数据监控大屏，对接WebSocket实现数据的实时动态更新与3D地图交互展示。
+              - list [ref=e258]:
+                - listitem [ref=e259]: 从 0 到 1 完成多维监控驾驶舱搭建，覆盖实时态势、预警播报与 3D 地图联动展示。
+                - listitem [ref=e260]: 接入 WebSocket 推流并优化可视化渲染节奏，保证大屏在高频刷新场景下仍能保持稳定体验。
+        - article [ref=e262]:
+          - generic [ref=e263]:
+            - generic [ref=e264]:
+              - generic [ref=e265]:
+                - heading "开源协同办公小程序" [level=3] [ref=e266]
+                - generic [ref=e267]: 核心贡献者
+              - generic [ref=e268]:
+                - generic [ref=e269]: Taro
+                - generic [ref=e270]: Redux
+                - generic [ref=e271]: Node.js
+            - generic [ref=e272]: 2022.05 - 2022.12
+          - generic [ref=e273]:
+            - paragraph [ref=e274]: 一款支持多人实时协作编辑的微信小程序。解决了复杂网络环境下的数据同步冲突问题，获得了 2K+ GitHub Stars。
+            - list [ref=e275]:
+              - listitem [ref=e276]: 参与多人协作编辑链路设计，重点处理弱网环境下的数据同步冲突与离线恢复问题。
+              - listitem [ref=e277]: 项目上线后累计获得 2K+ GitHub Stars，并沉淀出可复用的小程序协同编辑方案。
+        - generic [ref=e278]:
+          - generic [ref=e279]:
+            - img [ref=e281]
+            - heading "教育经历" [level=2] [ref=e284]
+          - article [ref=e286]:
+            - generic [ref=e290]:
+              - heading "北京某某大学 / 计算机科学与技术 - 本科" [level=3] [ref=e291]:
+                - generic [ref=e292]: 北京某某大学
+                - generic [ref=e293]: /
+                - text: 计算机科学与技术 - 本科
+              - generic [ref=e294]: 2016.09 - 2020.06
+        - article [ref=e296]:
+          - generic [ref=e300]:
+            - heading "北京某某大学 / 软件工程 - 硕士" [level=3] [ref=e301]:
+              - generic [ref=e302]: 北京某某大学
+              - generic [ref=e303]: /
+              - text: 软件工程 - 硕士
+            - generic [ref=e304]: 2020.09 - 2023.06

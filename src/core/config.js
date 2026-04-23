@@ -49,7 +49,7 @@ export const AVATAR_SHAPE_RECTANGLE = "rectangle";
 export const BASIC_INFO_ICON_OPTIONS = [
     { key: "phone", label: "手机", icon: "fas fa-phone", chipClass: "bg-sky-100 text-sky-700", cardClass: "border-sky-200 bg-sky-50/80 text-sky-700" },
     { key: "email", label: "邮箱", icon: "fas fa-envelope", chipClass: "bg-indigo-100 text-indigo-700", cardClass: "border-indigo-200 bg-indigo-50/80 text-indigo-700" },
-    { key: "salary", label: "薪资", icon: "fas fa-money-bill-wave", chipClass: "bg-emerald-100 text-emerald-700", cardClass: "border-emerald-200 bg-emerald-50/80 text-emerald-700" },
+    { key: "github", label: "GitHub", icon: "fab fa-github", chipClass: "bg-slate-200 text-slate-800", cardClass: "border-slate-300 bg-slate-100/90 text-slate-800" },
     { key: "birth", label: "出生", icon: "fas fa-cake-candles", chipClass: "bg-rose-100 text-rose-700", cardClass: "border-rose-200 bg-rose-50/80 text-rose-700" },
     { key: "education", label: "学历", icon: "fas fa-user-graduate", chipClass: "bg-violet-100 text-violet-700", cardClass: "border-violet-200 bg-violet-50/80 text-violet-700" },
     { key: "location", label: "城市", icon: "fas fa-location-dot", chipClass: "bg-amber-100 text-amber-700", cardClass: "border-amber-200 bg-amber-50/80 text-amber-700" },
@@ -64,7 +64,7 @@ export const BASIC_INFO_ICON_OPTIONS = [
 export const BASIC_INFO_PRESETS = [
     { id: "phone", label: "手机", value: "138-xxxx-xxxx", iconPreset: "phone", iconMode: "preset", customIcon: "" },
     { id: "email", label: "邮箱", value: "zhangsan@qq.com", iconPreset: "email", iconMode: "preset", customIcon: "" },
-    { id: "salary", label: "期望薪资", value: "25K-35K", iconPreset: "salary", iconMode: "preset", customIcon: "" },
+    { id: "github", label: "GitHub", value: "github.com/zhangsan", iconPreset: "github", iconMode: "preset", customIcon: "" },
     { id: "birth", label: "出生年月", value: "1998.08", iconPreset: "birth", iconMode: "preset", customIcon: "" },
     { id: "education", label: "学历", value: "硕士", iconPreset: "education", iconMode: "preset", customIcon: "" }
 ];
@@ -117,7 +117,7 @@ export const BASIC_INFO_ICON_SET_MAPS = {
     "my-resume": {
         phone: "my:phone",
         email: "my:mail",
-        salary: "my:wallet",
+        github: "my:github",
         birth: "my:calendar",
         education: "my:graduation",
         location: "my:mapPin",
@@ -131,7 +131,7 @@ export const BASIC_INFO_ICON_SET_MAPS = {
     "my-resume3": {
         phone: "my3:phone",
         email: "my3:mail",
-        salary: "my3:wallet",
+        github: "my3:github",
         birth: "my3:calendar",
         education: "my3:cap",
         location: "my3:pin",
