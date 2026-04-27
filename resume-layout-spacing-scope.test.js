@@ -161,15 +161,46 @@ test("spacing controls stay wired only to page shells, module boundaries, surfac
 });
 
 
-test("my-resume3 header spacing clamp keeps derived bottom margin non-negative", () => {
-    const guardedHeaderMarginPattern = /margin-bottom:\s*max\(0px,\s*calc\(var\(--resume-my3-section-gap\) - 0\.46rem\)\)/;
+test("my-resume3 header spacing uses dedicated top and bottom personal-info controls", () => {
+    const myResume3ThemeRule = getRuleBlocks(".resume-layout-my-resume3.resume-theme-shell")[0];
 
-    assert.ok(
-        getRuleBlocks(".my-resume3-header").some((block) => guardedHeaderMarginPattern.test(block)),
-        ".my-resume3-header should clamp its derived margin-bottom at zero"
+    assert.match(
+        myResume3ThemeRule,
+        /--resume-my3-header-info-top-gap:\s*calc\(3rem \* var\(--resume-my3-header-info-top-margin-scale, 1\)\)/,
+        "my-resume3 theme shell should derive a dedicated top gap for the header info block"
+    );
+    assert.match(
+        myResume3ThemeRule,
+        /--resume-my3-header-info-bottom-gap:\s*calc\(1\.94rem \* var\(--resume-my3-header-info-bottom-margin-scale, 1\)\)/,
+        "my-resume3 theme shell should derive a dedicated bottom gap for the header block"
     );
     assert.ok(
-        getRuleBlocks(".resume-page[data-resume-layout=\"my-resume3\"] .my-resume3-header").some((block) => guardedHeaderMarginPattern.test(block)),
-        "print override should clamp the my-resume3 header margin-bottom at zero"
+        getRuleBlocks(".my-resume3-header-copy").some((block) => /gap:\s*var\(--resume-my3-header-info-top-gap\)/.test(block)),
+        ".my-resume3-header-copy should consume the dedicated top gap"
+    );
+    assert.ok(
+        getRuleBlocks(".my-resume3-header").some((block) => /margin-bottom:\s*var\(--resume-my3-header-info-bottom-gap\)/.test(block)),
+        ".my-resume3-header should consume the dedicated bottom gap"
+    );
+    assert.ok(
+        getRuleBlocks(".resume-page[data-resume-layout=\"my-resume3\"] .my-resume3-header").some((block) => /margin-bottom:\s*var\(--resume-my3-header-info-bottom-gap\) !important/.test(block)),
+        "print override should keep using the dedicated my-resume3 header bottom gap"
+    );
+});
+
+test("my-resume3 header line-height control stays scoped to meta text instead of reintroducing density coupling", () => {
+    assert.ok(
+        getRuleBlocks(".my-resume3-meta-text").some((block) => /line-height:\s*calc\(1\.5 \* var\(--resume-my3-header-info-line-height-scale, 1\)\)/.test(block)),
+        ".my-resume3-meta-text should consume the dedicated line-height control"
+    );
+    assert.ok(
+        getRuleBlocks(".my-resume3-meta-item").every((block) => !block.includes("--resume-my3-header-info-line-height-scale")),
+        ".my-resume3-meta-item should not reference the dedicated line-height control"
+    );
+    const myResume3ThemeRule = getRuleBlocks(".resume-layout-my-resume3.resume-theme-shell")[0];
+    assert.match(
+        myResume3ThemeRule,
+        /--resume-my3-meta-item-min-height:\s*1\.72rem/,
+        "my-resume3 meta item min-height should remain fixed so line-height control does not masquerade as a density slider"
     );
 });

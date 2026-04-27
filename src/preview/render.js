@@ -182,7 +182,7 @@ function renderExperienceWorkBadge(item, badgeClass, resumeLayout) {
     }
 
     const classes = ["resume-work-badge", badgeClass].filter(Boolean).join(" ");
-    return `<span class="${classes}">${renderMyResumeIcon("award", "my-resume-badge-icon")}<span>${escapeHtml(resolveExperienceWorkBadgeLabel(item, resumeLayout))}</span></span>`;
+    return `<span class="${classes}"><span>${escapeHtml(resolveExperienceWorkBadgeLabel(item, resumeLayout))}</span></span>`;
 }
 
 function renderProjectIconBadge(project, badgeClass = "") {
@@ -192,7 +192,7 @@ function renderProjectIconBadge(project, badgeClass = "") {
     }
 
     const classes = ["resume-project-icon-badge", badgeClass].filter(Boolean).join(" ");
-    return `<span class="${classes}">${renderMyResumeIcon("award", "my-resume-badge-icon")}<span>${escapeHtml(label)}</span></span>`;
+    return `<span class="${classes}"><span>${escapeHtml(label)}</span></span>`;
 }
 
 function renderClassicExperienceItem(item, index, total, renderOptions) {
@@ -1417,11 +1417,11 @@ function renderMyResume3ProjectCard(project) {
                         ${badge ? `<span class="my-resume3-project-badge my-resume3-project-badge-${projectInfo.badgeStyle}">${escapeHtml(badge)}</span>` : ""}
                         ${iconBadgeHtml}
                     </div>
-                    ${projectInfo.techs.length
-                        ? `<div class="my-resume3-project-tags">${projectInfo.techs.map((tag) => (`<span class="my-resume3-project-tag">${escapeHtml(tag)}</span>`)).join("")}</div>`
-                        : ""}
                 </div>
                 ${period ? `<span class="my-resume3-date my-resume3-project-date">${escapeHtml(period)}</span>` : ""}
+                ${projectInfo.techs.length
+                    ? `<div class="my-resume3-project-tags">${projectInfo.techs.map((tag) => (`<span class="my-resume3-project-tag">${escapeHtml(tag)}</span>`)).join("")}</div>`
+                    : ""}
             </div>
             ${detailsHtml}
         </article>

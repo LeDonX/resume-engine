@@ -260,7 +260,31 @@ export const RESUME_LAYOUT_SPACING_CONTROL_FIELDS = [
     { key: "modulePaddingXScale", label: "模块内边距（横向）", hint: "控制卡片与内容容器的横向留白" },
     { key: "pagePaddingYScale", label: "页面边距（纵向）", hint: "控制页面上下留白" },
     { key: "pagePaddingXScale", label: "页面边距（横向）", hint: "控制页面左右留白" },
-    { key: "bodyLineHeightScale", label: "正文行高", hint: "仅控制正文段落、描述与项目要点行高" }
+    { key: "bodyLineHeightScale", label: "正文行高", hint: "仅控制正文段落、描述与项目要点行高" },
+    {
+        key: "myResume3HeaderInfoTopMarginScale",
+        label: "模板 2 个人信息上外边距",
+        hint: "仅控制模板 2 姓名/岗位与个人信息区之间的间距",
+        layouts: [RESUME_LAYOUT_MY_RESUME3]
+    },
+    {
+        key: "myResume3HeaderInfoBottomMarginScale",
+        label: "模板 2 个人信息下外边距",
+        hint: "仅控制模板 2 顶部个人信息区下方与正文模块之间的间距",
+        layouts: [RESUME_LAYOUT_MY_RESUME3]
+    },
+    {
+        key: "myResume3HeaderInfoLineHeightScale",
+        label: "模板 2 个人信息行高",
+        hint: "仅控制模板 2 顶部个人信息文字行高",
+        layouts: [RESUME_LAYOUT_MY_RESUME3]
+    },
+    {
+        key: "myResume3AvatarSizeScale",
+        label: "模板 2 头像大小",
+        hint: "仅控制模板 2 顶部头像区域大小",
+        layouts: [RESUME_LAYOUT_MY_RESUME3]
+    }
 ];
 
 export const RESUME_REORDERABLE_SECTION_IDS = ["skills", "experiences", "projects", "education"];
@@ -286,6 +310,10 @@ export const sampleResumeData = {
     pagePaddingYScale: 1,
     pagePaddingXScale: 1,
     bodyLineHeightScale: 1,
+    myResume3HeaderInfoTopMarginScale: 1,
+    myResume3HeaderInfoBottomMarginScale: 1,
+    myResume3HeaderInfoLineHeightScale: 1,
+    myResume3AvatarSizeScale: 1,
     showExperienceTimeline: false,
     useFlatIcons: true,
     profileImage: "",

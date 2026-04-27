@@ -25,7 +25,11 @@ test("layout control settings expose typography plus the bounded spacing/layout 
         "modulePaddingXScale",
         "pagePaddingYScale",
         "pagePaddingXScale",
-        "bodyLineHeightScale"
+        "bodyLineHeightScale",
+        "myResume3HeaderInfoTopMarginScale",
+        "myResume3HeaderInfoBottomMarginScale",
+        "myResume3HeaderInfoLineHeightScale",
+        "myResume3AvatarSizeScale"
     ]);
 
     assert.deepEqual(RESUME_LAYOUT_CONTROL_SETTINGS.fontScale, {
@@ -139,6 +143,34 @@ test("layout control settings expose typography plus the bounded spacing/layout 
         step: 0.01,
         defaultValue: 1
     });
+
+    assert.deepEqual(RESUME_LAYOUT_CONTROL_SETTINGS.myResume3HeaderInfoTopMarginScale, {
+        min: 0,
+        max: 1.4,
+        step: 0.01,
+        defaultValue: 1
+    });
+
+    assert.deepEqual(RESUME_LAYOUT_CONTROL_SETTINGS.myResume3HeaderInfoBottomMarginScale, {
+        min: 0,
+        max: 1.4,
+        step: 0.01,
+        defaultValue: 1
+    });
+
+    assert.deepEqual(RESUME_LAYOUT_CONTROL_SETTINGS.myResume3HeaderInfoLineHeightScale, {
+        min: 0.8,
+        max: 1.3,
+        step: 0.01,
+        defaultValue: 1
+    });
+
+    assert.deepEqual(RESUME_LAYOUT_CONTROL_SETTINGS.myResume3AvatarSizeScale, {
+        min: 0.8,
+        max: 1.3,
+        step: 0.01,
+        defaultValue: 1
+    });
 });
 
 test("layout control formatter keeps font %, spacing px, and line-height x semantics", () => {
@@ -150,6 +182,10 @@ test("layout control formatter keeps font %, spacing px, and line-height x seman
     assert.equal(formatResumeLayoutControlValue("moduleMarginXScale", 1, { layout: "classic" }), "0px");
     assert.equal(formatResumeLayoutControlValue("pagePaddingXScale", 1, { layout: "classic" }), "48px");
     assert.equal(formatResumeLayoutControlValue("bodyLineHeightScale", 1.12), "1.12x");
+    assert.equal(formatResumeLayoutControlValue("myResume3HeaderInfoTopMarginScale", 1, { layout: "my-resume3" }), "48px");
+    assert.equal(formatResumeLayoutControlValue("myResume3HeaderInfoBottomMarginScale", 1, { layout: "my-resume3" }), "31px");
+    assert.equal(formatResumeLayoutControlValue("myResume3HeaderInfoLineHeightScale", 1.18), "1.18x");
+    assert.equal(formatResumeLayoutControlValue("myResume3AvatarSizeScale", 1, { layout: "my-resume3" }), "140px");
 });
 
 test("layout control formatter keeps cards parity while other layouts keep their original X bases", () => {
@@ -196,6 +232,10 @@ test("normalization clamps new axis-specific controls and falls back from legacy
         pagePaddingYScale: "1.21",
         pagePaddingXScale: "0.7",
         bodyLineHeightScale: 0.72,
+        myResume3HeaderInfoTopMarginScale: 1.52,
+        myResume3HeaderInfoBottomMarginScale: -0.1,
+        myResume3HeaderInfoLineHeightScale: 1.42,
+        myResume3AvatarSizeScale: 0.72,
         lineHeightScale: 1.2,
         innerPaddingScale: 1.1,
         classicSpacingScale: 1.25,
@@ -219,7 +259,11 @@ test("normalization clamps new axis-specific controls and falls back from legacy
         modulePaddingXScale: 1.15,
         pagePaddingYScale: 1.15,
         pagePaddingXScale: 0.75,
-        bodyLineHeightScale: 0.8
+        bodyLineHeightScale: 0.8,
+        myResume3HeaderInfoTopMarginScale: 1.4,
+        myResume3HeaderInfoBottomMarginScale: 0,
+        myResume3HeaderInfoLineHeightScale: 1.3,
+        myResume3AvatarSizeScale: 0.8
     });
 
     const legacyFallbackControls = normalizeResumeLayoutControlsForLayout({
@@ -250,7 +294,11 @@ test("normalization clamps new axis-specific controls and falls back from legacy
         modulePaddingXScale: 1.03,
         pagePaddingYScale: 0.97,
         pagePaddingXScale: 0.97,
-        bodyLineHeightScale: 1.1
+        bodyLineHeightScale: 1.1,
+        myResume3HeaderInfoTopMarginScale: 1,
+        myResume3HeaderInfoBottomMarginScale: 1,
+        myResume3HeaderInfoLineHeightScale: 1,
+        myResume3AvatarSizeScale: 1
     });
 
     const defaultControls = normalizeResumeLayoutControlsForLayout({});
@@ -263,6 +311,10 @@ test("normalization clamps new axis-specific controls and falls back from legacy
     assert.equal(defaultControls.pagePaddingYScale, 1);
     assert.equal(defaultControls.pagePaddingXScale, 1);
     assert.equal(defaultControls.bodyLineHeightScale, 1);
+    assert.equal(defaultControls.myResume3HeaderInfoTopMarginScale, 1);
+    assert.equal(defaultControls.myResume3HeaderInfoBottomMarginScale, 1);
+    assert.equal(defaultControls.myResume3HeaderInfoLineHeightScale, 1);
+    assert.equal(defaultControls.myResume3AvatarSizeScale, 1);
 });
 
 test("buildResumeLayoutControlVars emits typography plus bounded spacing/layout vars", () => {
@@ -283,6 +335,10 @@ test("buildResumeLayoutControlVars emits typography plus bounded spacing/layout 
         pagePaddingYScale: 0.99,
         pagePaddingXScale: 0.95,
         bodyLineHeightScale: 1.12,
+        myResume3HeaderInfoTopMarginScale: 1.06,
+        myResume3HeaderInfoBottomMarginScale: 0.92,
+        myResume3HeaderInfoLineHeightScale: 1.08,
+        myResume3AvatarSizeScale: 1.16,
         moduleSpacingScale: 1.2,
         surfacePaddingScale: 1.1,
         pagePaddingScale: 1.08,
@@ -307,6 +363,10 @@ test("buildResumeLayoutControlVars emits typography plus bounded spacing/layout 
         "--resume-module-padding-x-scale": "0.97",
         "--resume-page-padding-y-scale": "0.99",
         "--resume-page-padding-x-scale": "0.95",
-        "--resume-body-line-height-scale": "1.12"
+        "--resume-body-line-height-scale": "1.12",
+        "--resume-my3-header-info-top-margin-scale": "1.06",
+        "--resume-my3-header-info-bottom-margin-scale": "0.92",
+        "--resume-my3-header-info-line-height-scale": "1.08",
+        "--resume-my3-avatar-size-scale": "1.16"
     });
 });

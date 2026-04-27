@@ -728,7 +728,7 @@ test("project icon badge no longer follows layout defaults when the toggle is ab
     assert.equal((blankLabelHtml.match(/resume-project-icon-badge/g) || []).length, 0);
 });
 
-test("all layouts render work badges independently of highlight with the shared award icon", () => {
+test("all layouts render work badges independently of highlight without injecting the shared award icon", () => {
     const experienceBadgeText = "重点主导";
     const badgeCompanyText = "徽章公司";
     const badgeRoleText = "徽章岗位";
@@ -788,7 +788,7 @@ test("all layouts render work badges independently of highlight with the shared 
 
         assert.equal((html.match(new RegExp(experienceBadgeText, "g")) || []).length, 1, `${layout} should render the work badge once`);
         assert.equal((html.match(/resume-work-badge/g) || []).length, 1, `${layout} should keep the shared work badge contract scoped to experience badges`);
-        assert.ok(html.includes("my-resume-badge-icon"), `${layout} should reuse the shared award icon`);
+        assert.equal((html.match(/my-resume-badge-icon/g) || []).length, 0, `${layout} should not inject the shared award icon into dynamic work badges`);
         assert.ok(html.includes(expectedWorkBadgeClassByLayout[layout]), `${layout} should keep the expected work badge wrapper classes`);
         assert.ok(html.includes(projectBadgeText), `${layout} should keep project badge rendering intact`);
         assertOrderedFragments(html, expectedWorkBadgeOrderByLayout[layout]);
@@ -799,7 +799,6 @@ test("all layouts render project icon badges separately from the existing text b
     const projectIconBadgeText = "重点项目";
     const projectTextBadgeText = "核心贡献者";
     const projectTitleText = "统一中台";
-    const projectPeriodText = "2023";
     const layouts = [RESUME_LAYOUT_CLASSIC, RESUME_LAYOUT_CARDS, RESUME_LAYOUT_MY_RESUME, RESUME_LAYOUT_MY_RESUME3];
     const expectedProjectTextBadgeClassByLayout = {
         [RESUME_LAYOUT_CLASSIC]: "resume-classic-project-badge",
@@ -838,7 +837,7 @@ test("all layouts render project icon badges separately from the existing text b
 
         assert.equal((html.match(/resume-project-icon-badge/g) || []).length, 1, `${layout} should render the project icon badge once`);
         assert.equal((html.match(/resume-work-badge/g) || []).length, 0, `${layout} should keep experience badge classes out of project rows`);
-        assert.equal((html.match(/my-resume-badge-icon/g) || []).length, 1, `${layout} should reuse the shared award icon once for the project icon badge`);
+        assert.equal((html.match(/my-resume-badge-icon/g) || []).length, 0, `${layout} should not inject the shared award icon into dynamic project icon badges`);
         assert.ok(html.includes(expectedProjectIconBadgeClassByLayout[layout]), `${layout} should keep the expected project icon badge wrapper classes`);
         assert.ok(html.includes(expectedProjectTextBadgeClassByLayout[layout]), `${layout} should keep the existing project text badge class contract`);
         assert.ok(html.includes(projectIconBadgeText), `${layout} should render the project icon badge label`);
@@ -1041,6 +1040,14 @@ test("form renderer exposes the focused 字体 contract", () => {
     assert.equal(normalizedResumeData.pagePaddingXScale, 1);
     assert.equal(sampleResumeData.bodyLineHeightScale, 1);
     assert.equal(normalizedResumeData.bodyLineHeightScale, 1);
+    assert.equal(sampleResumeData.myResume3HeaderInfoTopMarginScale, 1);
+    assert.equal(normalizedResumeData.myResume3HeaderInfoTopMarginScale, 1);
+    assert.equal(sampleResumeData.myResume3HeaderInfoBottomMarginScale, 1);
+    assert.equal(normalizedResumeData.myResume3HeaderInfoBottomMarginScale, 1);
+    assert.equal(sampleResumeData.myResume3HeaderInfoLineHeightScale, 1);
+    assert.equal(normalizedResumeData.myResume3HeaderInfoLineHeightScale, 1);
+    assert.equal(sampleResumeData.myResume3AvatarSizeScale, 1);
+    assert.equal(normalizedResumeData.myResume3AvatarSizeScale, 1);
 
     const fontControlFields = [
         "fontScale",
@@ -1069,6 +1076,11 @@ test("form renderer exposes the focused 字体 contract", () => {
     for (const field of spacingControlFields) {
         assert.ok(html.includes(`data-section="layoutControls" data-field="${field}"`));
     }
+
+    assert.equal(html.includes('data-section="layoutControls" data-field="myResume3HeaderInfoTopMarginScale"'), false);
+    assert.equal(html.includes('data-section="layoutControls" data-field="myResume3HeaderInfoBottomMarginScale"'), false);
+    assert.equal(html.includes('data-section="layoutControls" data-field="myResume3HeaderInfoLineHeightScale"'), false);
+    assert.equal(html.includes('data-section="layoutControls" data-field="myResume3AvatarSizeScale"'), false);
 
     assert.ok(fontSectionHtml.includes('min="0.85"'));
     assert.ok(fontSectionHtml.includes('min="0.8"'));
@@ -1104,7 +1116,6 @@ test("form renderer exposes the focused 字体 contract", () => {
     assert.ok(html.includes("页面边距（纵向）"));
     assert.ok(html.includes("页面边距（横向）"));
     assert.ok(html.includes("正文行高"));
-
     const legacyFields = [
         "lineHeightScale",
         "innerPaddingScale",
@@ -1120,6 +1131,40 @@ test("form renderer exposes the focused 字体 contract", () => {
     assert.ok(fontSectionHtml.includes("9 项"));
     assert.ok(spacingSectionHtml.includes("7 项"));
     assert.equal((html.match(/data-section="layoutControls" data-field="/g) || []).length, 16);
+
+    const myResume3Html = renderFormHtml({
+        resumeData: normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: RESUME_LAYOUT_MY_RESUME3
+        }),
+        panelState: expandedPanelState,
+        activeBasicInfoPickerIndex: -1,
+        avatarCropState: null
+    });
+    const myResume3FontSectionStart = myResume3Html.indexOf('data-action="toggle-section" data-section-id="font"');
+    const myResume3FontSectionHtml = myResume3Html.slice(myResume3FontSectionStart, myResume3FontSectionStart + 14000);
+    const myResume3SpacingSectionStart = myResume3Html.indexOf('data-action="toggle-section" data-section-id="spacing"');
+    const myResume3SpacingSectionHtml = myResume3Html.slice(myResume3SpacingSectionStart, myResume3SpacingSectionStart + 14000);
+
+    assert.ok(myResume3SpacingSectionHtml.includes('data-section="layoutControls" data-field="myResume3HeaderInfoTopMarginScale"'));
+    assert.ok(myResume3SpacingSectionHtml.includes('data-section="layoutControls" data-field="myResume3HeaderInfoBottomMarginScale"'));
+    assert.ok(myResume3SpacingSectionHtml.includes('data-section="layoutControls" data-field="myResume3HeaderInfoLineHeightScale"'));
+    assert.ok(myResume3SpacingSectionHtml.includes('data-section="layoutControls" data-field="myResume3AvatarSizeScale"'));
+    assert.ok(myResume3SpacingSectionHtml.includes('data-layout-control-value="myResume3HeaderInfoTopMarginScale">48px</output>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('data-layout-control-value="myResume3HeaderInfoBottomMarginScale">31px</output>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('data-layout-control-value="myResume3HeaderInfoLineHeightScale">1x</output>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('data-layout-control-value="myResume3AvatarSizeScale">140px</output>'));
+    assert.ok(myResume3SpacingSectionHtml.includes("模板 2 个人信息上外边距"));
+    assert.ok(myResume3SpacingSectionHtml.includes("模板 2 个人信息下外边距"));
+    assert.ok(myResume3SpacingSectionHtml.includes("模板 2 个人信息行高"));
+    assert.ok(myResume3SpacingSectionHtml.includes("模板 2 头像大小"));
+    assert.ok(myResume3SpacingSectionHtml.includes('>0px</span>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('>43.5px</span>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('>0.8x</span>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('>182px</span>'));
+    assert.ok(myResume3FontSectionHtml.includes("9 项"));
+    assert.ok(myResume3SpacingSectionHtml.includes("11 项"));
+    assert.equal((myResume3Html.match(/data-section="layoutControls" data-field="/g) || []).length, 20);
 
     const collapsedHtml = renderFormHtml({
         resumeData: normalizeResumeData(sampleResumeData),

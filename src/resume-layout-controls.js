@@ -21,7 +21,11 @@ export const RESUME_LAYOUT_CONTROL_SETTINGS = Object.freeze({
     modulePaddingXScale: Object.freeze({ min: 0.75, max: 1.15, step: 0.01, defaultValue: 1 }),
     pagePaddingYScale: Object.freeze({ min: 0.75, max: 1.15, step: 0.01, defaultValue: 1 }),
     pagePaddingXScale: Object.freeze({ min: 0.75, max: 1.15, step: 0.01, defaultValue: 1 }),
-    bodyLineHeightScale: Object.freeze({ min: 0.8, max: 1.15, step: 0.01, defaultValue: 1 })
+    bodyLineHeightScale: Object.freeze({ min: 0.8, max: 1.15, step: 0.01, defaultValue: 1 }),
+    myResume3HeaderInfoTopMarginScale: Object.freeze({ min: 0, max: 1.4, step: 0.01, defaultValue: 1 }),
+    myResume3HeaderInfoBottomMarginScale: Object.freeze({ min: 0, max: 1.4, step: 0.01, defaultValue: 1 }),
+    myResume3HeaderInfoLineHeightScale: Object.freeze({ min: 0.8, max: 1.3, step: 0.01, defaultValue: 1 }),
+    myResume3AvatarSizeScale: Object.freeze({ min: 0.8, max: 1.3, step: 0.01, defaultValue: 1 })
 });
 
 const FONT_CONTROL_FIELDS = new Set([
@@ -34,6 +38,11 @@ const FONT_CONTROL_FIELDS = new Set([
     "skillGroupNameScale",
     "skillTagScale",
     "workProjectMetaScale"
+]);
+
+const LINE_HEIGHT_CONTROL_FIELDS = new Set([
+    "bodyLineHeightScale",
+    "myResume3HeaderInfoLineHeightScale"
 ]);
 
 const MM_TO_PX = 96 / 25.4;
@@ -70,7 +79,10 @@ const RESUME_LAYOUT_SPACING_DISPLAY_BASES = Object.freeze({
         modulePaddingYScale: Object.freeze({ baseValue: 1.2, unit: "rem" }),
         modulePaddingXScale: Object.freeze({ baseValue: 1.2, unit: "rem" }),
         pagePaddingYScale: Object.freeze({ baseValue: 2, unit: "rem" }),
-        pagePaddingXScale: Object.freeze({ baseValue: 3, unit: "rem" })
+        pagePaddingXScale: Object.freeze({ baseValue: 3, unit: "rem" }),
+        myResume3HeaderInfoTopMarginScale: Object.freeze({ baseValue: 3, unit: "rem" }),
+        myResume3HeaderInfoBottomMarginScale: Object.freeze({ baseValue: 1.94, unit: "rem" }),
+        myResume3AvatarSizeScale: Object.freeze({ baseValue: 8.75, unit: "rem" })
     })
 });
 
@@ -157,7 +169,7 @@ export function clampResumeLayoutControl(field, value, fallbackValue) {
 export function formatResumeLayoutControlValue(field, value, options = {}) {
     const normalizedValue = clampResumeLayoutControl(field, value);
 
-    if (field === "bodyLineHeightScale") {
+    if (LINE_HEIGHT_CONTROL_FIELDS.has(field)) {
         return `${formatDisplayNumber(normalizedValue, 2)}x`;
     }
 
@@ -211,7 +223,23 @@ export function normalizeResumeLayoutControls(sourceValue = {}) {
             source.pagePaddingXScale,
             source.pagePaddingScale
         ),
-        bodyLineHeightScale: clampResumeLayoutControl("bodyLineHeightScale", source.bodyLineHeightScale)
+        bodyLineHeightScale: clampResumeLayoutControl("bodyLineHeightScale", source.bodyLineHeightScale),
+        myResume3HeaderInfoTopMarginScale: clampResumeLayoutControl(
+            "myResume3HeaderInfoTopMarginScale",
+            source.myResume3HeaderInfoTopMarginScale
+        ),
+        myResume3HeaderInfoBottomMarginScale: clampResumeLayoutControl(
+            "myResume3HeaderInfoBottomMarginScale",
+            source.myResume3HeaderInfoBottomMarginScale
+        ),
+        myResume3HeaderInfoLineHeightScale: clampResumeLayoutControl(
+            "myResume3HeaderInfoLineHeightScale",
+            source.myResume3HeaderInfoLineHeightScale
+        ),
+        myResume3AvatarSizeScale: clampResumeLayoutControl(
+            "myResume3AvatarSizeScale",
+            source.myResume3AvatarSizeScale
+        )
     };
 }
 
@@ -238,6 +266,10 @@ export function buildResumeLayoutControlVars(sourceValue = {}) {
         "--resume-module-padding-x-scale": String(controls.modulePaddingXScale),
         "--resume-page-padding-y-scale": String(controls.pagePaddingYScale),
         "--resume-page-padding-x-scale": String(controls.pagePaddingXScale),
-        "--resume-body-line-height-scale": String(controls.bodyLineHeightScale)
+        "--resume-body-line-height-scale": String(controls.bodyLineHeightScale),
+        "--resume-my3-header-info-top-margin-scale": String(controls.myResume3HeaderInfoTopMarginScale),
+        "--resume-my3-header-info-bottom-margin-scale": String(controls.myResume3HeaderInfoBottomMarginScale),
+        "--resume-my3-header-info-line-height-scale": String(controls.myResume3HeaderInfoLineHeightScale),
+        "--resume-my3-avatar-size-scale": String(controls.myResume3AvatarSizeScale)
     };
 }

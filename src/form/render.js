@@ -10,7 +10,6 @@ import {
     ICON_PALETTE_OPTIONS,
     PROFESSIONAL_SKILLS_MODE_OPTIONS,
     PROFESSIONAL_SKILLS_MODE_SKILLS,
-    PROFESSIONAL_SKILLS_MODE_TEXT,
     RESUME_LAYOUT_CLASSIC,
     RESUME_LAYOUT_CARDS,
     RESUME_LAYOUT_CONTROL_FIELDS,
@@ -21,11 +20,10 @@ import {
     SECTION_TITLE_ICON_SET_OPTIONS,
     FALLBACK_AVATAR
 } from "../core/config.js";
-import { arrayToLines, escapeHtml, pickText } from "../core/utils.js";
+import { arrayToLines, escapeHtml } from "../core/utils.js";
 import {
     normalizeResumeLayout,
     normalizeResumeTheme,
-    normalizeBasicInfoColor,
     normalizeSectionOrder,
     normalizeProfessionalSkillsMode,
     renderDynamicIcon,
@@ -55,6 +53,14 @@ import {
 
 const inputClass = "mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 transition-all placeholder:text-slate-400 hover:bg-slate-200/60 focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
 const textareaClass = "mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 min-h-[100px] transition-all placeholder:text-slate-400 hover:bg-slate-200/60 focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
+
+function isLayoutControlVisibleForLayout(control, layout) {
+    if (!Array.isArray(control?.layouts) || !control.layouts.length) {
+        return true;
+    }
+
+    return control.layouts.includes(layout);
+}
 
 function renderBasicInfoPicker(index, selectedPreset, selectedMode) {
     return BASIC_INFO_ICON_OPTIONS.map((option) => {
@@ -155,9 +161,9 @@ function renderAvatarCropModal({ resumeData, avatarCropState }) {
                                         <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md" data-testid="avatar-zoom-readout">${avatarFrame.zoom.toFixed(2)}x</span>
                                     </div>
                                     <div class="flex items-center gap-3">
-                                        <i class="fas fa-search-minus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="document.querySelector('[data-testid=\'avatar-zoom-control\']').stepDown(); document.querySelector('[data-testid=\'avatar-zoom-control\']').dispatchEvent(new Event('input'))"></i>
+                                        <i class="fas fa-search-minus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').stepDown(); document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').dispatchEvent(new Event('input'))"></i>
                                         <input name="avatar-zoom" type="range" min="${escapeHtml(String(minZoom))}" max="2.5" step="0.01" value="${escapeHtml(String(avatarFrame.zoom))}" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-500 transition-all" data-section="avatarFrame" data-field="zoom" data-testid="avatar-zoom-control">
-                                        <i class="fas fa-search-plus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="document.querySelector('[data-testid=\'avatar-zoom-control\']').stepUp(); document.querySelector('[data-testid=\'avatar-zoom-control\']').dispatchEvent(new Event('input'))"></i>
+                                        <i class="fas fa-search-plus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').stepUp(); document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').dispatchEvent(new Event('input'))"></i>
                                     </div>
                                 </div>
                                 <div>
@@ -229,6 +235,8 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
     const isSpacingCollapsed = panelState.spacing ?? true;
     const activeBasicInfoIconSet = resolveBasicInfoIconSetSelection(resumeData.basicInfoIconSet, activeLayout);
     const activeSectionTitleIconSet = resolveSectionTitleIconSetSelection(resumeData.sectionTitleIconSet, activeLayout);
+    const visibleLayoutControls = RESUME_LAYOUT_CONTROL_FIELDS.filter((control) => isLayoutControlVisibleForLayout(control, activeLayout));
+    const visibleSpacingControls = RESUME_LAYOUT_SPACING_CONTROL_FIELDS.filter((control) => isLayoutControlVisibleForLayout(control, activeLayout));
     const renderLayoutControl = (control) => {
         const settings = RESUME_LAYOUT_CONTROL_SETTINGS[control.key];
         const value = clampResumeLayoutControl(control.key, resumeData[control.key]);
@@ -248,12 +256,12 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
     };
     const layoutControlSection = `
         <div class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/65 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] divide-y divide-slate-200/70">
-            ${RESUME_LAYOUT_CONTROL_FIELDS.map(renderLayoutControl).join("")}
+            ${visibleLayoutControls.map(renderLayoutControl).join("")}
         </div>
     `;
     const spacingControlSection = `
         <div class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/65 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)] divide-y divide-slate-200/70">
-            ${RESUME_LAYOUT_SPACING_CONTROL_FIELDS.map(renderLayoutControl).join("")}
+            ${visibleSpacingControls.map(renderLayoutControl).join("")}
         </div>
     `;
 
@@ -406,7 +414,7 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
                                 <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ${isFontCollapsed ? '-rotate-90' : ''} group-hover/font:text-slate-600"></i>
                                 <p class="text-[13px] font-bold text-slate-700 transition-colors group-hover/font:text-slate-900">字体</p>
                             </div>
-                            <span class="rounded-full border border-slate-200/50 bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400">${RESUME_LAYOUT_CONTROL_FIELDS.length} 项</span>
+                            <span class="rounded-full border border-slate-200/50 bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400">${visibleLayoutControls.length} 项</span>
                         </button>
                         <div class="transition-all duration-300 overflow-hidden ${isFontCollapsed ? 'h-0 opacity-0 pointer-events-none mt-0' : 'h-auto opacity-100 mt-3'}">
                             <div class="grid gap-3">${layoutControlSection}</div>
@@ -418,7 +426,7 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
                                 <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ${isSpacingCollapsed ? '-rotate-90' : ''} group-hover/spacing:text-slate-600"></i>
                                 <p class="text-[13px] font-bold text-slate-700 transition-colors group-hover/spacing:text-slate-900">间距与版式</p>
                             </div>
-                            <span class="rounded-full border border-slate-200/50 bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400">${RESUME_LAYOUT_SPACING_CONTROL_FIELDS.length} 项</span>
+                            <span class="rounded-full border border-slate-200/50 bg-slate-100/80 px-2.5 py-1 text-[9px] font-bold text-slate-400">${visibleSpacingControls.length} 项</span>
                         </button>
                         <div class="transition-all duration-300 overflow-hidden ${isSpacingCollapsed ? 'h-0 opacity-0 pointer-events-none mt-0' : 'h-auto opacity-100 mt-3'}">
                             <div class="grid gap-3">${spacingControlSection}</div>

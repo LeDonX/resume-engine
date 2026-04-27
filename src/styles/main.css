@@ -226,6 +226,10 @@ body {
             --resume-page-padding-y-scale: 1;
             --resume-page-padding-x-scale: 1;
             --resume-body-line-height-scale: 1;
+            --resume-my3-header-info-top-margin-scale: 1;
+            --resume-my3-header-info-bottom-margin-scale: 1;
+            --resume-my3-header-info-line-height-scale: 1;
+            --resume-my3-avatar-size-scale: 1;
             --resume-title-scale: 1;
             --resume-name-scale: 1;
             --resume-role-scale: 1;
@@ -1831,6 +1835,15 @@ body {
             --resume-my3-section-gap: calc(2.4rem * var(--resume-module-margin-y-scale, 1));
             --resume-my3-block-gap: calc(1.55rem * var(--resume-module-margin-y-scale, 1));
             --resume-my3-bullet-gap: 0.82rem;
+            --resume-my3-header-info-top-gap: calc(3rem * var(--resume-my3-header-info-top-margin-scale, 1));
+            --resume-my3-header-info-bottom-gap: calc(1.94rem * var(--resume-my3-header-info-bottom-margin-scale, 1));
+            --resume-my3-meta-grid-row-gap: 1.4rem;
+            --resume-my3-meta-grid-column-gap: 1.2rem;
+            --resume-my3-meta-item-min-height: 1.72rem;
+            --resume-my3-avatar-size: calc(8.75rem * var(--resume-my3-avatar-size-scale, 1));
+            --resume-my3-avatar-padding: clamp(0.32rem, calc(var(--resume-my3-avatar-size) * 0.043), 0.52rem);
+            --resume-my3-avatar-radius: calc(var(--resume-my3-avatar-size) * 0.205);
+            --resume-my3-avatar-media-radius: calc(var(--resume-my3-avatar-radius) - var(--resume-my3-avatar-padding));
         }
 
         .resume-layout-my-resume3 .resume-sheet {
@@ -1866,7 +1879,7 @@ body {
         }
 
         .my-resume3-header {
-            margin-bottom: max(0px, calc(var(--resume-my3-section-gap) - 0.46rem));
+            margin-bottom: var(--resume-my3-header-info-bottom-gap);
         }
 
         .my-resume3-flow-block {
@@ -1890,7 +1903,7 @@ body {
             min-width: 0;
             display: grid;
             align-content: start;
-            gap: 3rem;
+            gap: var(--resume-my3-header-info-top-gap);
         }
 
         .my-resume3-name-row {
@@ -1922,7 +1935,7 @@ body {
             display: flex;
             flex-wrap: wrap;
             align-items: flex-start;
-            gap: 1.4rem 1.2rem;
+            gap: var(--resume-my3-meta-grid-row-gap) var(--resume-my3-meta-grid-column-gap);
         }
 
         .my-resume3-meta-item {
@@ -1930,6 +1943,7 @@ body {
             align-items: center;
             flex: 0 1 auto;
             min-width: 8.75rem;
+            min-height: var(--resume-my3-meta-item-min-height);
             max-width: 100%;
             gap: 0.72rem;
         }
@@ -1959,7 +1973,7 @@ body {
             min-width: 0;
             color: #334155;
             font-size: calc(0.98rem * var(--resume-basic-info-scale, 1));
-            line-height: 1.5;
+            line-height: calc(1.5 * var(--resume-my3-header-info-line-height-scale, 1));
             font-weight: 600;
             text-decoration: none;
             overflow: hidden;
@@ -1976,8 +1990,8 @@ body {
 
         .my-resume3-meta-link {
             color: #334155;
-            border-radius: 0.4rem;
             outline: none;
+            padding-bottom: 0.08em;
             text-decoration-color: transparent;
             transition: color 160ms ease, text-decoration-color 160ms ease, box-shadow 160ms ease;
         }
@@ -1999,10 +2013,10 @@ body {
         }
 
         .my-resume3-avatar-card {
-            width: 8.4rem;
-            height: 8.4rem;
-            padding: 0.36rem;
-            border-radius: 1.72rem;
+            width: var(--resume-my3-avatar-size);
+            height: var(--resume-my3-avatar-size);
+            padding: var(--resume-my3-avatar-padding);
+            border-radius: var(--resume-my3-avatar-radius);
             border: 1px solid rgba(241, 245, 249, 0.95);
             background: #ffffff;
             box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
@@ -2013,7 +2027,7 @@ body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            border-radius: 1.42rem;
+            border-radius: var(--resume-my3-avatar-media-radius);
             background: linear-gradient(180deg, rgba(239, 246, 255, 0.95), rgba(219, 234, 254, 0.9));
         }
 
@@ -2029,7 +2043,7 @@ body {
             height: 100%;
             background: linear-gradient(135deg, var(--resume-accent, #2563eb), var(--resume-accent-strong, #1d4ed8));
             color: #ffffff;
-            font-size: calc(1.7rem * var(--resume-font-scale, 1));
+            font-size: clamp(1.7rem, calc(var(--resume-my3-avatar-size) * 0.205), 2.35rem);
             font-weight: 800;
             letter-spacing: 0.08em;
         }
@@ -2290,6 +2304,7 @@ body {
 
         .my-resume3-project-head {
             display: flex;
+            flex-wrap: wrap;
             align-items: flex-start;
             justify-content: space-between;
             gap: 1rem;
@@ -2344,6 +2359,8 @@ body {
 
         .my-resume3-project-tags {
             display: flex;
+            flex: 0 0 100%;
+            width: 100%;
             flex-wrap: wrap;
             gap: 0.42rem;
         }
@@ -3389,11 +3406,11 @@ body {
             }
 
             .resume-page[data-resume-layout="my-resume3"] .my-resume3-header-copy {
-                gap: 3rem !important;
+                gap: var(--resume-my3-header-info-top-gap) !important;
             }
 
             .resume-page[data-resume-layout="my-resume3"] .my-resume3-header {
-                margin-bottom: max(0px, calc(var(--resume-my3-section-gap) - 0.46rem)) !important;
+                margin-bottom: var(--resume-my3-header-info-bottom-gap) !important;
             }
 
             .resume-page[data-resume-layout="cards"] .resume-card {
