@@ -2222,6 +2222,14 @@ body {
             gap: 0.62rem;
         }
 
+        .my-resume3-education-heading {
+            min-width: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.62rem;
+        }
+
         .my-resume3-timeline-title {
             margin: 0;
             min-width: 0;
@@ -2236,6 +2244,12 @@ body {
             flex-wrap: wrap;
             align-items: center;
             font-size: calc(1.18rem * var(--resume-work-project-meta-scale, 1));
+        }
+
+        .my-resume3-education-entry .my-resume3-timeline-title {
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .my-resume3-timeline-title-main {
@@ -2264,9 +2278,12 @@ body {
         }
 
         .my-resume3-education-role {
+            display: inline-flex;
+            align-items: center;
             color: var(--resume-my3-muted);
             font-size: calc(1rem * var(--resume-font-scale, 1));
             font-weight: 500;
+            line-height: 1;
         }
 
         .my-resume3-date {

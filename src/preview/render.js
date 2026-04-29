@@ -1382,10 +1382,12 @@ function renderMyResume3EducationEntry(item, index, total) {
             <span class="my-resume3-timeline-dot my-resume3-education-dot" aria-hidden="true"></span>
             <div class="my-resume3-timeline-body">
                 <div class="my-resume3-timeline-head">
-                    <h3 class="my-resume3-timeline-title">
-                        <span class="my-resume3-timeline-title-main">${escapeHtml(school)}</span>
-                        ${degree ? `<span class="my-resume3-timeline-separator">/</span><span class="my-resume3-education-role">${escapeHtml(degree)}</span>` : ""}
-                    </h3>
+                    <div class="my-resume3-education-heading">
+                        <h3 class="my-resume3-timeline-title">
+                            <span class="my-resume3-timeline-title-main">${escapeHtml(school)}</span>
+                            ${degree ? `<span class="my-resume3-timeline-separator">/</span><span class="my-resume3-education-role">${escapeHtml(degree)}</span>` : ""}
+                        </h3>
+                    </div>
                     ${period ? `<span class="my-resume3-date">${escapeHtml(period)}</span>` : ""}
                 </div>
             </div>
@@ -1537,9 +1539,7 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
                 `
                     <section class="my-resume3-section resume-avoid-break">
                         ${renderResolvedSectionTitle("教育经历", "education", data)}
-                        <div class="my-resume3-flow-block">
-                            ${renderMyResume3EducationEntry(educationList[0], 0, educationList.length)}
-                        </div>
+                        ${renderMyResume3EducationEntry(educationList[0], 0, educationList.length)}
                     </section>
                 `,
                 ...educationList.slice(1).map((item, index) => (`
