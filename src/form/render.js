@@ -52,7 +52,7 @@ import {
 } from "../resume-layout-controls.js";
 
 const inputClass = "mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 transition-all placeholder:text-slate-400 hover:bg-slate-200/60 focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
-const textareaClass = "mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 min-h-[100px] transition-all placeholder:text-slate-400 hover:bg-slate-200/60 focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
+const textareaClass = "mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 min-h-[128px] transition-all placeholder:text-slate-400 hover:bg-slate-200/60 focus:bg-white focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10";
 
 function isLayoutControlVisibleForLayout(control, layout) {
     if (!Array.isArray(control?.layouts) || !control.layouts.length) {
@@ -755,7 +755,7 @@ function renderProjectsForm({ resumeData, panelState }) {
                         </select>
                     </label>
                 </div>
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">技术栈 <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal ml-1">（每行输入一个）</span><textarea name="project-techs-${index}" class="${textareaClass} !min-h-[80px]" data-section="projects" data-index="${index}" data-field="techs" data-multiline="true">${escapeHtml(arrayToLines(item.techs))}</textarea></label>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">技术栈 <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal ml-1">（每行输入一个）</span><textarea name="project-techs-${index}" class="${textareaClass}" data-section="projects" data-index="${index}" data-field="techs" data-multiline="true">${escapeHtml(arrayToLines(item.techs))}</textarea></label>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">项目亮点 <span class="text-[9px] font-medium text-slate-400 normal-case tracking-normal ml-1">（每行一条）</span><textarea name="project-highlights-${index}" class="${textareaClass}" data-section="projects" data-index="${index}" data-field="highlights" data-multiline="true">${escapeHtml(arrayToLines(item.highlights || []))}</textarea></label>
                 <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500">项目描述<textarea name="project-description-${index}" class="${textareaClass}" data-section="projects" data-index="${index}" data-field="description">${escapeHtml(item.description)}</textarea></label>
             </div>

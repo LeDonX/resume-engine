@@ -988,6 +988,27 @@ test("form renderer follows sectionOrder for draggable form sections", () => {
     ]);
 });
 
+test("form renderer keeps project tech multiline editors on the shared textarea height", () => {
+    const html = renderFormHtml({
+        resumeData: normalizeResumeData(sampleResumeData),
+        panelState: createInitialPanelState(),
+        activeBasicInfoPickerIndex: -1,
+        avatarCropState: null
+    });
+
+    assert.ok(html.includes('min-h-[128px]'));
+    assert.match(
+        html,
+    /name="project-techs-0" class="[^"]*min-h-\[128px\][^"]*" data-section="projects" data-index="0" data-field="techs" data-multiline="true">/
+    );
+    assert.equal(html.includes('name="project-techs-0" class="'), true);
+    assert.equal(html.includes('project-techs-0" class="'), true);
+    assert.equal(html.includes('project-techs-0" class="mt-1.5'), true);
+    assert.equal(html.includes('project-techs-0" class="mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 min-h-[128px]'), true);
+    assert.equal(html.includes('project-techs-0" class="mt-1.5 w-full rounded-xl border-2 border-transparent bg-slate-100 px-4 py-2.5 text-sm text-slate-800 min-h-[128px] transition-all'), true);
+    assert.equal(html.includes('!min-h-[80px]'), false);
+});
+
 test("form renderer exposes the focused 字体 contract", () => {
     const expandedPanelState = {
         ...createInitialPanelState(),
