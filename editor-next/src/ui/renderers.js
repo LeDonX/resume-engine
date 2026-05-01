@@ -8,6 +8,18 @@ function applyDatasetAttributes(element, metadata) {
   }
 }
 
+function applyPreviewStyleAttributes(previewRoot, style = {}) {
+  const accent = style.accent || 'emerald';
+  const density = style.density || 'comfortable';
+  const fontPair = style.fontPair || 'serif-sans';
+  const surface = style.surface || 'mist';
+
+  previewRoot.dataset.styleAccent = accent;
+  previewRoot.dataset.styleDensity = density;
+  previewRoot.dataset.styleFontPair = fontPair;
+  previewRoot.dataset.styleSurface = surface;
+}
+
 function createSectionHeader(block) {
   const header = document.createElement('header');
   header.className = 'block-header';
@@ -473,6 +485,7 @@ export function renderPreview(previewRoot, documentModel, preset, selectedBlockI
   previewRoot.className = `preview-shell preview-shell--${preset.id}`;
   previewRoot.dataset.presetId = preset.id;
   previewRoot.dataset.templateId = documentModel.layout.templateId;
+  applyPreviewStyleAttributes(previewRoot, documentModel.style);
 
   preset.zones.forEach((zone) => {
     previewRoot.append(buildZone(documentModel, preset, zone, selectedBlockId, editingState));

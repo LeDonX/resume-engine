@@ -100,6 +100,36 @@ function renderThemeOptionButtons(options, activeKey, action, dataKey) {
     }).join("");
 }
 
+function renderAvatarShapeButtons(activeShape, {
+    groupClass = "flex gap-2",
+    buttonClass = "rounded-md border px-3 py-1 text-[11px] font-bold transition-colors"
+} = {}) {
+    const avatarShape = normalizeAvatarShape(activeShape);
+    const options = [
+        { shape: AVATAR_SHAPE_CIRCLE, label: "圆形" },
+        { shape: AVATAR_SHAPE_RECTANGLE, label: "矩形" }
+    ];
+
+    return `
+        <div class="${groupClass}">
+            ${options.map((option) => {
+                const isActive = avatarShape === option.shape;
+                return `
+                    <button
+                        type="button"
+                        data-action="set-avatar-shape"
+                        data-shape="${option.shape}"
+                        aria-pressed="${isActive ? "true" : "false"}"
+                        class="${buttonClass} ${isActive ? 'border-blue-400 bg-blue-50 text-blue-700 ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}"
+                    >
+                        ${option.label}
+                    </button>
+                `;
+            }).join("")}
+        </div>
+    `;
+}
+
 function renderAvatarCropModal({ resumeData, avatarCropState }) {
     if (!avatarCropState) {
         return "";
@@ -156,14 +186,24 @@ function renderAvatarCropModal({ resumeData, avatarCropState }) {
                             </div>
                             <div class="flex-1 flex flex-col gap-5">
                                 <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+                                    <div class="mb-3 flex items-center justify-between gap-3">
+                                        <span class="text-[12px] font-extrabold text-slate-700">头像形状</span>
+                                        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 ring-1 ring-slate-200">当前：${frameLabel}</span>
+                                    </div>
+                                    ${renderAvatarShapeButtons(resumeData.avatarShape, {
+                                        groupClass: "grid grid-cols-2 gap-2",
+                                        buttonClass: "flex items-center justify-center rounded-xl border px-3 py-2 text-[12px] font-bold transition-all"
+                                    })}
+                                </div>
+                                <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
                                     <div class="flex items-center justify-between mb-3">
                                         <span class="text-[12px] font-extrabold text-slate-700">图像缩放</span>
                                         <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md" data-testid="avatar-zoom-readout">${avatarFrame.zoom.toFixed(2)}x</span>
                                     </div>
                                     <div class="flex items-center gap-3">
-                                        <i class="fas fa-search-minus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').stepDown(); document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').dispatchEvent(new Event('input'))"></i>
+                                        <i class="fas fa-search-minus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="const control = document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]'); if (control) { control.stepDown(); control.dispatchEvent(new Event('input', { bubbles: true })); }"></i>
                                         <input name="avatar-zoom" type="range" min="${escapeHtml(String(minZoom))}" max="2.5" step="0.01" value="${escapeHtml(String(avatarFrame.zoom))}" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-500 transition-all" data-section="avatarFrame" data-field="zoom" data-testid="avatar-zoom-control">
-                                        <i class="fas fa-search-plus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').stepUp(); document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]').dispatchEvent(new Event('input'))"></i>
+                                        <i class="fas fa-search-plus text-[11px] text-slate-400 hover:text-blue-500 transition-colors cursor-pointer" onclick="const control = document.querySelector('[data-testid=&quot;avatar-zoom-control&quot;]'); if (control) { control.stepUp(); control.dispatchEvent(new Event('input', { bubbles: true })); }"></i>
                                     </div>
                                 </div>
                                 <div>
@@ -354,10 +394,7 @@ function renderBasicForm({ resumeData, panelState, activeBasicInfoPickerIndex })
                     </div>
                     <div class="mt-3 flex items-center justify-between border-t border-slate-200/60 pt-3">
                         <p class="text-[11px] font-semibold text-slate-500">展示形状</p>
-                        <div class="flex gap-2">
-                            <button type="button" data-action="set-avatar-shape" data-shape="circle" class="rounded-md border px-3 py-1 text-[11px] font-bold transition-colors ${avatarShape === AVATAR_SHAPE_CIRCLE ? 'border-blue-400 bg-blue-50 text-blue-700 ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}">圆形</button>
-                            <button type="button" data-action="set-avatar-shape" data-shape="rectangle" class="rounded-md border px-3 py-1 text-[11px] font-bold transition-colors ${avatarShape === AVATAR_SHAPE_RECTANGLE ? 'border-blue-400 bg-blue-50 text-blue-700 ring-1 ring-blue-400' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}">矩形</button>
-                        </div>
+                        ${renderAvatarShapeButtons(avatarShape)}
                     </div>
                 </div>
                 <div class="grid gap-4">

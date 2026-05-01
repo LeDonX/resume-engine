@@ -6,6 +6,7 @@ import {
   activateDocumentTemplate,
   createEditorDocument,
   updateDocumentContent,
+  updateDocumentStyle,
   updateDocumentLayout
 } from '../src/core/document.js';
 import { getBlocksForZone, moveBlock, resizeBlock } from '../src/core/layout-ops.js';
@@ -48,6 +49,12 @@ test('persistence round trip restores durable editor state without transient edi
   let sessionDocument = createEditorDocument(sampleResumeSeed, cardsPreset);
 
   sessionDocument = updateDocumentContent(sessionDocument, 'projects[0].summary', '本地持久化后的项目摘要。');
+  sessionDocument = updateDocumentStyle(sessionDocument, {
+    accent: 'plum',
+    density: 'compact',
+    fontPair: 'serif-editorial',
+    surface: 'slate'
+  });
 
   const movedDefaultLayout = moveBlock(sessionDocument.layout, cardsPreset, 'block_projects', 'cards.sidebar', 1);
   sessionDocument = updateDocumentLayout(sessionDocument, movedDefaultLayout);
@@ -82,6 +89,12 @@ test('persistence round trip restores durable editor state without transient edi
   assert.equal(restoredState.selectedBlockId, 'block_profile');
   assert.equal(restoredState.sessionDocument.layout.presetId, 'classic');
   assert.equal(restoredState.sessionDocument.content.projects[0].summary, '本地持久化后的项目摘要。');
+  assert.deepEqual(restoredState.sessionDocument.style, {
+    accent: 'plum',
+    density: 'compact',
+    fontPair: 'serif-editorial',
+    surface: 'slate'
+  });
   assert.equal(restoredState.sessionDocument.content.experiences[0].highlights[0].text, '主导多版式简历编辑器重构，统一 cards / classic 布局内核。');
   assert.equal(restoredCardsDocument.layout.templateId, 'cards.sidebar-focus');
   assert.equal(restoredCardsDocument.layout.blocks.find((block) => block.id === 'block_skills')?.size, 'S');

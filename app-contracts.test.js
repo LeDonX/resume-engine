@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+    AVATAR_SHAPE_CIRCLE,
+    AVATAR_SHAPE_RECTANGLE,
     DEFAULT_EXPERIENCE_WORK_BADGE_LABEL,
     RESUME_REORDERABLE_SECTION_IDS,
     PROFESSIONAL_SKILLS_MODE_SKILLS,
@@ -135,6 +137,16 @@ test("shared default basic info presets replace expected salary with GitHub", ()
     assert.equal(data.basicInfo[2].value, "github.com/zhangsan");
 });
 
+test("shared experience timeline defaults to on in sample data and normalization fallback", () => {
+    const {
+        showExperienceTimeline: _showExperienceTimeline,
+        ...sampleWithoutTimelineToggle
+    } = sampleResumeData;
+
+    assert.equal(sampleResumeData.showExperienceTimeline, true);
+    assert.equal(normalizeResumeData(sampleWithoutTimelineToggle).showExperienceTimeline, true);
+});
+
 test("section title switching keeps each layout heading shell and only swaps icon tokens", () => {
     const cases = [
         {
@@ -254,6 +266,86 @@ test("form html exposes separate icon set controls for personal info and section
     assert.match(html, /data-action="set-section-title-icon-set"/);
     assert.equal(html.includes("跟随版式默认"), false);
     assert.equal(html.includes('data-icon-set="follow-layout"'), false);
+});
+
+test("avatar crop modal reuses the shared shape action contract and updates frame copy from avatarShape", () => {
+    const circleHtml = renderFormHtml({
+        resumeData: normalizeResumeData({
+            ...sampleResumeData,
+            avatarShape: AVATAR_SHAPE_CIRCLE
+        }),
+        panelState: createInitialPanelState(),
+        activeBasicInfoPickerIndex: -1,
+        avatarCropState: {
+            imageSrc: sampleResumeData.profileImage,
+            frame: sampleResumeData.avatarFrame,
+            fileName: "avatar.png",
+            imageMeta: { width: 512, height: 512 }
+        }
+    });
+    const rectangleHtml = renderFormHtml({
+        resumeData: normalizeResumeData({
+            ...sampleResumeData,
+            avatarShape: AVATAR_SHAPE_RECTANGLE
+        }),
+        panelState: createInitialPanelState(),
+        activeBasicInfoPickerIndex: -1,
+        avatarCropState: {
+            imageSrc: sampleResumeData.profileImage,
+            frame: sampleResumeData.avatarFrame,
+            fileName: "avatar.png",
+            imageMeta: { width: 512, height: 512 }
+        }
+    });
+
+    assert.ok(circleHtml.includes('data-testid="avatar-crop-modal"'));
+    assert.ok(circleHtml.includes('data-action="set-avatar-shape"'));
+    assert.ok(circleHtml.includes('data-shape="circle"'));
+    assert.ok(circleHtml.includes('data-shape="rectangle"'));
+    assert.ok(circleHtml.includes('data-shape="circle"'));
+    assert.ok(circleHtml.includes('aria-pressed="true"'));
+    assert.ok(circleHtml.includes('aria-pressed="false"'));
+    assert.ok(circleHtml.includes('当前：圆框'));
+    assert.ok(circleHtml.includes('最终圆框范围'));
+    assert.ok(circleHtml.includes('--avatar-crop-mask-radius: 9999px;'));
+    assert.ok(rectangleHtml.includes('aria-pressed="true"'));
+    assert.ok(rectangleHtml.includes('当前：矩形框'));
+    assert.ok(rectangleHtml.includes('最终矩形框范围'));
+    assert.ok(rectangleHtml.includes('--avatar-crop-mask-radius: 1rem;'));
+});
+
+test("all preview layouts keep avatar preview data attributes while honoring avatar shape classes", () => {
+    const layouts = [RESUME_LAYOUT_CLASSIC, RESUME_LAYOUT_CARDS, RESUME_LAYOUT_MY_RESUME, RESUME_LAYOUT_MY_RESUME3];
+    const customProfileImage = "data:image/png;base64,ZmFrZQ==";
+
+    for (const layout of layouts) {
+        const circleData = normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: layout,
+            avatarShape: AVATAR_SHAPE_CIRCLE,
+            profileImage: customProfileImage,
+            avatarImageMeta: { width: 320, height: 320 }
+        });
+        const rectangleData = normalizeResumeData({
+            ...sampleResumeData,
+            resumeLayout: layout,
+            avatarShape: AVATAR_SHAPE_RECTANGLE,
+            profileImage: customProfileImage,
+            avatarImageMeta: { width: 320, height: 320 }
+        });
+
+        const circleBlocks = buildLayoutColumnBlocks(layout, circleData, getAvatarImageSource(circleData.profileImage));
+        const rectangleBlocks = buildLayoutColumnBlocks(layout, rectangleData, getAvatarImageSource(rectangleData.profileImage));
+        const circleHtml = `${circleBlocks.leftBlocks.join("\n")}\n${circleBlocks.rightBlocks.join("\n")}`;
+        const rectangleHtml = `${rectangleBlocks.leftBlocks.join("\n")}\n${rectangleBlocks.rightBlocks.join("\n")}`;
+
+        assert.ok(circleHtml.includes('data-testid="avatar-preview-image"'), `${layout} should keep avatar preview test id`);
+        assert.ok(circleHtml.includes('data-avatar-zoom="'), `${layout} should keep avatar zoom contract`);
+        assert.ok(circleHtml.includes('data-avatar-offset-x="'), `${layout} should keep avatar offset-x contract`);
+        assert.ok(circleHtml.includes('data-avatar-offset-y="'), `${layout} should keep avatar offset-y contract`);
+        assert.ok(circleHtml.includes('rounded-full'), `${layout} should render the circle avatar shape class`);
+        assert.ok(rectangleHtml.includes('rounded-2xl'), `${layout} should render the rectangle avatar shape class`);
+    }
 });
 
 test("draft storage payload keeps the avatar sidecar sentinel contract", () => {
@@ -1177,11 +1269,12 @@ test("form renderer exposes the focused 字体 contract", () => {
     assert.ok(myResume3SpacingSectionHtml.includes('data-layout-control-value="myResume3AvatarSizeScale">140px</output>'));
     assert.ok(myResume3SpacingSectionHtml.includes("模板 2 个人信息上外边距"));
     assert.ok(myResume3SpacingSectionHtml.includes("模板 2 个人信息下外边距"));
-    assert.ok(myResume3SpacingSectionHtml.includes("模板 2 个人信息行高"));
+    assert.ok(myResume3SpacingSectionHtml.includes("模板 2 个人信息行间距"));
     assert.ok(myResume3SpacingSectionHtml.includes("模板 2 头像大小"));
     assert.ok(myResume3SpacingSectionHtml.includes('>0px</span>'));
     assert.ok(myResume3SpacingSectionHtml.includes('>43.5px</span>'));
-    assert.ok(myResume3SpacingSectionHtml.includes('>0.8x</span>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('>0x</span>'));
+    assert.ok(myResume3SpacingSectionHtml.includes('>2x</span>'));
     assert.ok(myResume3SpacingSectionHtml.includes('>182px</span>'));
     assert.ok(myResume3FontSectionHtml.includes("9 项"));
     assert.ok(myResume3SpacingSectionHtml.includes("11 项"));
@@ -1405,4 +1498,54 @@ test("my-resume3 keeps bullet text mode and switches to grouped skill-grid marku
     );
 
     assertOrderedFragments(reorderedBlocks.rightBlocks.join("\n"), ["教育经历", "项目经历", "工作经历", "专业技能"]);
+});
+
+test("my-resume3 work experiences honor the shared timeline toggle", () => {
+    const baseData = {
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME3,
+        summary: "",
+        projects: [],
+        education: [],
+        experiences: [
+            {
+                company: "公司 A",
+                title: "职位 A",
+                period: "2023.01 - 2024.01",
+                bullets: ["共享时间线要点 A"]
+            },
+            {
+                company: "公司 B",
+                title: "职位 B",
+                period: "2022.01 - 2022.12",
+                bullets: ["共享时间线要点 B"]
+            }
+        ]
+    };
+    const visibleData = normalizeResumeData({
+        ...baseData,
+        showExperienceTimeline: true
+    });
+    const hiddenData = normalizeResumeData({
+        ...baseData,
+        showExperienceTimeline: false
+    });
+    const visibleHtml = buildLayoutColumnBlocks(
+        RESUME_LAYOUT_MY_RESUME3,
+        visibleData,
+        getAvatarImageSource(visibleData.profileImage)
+    ).rightBlocks.join("\n");
+    const hiddenHtml = buildLayoutColumnBlocks(
+        RESUME_LAYOUT_MY_RESUME3,
+        hiddenData,
+        getAvatarImageSource(hiddenData.profileImage)
+    ).rightBlocks.join("\n");
+
+    assert.equal((visibleHtml.match(/my-resume3-work-entry/g) || []).length, 2);
+    assert.equal((visibleHtml.match(/my-resume3-timeline-rail/g) || []).length, 2);
+    assert.equal((visibleHtml.match(/my-resume3-timeline-dot/g) || []).length, 2);
+    assert.equal(visibleHtml.includes("my-resume3-timeline-entry-no-rail"), false);
+    assert.equal((hiddenHtml.match(/my-resume3-timeline-rail/g) || []).length, 0);
+    assert.equal((hiddenHtml.match(/my-resume3-timeline-dot/g) || []).length, 0);
+    assert.equal((hiddenHtml.match(/my-resume3-timeline-entry-no-rail/g) || []).length, 2);
 });

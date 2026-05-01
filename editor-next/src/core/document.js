@@ -251,6 +251,16 @@ export function updateDocumentContent(documentModel, editPath, nextValue) {
   };
 }
 
+export function updateDocumentStyle(documentModel, nextStylePatch) {
+  return {
+    ...documentModel,
+    style: {
+      ...documentModel.style,
+      ...nextStylePatch
+    }
+  };
+}
+
 export function getBlockMetadata(block) {
   return {
     'data-block-id': block.id,

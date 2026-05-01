@@ -9,6 +9,7 @@ import {
   projectDocumentToPreset,
   readEditPathValue,
   updateDocumentContent,
+  updateDocumentStyle,
   updateDocumentLayout,
   writeEditPathValue
 } from '../src/core/document.js';
@@ -114,6 +115,26 @@ test('updateDocumentContent preserves session safety and supports preset project
   assert.equal(classicProjection.content.projects[0].summary, '共享模型上的项目摘要已更新。');
   assert.equal(classicProjection.layout.presetId, 'classic');
   assert.equal(classicProjection.layout.templateId, 'classic.default');
+});
+
+test('updateDocumentStyle merges preview style choices immutably', () => {
+  const documentModel = createEditorDocument(sampleResumeSeed, cardsPreset);
+  const styledDocument = updateDocumentStyle(documentModel, {
+    accent: 'cobalt',
+    density: 'airy',
+    fontPair: 'sans-humanist',
+    surface: 'paper'
+  });
+
+  assert.notEqual(styledDocument, documentModel);
+  assert.notEqual(styledDocument.style, documentModel.style);
+  assert.equal(documentModel.style.accent, 'emerald');
+  assert.deepEqual(styledDocument.style, {
+    accent: 'cobalt',
+    density: 'airy',
+    fontPair: 'sans-humanist',
+    surface: 'paper'
+  });
 });
 
 test('layout updates persist inside the session document across preset switches', () => {

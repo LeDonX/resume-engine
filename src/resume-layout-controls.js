@@ -24,7 +24,7 @@ export const RESUME_LAYOUT_CONTROL_SETTINGS = Object.freeze({
     bodyLineHeightScale: Object.freeze({ min: 0.8, max: 1.15, step: 0.01, defaultValue: 1 }),
     myResume3HeaderInfoTopMarginScale: Object.freeze({ min: 0, max: 1.4, step: 0.01, defaultValue: 1 }),
     myResume3HeaderInfoBottomMarginScale: Object.freeze({ min: 0, max: 1.4, step: 0.01, defaultValue: 1 }),
-    myResume3HeaderInfoLineHeightScale: Object.freeze({ min: 0.8, max: 1.3, step: 0.01, defaultValue: 1 }),
+    myResume3HeaderInfoLineHeightScale: Object.freeze({ min: 0, max: 2, step: 0.01, defaultValue: 1 }),
     myResume3AvatarSizeScale: Object.freeze({ min: 0.8, max: 1.3, step: 0.01, defaultValue: 1 })
 });
 

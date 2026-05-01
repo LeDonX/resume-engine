@@ -188,19 +188,48 @@ test("my-resume3 header spacing uses dedicated top and bottom personal-info cont
     );
 });
 
-test("my-resume3 header line-height control stays scoped to meta text instead of reintroducing density coupling", () => {
+test("my-resume3 header spacing control stays scoped to personal-info row gaps only", () => {
     assert.ok(
-        getRuleBlocks(".my-resume3-meta-text").some((block) => /line-height:\s*calc\(1\.5 \* var\(--resume-my3-header-info-line-height-scale, 1\)\)/.test(block)),
-        ".my-resume3-meta-text should consume the dedicated line-height control"
+        getRuleBlocks(".my-resume3-meta-text").some((block) => /line-height:\s*1\.5/.test(block)),
+        ".my-resume3-meta-text should keep a fixed safe line-height"
     );
     assert.ok(
-        getRuleBlocks(".my-resume3-meta-item").every((block) => !block.includes("--resume-my3-header-info-line-height-scale")),
-        ".my-resume3-meta-item should not reference the dedicated line-height control"
+        getRuleBlocks(".my-resume3-meta-text").every((block) => !/--resume-my3-header-info-line-height-scale/.test(block)),
+        ".my-resume3-meta-text should not consume the dedicated header spacing control"
+    );
+    assert.ok(
+        getRuleBlocks(".my-resume3-meta-grid").some((block) => /gap:\s*var\(--resume-my3-meta-grid-row-gap\) var\(--resume-my3-meta-grid-column-gap\)/.test(block)),
+        ".my-resume3-meta-grid should keep using the dedicated meta spacing tokens"
+    );
+    assert.ok(
+        getRuleBlocks(".my-resume3-meta-item").some((block) => /min-height:\s*var\(--resume-my3-meta-item-min-height\)/.test(block)),
+        ".my-resume3-meta-item should keep using the dedicated meta item height token"
     );
     const myResume3ThemeRule = getRuleBlocks(".resume-layout-my-resume3.resume-theme-shell")[0];
     assert.match(
         myResume3ThemeRule,
+        /--resume-my3-meta-grid-row-gap:\s*calc\(1\.4rem \* var\(--resume-my3-header-info-line-height-scale, 1\)\)/,
+        "my-resume3 meta row gap should derive from the dedicated header info line-height control"
+    );
+    assert.match(
+        myResume3ThemeRule,
         /--resume-my3-meta-item-min-height:\s*1\.72rem/,
-        "my-resume3 meta item min-height should remain fixed so line-height control does not masquerade as a density slider"
+        "my-resume3 meta item min-height should stay fixed instead of scaling with the row-gap control"
+    );
+    assert.equal(
+        myResume3ThemeRule.match(/--resume-my3-header-info-line-height-scale/g)?.length || 0,
+        1,
+        "my-resume3 header row-gap control should only be consumed by the dedicated row-gap token"
+    );
+});
+
+test("my-resume3 work timeline rail stays visible for every work item instead of only tail entries", () => {
+    assert.ok(
+        getRuleBlocks(".my-resume3-work-entry .my-resume3-timeline-rail").some((block) => /background:\s*var\(--resume-my3-divider\)/.test(block)),
+        ".my-resume3 work entries should paint their left rail directly"
+    );
+    assert.ok(
+        getRuleBlocks(".my-resume3-timeline-entry-no-rail").some((block) => /padding-left:\s*0/.test(block)),
+        ".my-resume3 work entries should collapse the left gutter when the shared timeline toggle is off"
     );
 });

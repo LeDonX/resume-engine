@@ -1,0 +1,280 @@
+- main [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: Editor Next Console
+      - heading "文档控制台" [level=1] [ref=e7]
+      - paragraph [ref=e8]: 把左侧从调试式检查器重组为真实的编辑侧栏：文档、模板、风格、布局和区块操作都集中在这里。
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - generic [ref=e12]: Document / Preset
+          - heading "文档与场景" [level=2] [ref=e13]
+          - paragraph [ref=e14]: 在不同预设场景间切换，同时保留每个 preset / template 的已编辑内容与布局。
+        - generic [ref=e15]:
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - generic [ref=e19]: 当前 preset
+              - strong [ref=e20]: 卡片版
+            - listitem [ref=e21]:
+              - generic [ref=e22]: 当前模板
+              - strong [ref=e23]: 默认均衡
+            - listitem [ref=e24]:
+              - generic [ref=e25]: 选中区块
+              - strong [ref=e26]: block_profile
+          - generic [ref=e27]:
+            - button "卡片版" [ref=e28] [cursor=pointer]
+            - button "经典版" [ref=e29] [cursor=pointer]
+          - generic [ref=e30]: 强调模块卡片与层次信息，作为 Phase 1 主展示 preset。
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]: Template
+          - heading "模板排版" [level=2] [ref=e34]
+          - paragraph [ref=e35]: 只替换当前 preset 的布局骨架；已保存的排序和尺寸按模板分别保留。
+        - generic [ref=e37]:
+          - button "默认均衡 左侧承载个人资料，右侧保持摘要与叙事主列的平衡节奏。" [ref=e38] [cursor=pointer]:
+            - strong [ref=e39]: 默认均衡
+            - generic [ref=e40]: 左侧承载个人资料，右侧保持摘要与叙事主列的平衡节奏。
+          - button "侧栏强调 把可移动补充模块向侧栏集中，主列只保留摘要与经历的主阅读流。" [ref=e41] [cursor=pointer]:
+            - strong [ref=e42]: 侧栏强调
+            - generic [ref=e43]: 把可移动补充模块向侧栏集中，主列只保留摘要与经历的主阅读流。
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: Style
+          - heading "视觉风格" [level=2] [ref=e47]
+          - paragraph [ref=e48]: 用现有 style state 驱动预览气质，让卡片版与经典版都能看到真实风格变化。
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]: 强调色
+              - strong [ref=e53]: 翡翠
+            - generic [ref=e54]:
+              - button "翡翠" [ref=e55] [cursor=pointer]
+              - button "钴蓝" [ref=e56] [cursor=pointer]
+              - button "琥珀" [ref=e57] [cursor=pointer]
+              - button "绛紫" [ref=e58] [cursor=pointer]
+            - generic [ref=e59]: 沉稳绿色高亮，保持当前卡片气质。
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - generic [ref=e62]: 信息密度
+              - strong [ref=e63]: 常规
+            - generic [ref=e64]:
+              - button "紧凑" [ref=e65] [cursor=pointer]
+              - button "常规" [ref=e66] [cursor=pointer]
+              - button "舒展" [ref=e67] [cursor=pointer]
+            - generic [ref=e68]: 平衡阅读舒适度与信息量。
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - generic [ref=e71]: 字体系
+              - strong [ref=e72]: 宋体标题
+            - generic [ref=e73]:
+              - button "宋体标题" [ref=e74] [cursor=pointer]
+              - button "人文无衬线" [ref=e75] [cursor=pointer]
+              - button "编辑感衬线" [ref=e76] [cursor=pointer]
+            - generic [ref=e77]: 标题偏内容展示，正文保持清晰。
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic [ref=e80]: 预览底色
+              - strong [ref=e81]: 雾米
+            - generic [ref=e82]:
+              - button "雾米" [ref=e83] [cursor=pointer]
+              - button "纸白" [ref=e84] [cursor=pointer]
+              - button "石板" [ref=e85] [cursor=pointer]
+            - generic [ref=e86]: 柔和暖底，适合 cards 首选体验。
+      - generic [ref=e87]:
+        - generic [ref=e88]:
+          - generic [ref=e89]: Layout
+          - heading "布局控制" [level=2] [ref=e90]
+          - paragraph [ref=e91]: 拖动仍在右侧画布直接完成；这里聚合当前模板、zone 分配和尺寸策略。
+        - generic [ref=e92]:
+          - list [ref=e94]:
+            - listitem [ref=e95]:
+              - generic [ref=e96]: 模板标识
+              - strong [ref=e97]: cards.default
+            - listitem [ref=e98]:
+              - generic [ref=e99]: 可用 zone
+              - strong [ref=e100]: "2"
+            - listitem [ref=e101]:
+              - generic [ref=e102]: 拖动状态
+              - strong [ref=e103]: 待命
+          - list [ref=e105]:
+            - listitem [ref=e106]:
+              - generic [ref=e107]: 左侧资料列
+              - strong [ref=e108]: 3 个区块
+            - listitem [ref=e109]:
+              - generic [ref=e110]: 右侧主叙事列
+              - strong [ref=e111]: 3 个区块
+          - generic [ref=e112]:
+            - strong [ref=e113]: 个人概览 · 尺寸档位
+            - generic [ref=e114]:
+              - generic [ref=e115]: 尺寸档位
+              - strong [ref=e116]: 当前尺寸 L（锁定）
+              - button "L" [disabled] [ref=e118]
+              - generic [ref=e119]: 保持主视觉概览卡的完整密度。
+              - list [ref=e120]:
+                - listitem [ref=e121]:
+                  - generic [ref=e122]: 允许尺寸
+                  - strong [ref=e123]: L
+                - listitem [ref=e124]:
+                  - generic [ref=e125]: 当前档位
+                  - strong [ref=e126]: L
+                - listitem [ref=e127]:
+                  - generic [ref=e128]: 应用方式
+                  - strong [ref=e129]: 语义档位，不使用像素拖拽
+      - generic [ref=e130]:
+        - generic [ref=e131]:
+          - generic [ref=e132]: Selected block
+          - heading "区块详情" [level=2] [ref=e133]
+          - paragraph [ref=e134]: 保留必要信息与操作提示，避免原来那种偏调试面板的冗长输出。
+        - generic [ref=e135]:
+          - list [ref=e137]:
+            - listitem [ref=e138]:
+              - generic [ref=e139]: 区块名称
+              - strong [ref=e140]: 个人概览
+            - listitem [ref=e141]:
+              - generic [ref=e142]: 内容类型
+              - strong [ref=e143]: profile
+            - listitem [ref=e144]:
+              - generic [ref=e145]: 当前 zone
+              - strong [ref=e146]: 左侧资料列
+            - listitem [ref=e147]:
+              - generic [ref=e148]: 尺寸档位
+              - strong [ref=e149]: L
+            - listitem [ref=e150]:
+              - generic [ref=e151]: 移动状态
+              - strong [ref=e152]: 位置锁定
+            - listitem [ref=e153]:
+              - generic [ref=e154]: 模板上下文
+              - strong [ref=e155]: 默认均衡
+          - generic [ref=e156]:
+            - strong [ref=e157]: 交互说明
+            - paragraph [ref=e158]: 该区块固定在当前版式语义位置，仍可直编内容，但不参与换位和尺寸切换。
+            - generic [ref=e160]: 左侧资料列
+          - generic [ref=e161]:
+            - generic [ref=e162]: 当前编辑目标
+            - strong [ref=e163]: 未进入直编
+            - generic [ref=e164]: 点击右侧带描边的文字即可进入直编。
+            - list [ref=e165]:
+              - listitem [ref=e166]:
+                - generic [ref=e167]: 草稿值
+                - strong [ref=e168]: —
+              - listitem [ref=e169]:
+                - generic [ref=e170]: 快捷键
+                - strong [ref=e171]: Enter 保存 / Esc 取消
+              - listitem [ref=e172]:
+                - generic [ref=e173]: 提交方式
+                - strong [ref=e174]: blur 自动提交
+  - generic [ref=e175]:
+    - generic [ref=e176]:
+      - strong [ref=e177]: 预览画面
+      - generic [ref=e178]: 卡片版 · 默认均衡：点击区块选中；通过右上角拖动手柄排序；尺寸档位与直编继续共用约束状态
+    - generic [ref=e179]:
+      - generic [ref=e180]:
+        - generic [ref=e181]: 左侧资料列
+        - generic [ref=e182]:
+          - generic [ref=e183] [cursor=pointer]:
+            - generic [ref=e184]:
+              - generic [ref=e185]:
+                - generic [ref=e186]: profile
+                - heading "个人概览" [level=3] [ref=e187]
+              - button "个人概览 已锁定" [disabled] [ref=e188]:
+                - generic [ref=e189]: ⋮⋮
+                - generic [ref=e190]: 锁定
+            - generic [ref=e191]:
+              - button "L" [disabled] [ref=e194]
+              - generic [ref=e195]: 当前位于 左侧资料列 · 尺寸 L，该区块不参与换位。
+            - generic [ref=e196]:
+              - heading "林知遥" [level=2] [ref=e197]
+              - paragraph [ref=e198]: 资深体验设计工程师
+              - paragraph [ref=e199]: 把复杂信息组织成可执行、可阅读、可打印的产品体验。
+              - list [ref=e200]:
+                - listitem [ref=e201]: 上海
+                - listitem [ref=e202]: lin.zhiyao@example.com
+                - listitem [ref=e203]: 138-0000-0000
+          - generic [ref=e204] [cursor=pointer]:
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - generic [ref=e207]: skills
+                - heading "能力标签" [level=3] [ref=e208]
+              - button "拖动 能力标签" [ref=e209]:
+                - generic [ref=e210]: ⋮⋮
+                - generic [ref=e211]: 拖动
+            - list [ref=e212]:
+              - listitem [ref=e213]:
+                - strong [ref=e214]: 信息架构
+                - generic [ref=e215]: 强
+              - listitem [ref=e216]:
+                - strong [ref=e217]: 设计系统
+                - generic [ref=e218]: 强
+              - listitem [ref=e219]:
+                - strong [ref=e220]: 原型验证
+                - generic [ref=e221]: 强
+              - listitem [ref=e222]:
+                - strong [ref=e223]: 前端实现
+                - generic [ref=e224]: 中
+          - generic [ref=e225] [cursor=pointer]:
+            - generic [ref=e226]:
+              - generic [ref=e227]:
+                - generic [ref=e228]: education
+                - heading "教育经历" [level=3] [ref=e229]
+              - button "拖动 教育经历" [ref=e230]:
+                - generic [ref=e231]: ⋮⋮
+                - generic [ref=e232]: 拖动
+            - article [ref=e234]:
+              - strong [ref=e235]: 同济大学
+              - generic [ref=e236]: 数字媒体设计 硕士
+              - generic [ref=e237]: 2014 — 2017
+      - generic [ref=e238]:
+        - generic [ref=e239]: 右侧主叙事列
+        - generic [ref=e240]:
+          - generic [ref=e241] [cursor=pointer]:
+            - generic [ref=e242]:
+              - generic [ref=e243]:
+                - generic [ref=e244]: summary
+                - heading "个人摘要" [level=3] [ref=e245]
+              - button "拖动 个人摘要" [ref=e246]:
+                - generic [ref=e247]: ⋮⋮
+                - generic [ref=e248]: 拖动
+            - paragraph [ref=e249]: 8 年内容产品与设计系统协作经验，长期负责编辑器、工作台与知识型工具。擅长把信息结构、交互约束和视觉表达整合成稳定的编辑体验，推动复杂模块在桌面端与打印场景下保持一致。
+          - generic [ref=e250] [cursor=pointer]:
+            - generic [ref=e251]:
+              - generic [ref=e252]:
+                - generic [ref=e253]: experiences
+                - heading "工作经历" [level=3] [ref=e254]
+              - button "拖动 工作经历" [ref=e255]:
+                - generic [ref=e256]: ⋮⋮
+                - generic [ref=e257]: 拖动
+            - generic [ref=e258]:
+              - article [ref=e259]:
+                - generic [ref=e260]:
+                  - strong [ref=e261]: 编辑器体验负责人
+                  - generic [ref=e262]: 澄明科技
+                  - generic [ref=e263]: 2021 — 至今
+                - list [ref=e264]:
+                  - listitem [ref=e265]: • 主导多版式简历编辑器重构，统一 cards / classic 布局内核。
+                  - listitem [ref=e266]: • 搭建 block metadata 与 selection 基线，降低后续交互接入成本。
+                  - listitem [ref=e267]: • 推动打印预览与浏览器编辑体验对齐，建立回归检查清单。
+              - article [ref=e268]:
+                - generic [ref=e269]:
+                  - strong [ref=e270]: 产品设计师
+                  - generic [ref=e271]: 未止工作室
+                  - generic [ref=e272]: 2018 — 2021
+                - list [ref=e273]:
+                  - listitem [ref=e274]: • 负责 B2B 仪表盘和内容工作台的信息可视化与组件规范。
+                  - listitem [ref=e275]: • 设计并交付面向中文场景的复杂表单与内容结构模板。
+          - generic [ref=e276] [cursor=pointer]:
+            - generic [ref=e277]:
+              - generic [ref=e278]:
+                - generic [ref=e279]: projects
+                - heading "项目精选" [level=3] [ref=e280]
+              - button "拖动 项目精选" [ref=e281]:
+                - generic [ref=e282]: ⋮⋮
+                - generic [ref=e283]: 拖动
+            - generic [ref=e284]:
+              - article [ref=e285]:
+                - strong [ref=e286]: Resume Engine Next
+                - paragraph [ref=e287]: 以统一文档模型承载多版式编辑、打印和未来交互约束。
+                - generic [ref=e288]: 为后续拖拽、尺寸档位、直编奠定结构基础。
+              - article [ref=e289]:
+                - strong [ref=e290]: 知识库工作台改版
+                - paragraph [ref=e291]: 重做目录、搜索与卡片信息密度策略。
+                - generic [ref=e292]: 复杂信息任务完成时长下降 23%。

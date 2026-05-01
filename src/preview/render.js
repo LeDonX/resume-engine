@@ -949,19 +949,20 @@ function renderMyResumeProjectCard(project) {
 }
 
 function renderMyResumeAvatar(data, profileImage) {
+    const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
     if (hasCustomAvatarImage(data.profileImage)) {
         const avatarMeta = data.avatarImageMeta || getCachedAvatarImageMeta(data.profileImage);
         const avatarFrame = normalizeAvatarFrame(data.avatarFrame, avatarMeta);
         const avatarStyle = getAvatarImageStyle(avatarFrame, avatarMeta);
         return `
-            <div class="my-resume-avatar-shell my-resume-avatar-image-shell">
+            <div class="my-resume-avatar-shell my-resume-avatar-image-shell ${avatarFrameClass}">
                 <img src="${escapeHtml(profileImage)}" alt="Profile Picture" class="pointer-events-none select-none" style="${avatarStyle}" data-testid="avatar-preview-image" data-avatar-zoom="${escapeHtml(String(avatarFrame.zoom))}" data-avatar-offset-x="${escapeHtml(String(avatarFrame.offsetX))}" data-avatar-offset-y="${escapeHtml(String(avatarFrame.offsetY))}" onerror="this.onerror=null;this.src='${FALLBACK_AVATAR}'">
             </div>
         `;
     }
 
     return `
-        <div class="my-resume-avatar-shell my-resume-avatar-fallback-shell" aria-hidden="true">
+        <div class="my-resume-avatar-shell my-resume-avatar-fallback-shell ${avatarFrameClass}" aria-hidden="true">
             <div class="my-resume-avatar-fallback">${escapeHtml(buildMyResumeInitials(pickText(data.name, "")))}</div>
         </div>
     `;
@@ -1299,6 +1300,7 @@ function renderMyResume3MetaItem(item, data) {
 }
 
 function renderMyResume3Avatar(data, profileImage) {
+    const avatarFrameClass = getAvatarFrameContainerClass(data.avatarShape);
     const avatarContent = hasCustomAvatarImage(data.profileImage)
         ? (() => {
             const avatarMeta = data.avatarImageMeta || getCachedAvatarImageMeta(data.profileImage);
@@ -1309,8 +1311,8 @@ function renderMyResume3Avatar(data, profileImage) {
         : `<div class="my-resume3-avatar-fallback">${escapeHtml(buildMyResume3Initials(pickText(data.name, "")))}</div>`;
 
     return `
-        <div class="my-resume3-avatar-card">
-            <div class="my-resume3-avatar-media">
+        <div class="my-resume3-avatar-card ${avatarFrameClass}">
+            <div class="my-resume3-avatar-media ${avatarFrameClass}">
                 ${avatarContent}
             </div>
         </div>
@@ -1338,19 +1340,19 @@ function getMyResume3SkillItems(data) {
         .filter(Boolean);
 }
 
-function renderMyResume3ExperienceEntry(item, index, total) {
+function renderMyResume3ExperienceEntry(item, index, total, showExperienceTimeline = true) {
     const company = pickText(item?.company, "").trim() || "未填写公司";
     const role = pickText(item?.title, "").trim();
     const period = pickText(item?.period, "").trim();
     const highlightEnabled = Boolean(item?.highlight);
     const workBadge = renderExperienceWorkBadge(item, "my-resume3-experience-badge", RESUME_LAYOUT_MY_RESUME3);
     const details = normalizeStringArray(item?.bullets);
-    const showTail = index < total - 1;
+    const showTimeline = Boolean(showExperienceTimeline);
+    const showTail = showTimeline && index < total - 1;
 
     return `
-        <article class="my-resume3-timeline-entry my-resume3-work-entry${showTail ? " my-resume3-timeline-entry-tail" : ""}">
-            <span class="my-resume3-timeline-rail" aria-hidden="true"></span>
-            <span class="my-resume3-timeline-dot" aria-hidden="true"></span>
+        <article class="my-resume3-timeline-entry my-resume3-work-entry${showTail ? " my-resume3-timeline-entry-tail" : ""}${showTimeline ? "" : " my-resume3-timeline-entry-no-rail"}">
+            ${showTimeline ? '<span class="my-resume3-timeline-rail" aria-hidden="true"></span><span class="my-resume3-timeline-dot" aria-hidden="true"></span>' : ""}
             <div class="my-resume3-timeline-body">
                 <div class="my-resume3-timeline-head">
                     <div class="my-resume3-work-heading">
@@ -1495,12 +1497,12 @@ function buildMyResume3LayoutBlocks(data, profileImage) {
                 `
                     <section class="my-resume3-section resume-avoid-break">
                         ${renderResolvedSectionTitle("工作经历", "experiences", data)}
-                        ${renderMyResume3ExperienceEntry(experienceList[0], 0, experienceList.length)}
+                        ${renderMyResume3ExperienceEntry(experienceList[0], 0, experienceList.length, data.showExperienceTimeline)}
                     </section>
                 `,
                 ...experienceList.slice(1).map((item, index) => (`
                     <div class="my-resume3-flow-block resume-avoid-break">
-                        ${renderMyResume3ExperienceEntry(item, index + 1, experienceList.length)}
+                        ${renderMyResume3ExperienceEntry(item, index + 1, experienceList.length, data.showExperienceTimeline)}
                     </div>
                 `))
             ]

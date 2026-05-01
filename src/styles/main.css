@@ -1453,6 +1453,14 @@ body {
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
         }
 
+        .my-resume-avatar-shell.rounded-full {
+            border-radius: 9999px;
+        }
+
+        .my-resume-avatar-shell.rounded-2xl {
+            border-radius: 1rem;
+        }
+
         .my-resume-avatar-image-shell {
             background: linear-gradient(180deg, #f8fafc, #eef2f7);
         }
@@ -1837,7 +1845,7 @@ body {
             --resume-my3-bullet-gap: 0.82rem;
             --resume-my3-header-info-top-gap: calc(3rem * var(--resume-my3-header-info-top-margin-scale, 1));
             --resume-my3-header-info-bottom-gap: calc(1.94rem * var(--resume-my3-header-info-bottom-margin-scale, 1));
-            --resume-my3-meta-grid-row-gap: 1.4rem;
+            --resume-my3-meta-grid-row-gap: calc(1.4rem * var(--resume-my3-header-info-line-height-scale, 1));
             --resume-my3-meta-grid-column-gap: 1.2rem;
             --resume-my3-meta-item-min-height: 1.72rem;
             --resume-my3-avatar-size: calc(8.75rem * var(--resume-my3-avatar-size-scale, 1));
@@ -1973,7 +1981,7 @@ body {
             min-width: 0;
             color: #334155;
             font-size: calc(0.98rem * var(--resume-basic-info-scale, 1));
-            line-height: calc(1.5 * var(--resume-my3-header-info-line-height-scale, 1));
+            line-height: 1.5;
             font-weight: 600;
             text-decoration: none;
             overflow: hidden;
@@ -2029,6 +2037,19 @@ body {
             overflow: hidden;
             border-radius: var(--resume-my3-avatar-media-radius);
             background: linear-gradient(180deg, rgba(239, 246, 255, 0.95), rgba(219, 234, 254, 0.9));
+        }
+
+        .my-resume3-avatar-card.rounded-full,
+        .my-resume3-avatar-media.rounded-full {
+            border-radius: 9999px;
+        }
+
+        .my-resume3-avatar-card.rounded-2xl {
+            border-radius: var(--resume-my3-avatar-radius);
+        }
+
+        .my-resume3-avatar-media.rounded-2xl {
+            border-radius: var(--resume-my3-avatar-media-radius);
         }
 
         .my-resume3-avatar-image {
@@ -2175,7 +2196,7 @@ body {
 
         .my-resume3-timeline-rail {
             position: absolute;
-            left: 0.37rem;
+            left: calc(0.39rem - 0.75px);
             top: 0.82rem;
             bottom: 0;
             width: 1.5px;
@@ -2183,8 +2204,16 @@ body {
             background: transparent;
         }
 
+        .my-resume3-work-entry .my-resume3-timeline-rail {
+            background: var(--resume-my3-divider);
+        }
+
         .my-resume3-timeline-entry-tail .my-resume3-timeline-rail {
             background: var(--resume-my3-divider);
+        }
+
+        .my-resume3-timeline-entry-no-rail {
+            padding-left: 0;
         }
 
         .my-resume3-timeline-dot {

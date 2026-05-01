@@ -5,6 +5,7 @@ import {
   createEditorDocument,
   readEditPathValue,
   updateDocumentContent,
+  updateDocumentStyle,
   updateDocumentLayout
 } from '../core/document.js';
 import { getBlock, getBlockSizeOptions, moveBlock, resizeBlock } from '../core/layout-ops.js';
@@ -22,6 +23,30 @@ import {
 } from './sortable-controller.js';
 
 const INITIAL_PRESET_ID = 'cards';
+
+const STYLE_CONTROL_OPTIONS = Object.freeze({
+  accent: [
+    { value: 'emerald', label: '翡翠', note: '沉稳绿色高亮，保持当前卡片气质。' },
+    { value: 'cobalt', label: '钴蓝', note: '更偏工具感，适合经典正文阅读。' },
+    { value: 'amber', label: '琥珀', note: '强调重点与结果信息。' },
+    { value: 'plum', label: '绛紫', note: '让卡片更有展示氛围。' }
+  ],
+  density: [
+    { value: 'compact', label: '紧凑', note: '压缩留白，接近打印密度。' },
+    { value: 'comfortable', label: '常规', note: '平衡阅读舒适度与信息量。' },
+    { value: 'airy', label: '舒展', note: '给重点模块更多呼吸感。' }
+  ],
+  fontPair: [
+    { value: 'serif-sans', label: '宋体标题', note: '标题偏内容展示，正文保持清晰。' },
+    { value: 'sans-humanist', label: '人文无衬线', note: '更像现代产品文档。' },
+    { value: 'serif-editorial', label: '编辑感衬线', note: '适合卡片展示与摘要。' }
+  ],
+  surface: [
+    { value: 'mist', label: '雾米', note: '柔和暖底，适合 cards 首选体验。' },
+    { value: 'paper', label: '纸白', note: '更接近传统打印与 classic。' },
+    { value: 'slate', label: '石板', note: '深色预览，更像控制台样稿。' }
+  ]
+});
 
 function createSessionDocument() {
   return createEditorDocument(sampleResumeSeed, getPreset(INITIAL_PRESET_ID));
@@ -302,24 +327,360 @@ function formatEditTarget(editPath) {
   return editPath;
 }
 
+function currentStyle() {
+  return state.sessionDocument.style || {};
+}
+
+function getStyleOptionLabel(group, value) {
+  return STYLE_CONTROL_OPTIONS[group]?.find((option) => option.value === value)?.label || value;
+}
+
+function updateStyleField(field, value) {
+  if (currentStyle()[field] === value) {
+    return;
+  }
+
+  state.sessionDocument = updateDocumentStyle(state.sessionDocument, {
+    [field]: value
+  });
+  renderApp();
+}
+
+function createConsoleSection({ eyebrow, title, description, bodyClassName = '', compact = false }) {
+  const section = document.createElement('section');
+  section.className = `console-section${compact ? ' console-section--compact' : ''}`;
+
+  const header = document.createElement('div');
+  header.className = 'console-section__header';
+
+  const eyebrowElement = document.createElement('span');
+  eyebrowElement.className = 'console-section__eyebrow';
+  eyebrowElement.textContent = eyebrow;
+
+  const titleElement = document.createElement('h2');
+  titleElement.className = 'console-section__title';
+  titleElement.textContent = title;
+
+  const descriptionElement = document.createElement('p');
+  descriptionElement.className = 'console-section__description';
+  descriptionElement.textContent = description;
+
+  header.append(eyebrowElement, titleElement, descriptionElement);
+
+  const body = document.createElement('div');
+  body.className = ['console-section__body', bodyClassName].filter(Boolean).join(' ');
+
+  section.append(header, body);
+
+  return { section, body };
+}
+
+function createSegmentedOptionGroup({ field, label, options, value, onChange }) {
+  const wrap = document.createElement('div');
+  wrap.className = 'field-group';
+
+  const fieldLabel = document.createElement('div');
+  fieldLabel.className = 'field-group__label-row';
+
+  const title = document.createElement('span');
+  title.className = 'field-group__label';
+  title.textContent = label;
+
+  const current = document.createElement('strong');
+  current.className = 'field-group__value';
+  current.textContent = getStyleOptionLabel(field, value);
+
+  fieldLabel.append(title, current);
+
+  const controls = document.createElement('div');
+  controls.className = 'segmented-control';
+
+  options.forEach((option) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'segmented-control__button';
+    button.dataset.active = String(option.value === value);
+    button.title = option.note || option.label;
+    button.textContent = option.label;
+    button.addEventListener('click', () => onChange(option.value));
+    controls.append(button);
+  });
+
+  const note = document.createElement('small');
+  note.className = 'field-group__hint';
+  note.textContent = options.find((option) => option.value === value)?.note || '';
+
+  wrap.append(fieldLabel, controls, note);
+  return wrap;
+}
+
+function createMetaList(entries, options = {}) {
+  const { compact = false } = options;
+  const list = document.createElement('ul');
+  list.className = compact ? 'console-meta-list console-meta-list--compact' : 'console-meta-list';
+
+  entries.forEach(([label, value]) => {
+    const item = document.createElement('li');
+    const itemLabel = document.createElement('span');
+    const itemValue = document.createElement('strong');
+
+    itemLabel.textContent = label;
+    itemValue.textContent = value;
+    item.append(itemLabel, itemValue);
+    list.append(item);
+  });
+
+  return list;
+}
+
+function createDocumentPresetSection(preset, activeTemplate) {
+  const { section, body } = createConsoleSection({
+    eyebrow: 'Document / Preset',
+    title: '文档与场景',
+    description: '在不同预设场景间切换，同时保留每个 preset / template 的已编辑内容与布局。',
+    bodyClassName: 'console-stack'
+  });
+
+  const summaryCard = document.createElement('div');
+  summaryCard.className = 'console-summary-card';
+  summaryCard.append(createMetaList([
+    ['当前 preset', preset.label],
+    ['当前模板', activeTemplate.label],
+    ['选中区块', state.selectedBlockId || '未选择']
+  ]));
+
+  const switcher = document.createElement('div');
+  switcher.className = 'button-cluster';
+
+  listPresets().forEach((entry) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'cluster-button';
+    button.dataset.active = String(state.presetId === entry.id);
+    button.textContent = entry.label;
+    button.addEventListener('click', () => {
+      commitActiveEdit({ rerender: false });
+      resetActiveMoveState();
+      state.presetId = entry.id;
+      state.sessionDocument = activateDocumentPreset(state.sessionDocument, entry);
+      ensureSelectedBlock(state.sessionDocument.layout);
+      renderApp();
+    });
+    switcher.append(button);
+  });
+
+  const hint = document.createElement('small');
+  hint.className = 'console-hint';
+  hint.textContent = preset.description;
+
+  body.append(summaryCard, switcher, hint);
+  return section;
+}
+
+function createTemplateSection(preset) {
+  const { section, body } = createConsoleSection({
+    eyebrow: 'Template',
+    title: '模板排版',
+    description: '只替换当前 preset 的布局骨架；已保存的排序和尺寸按模板分别保留。',
+    bodyClassName: 'console-stack'
+  });
+
+  const switcher = document.createElement('div');
+  switcher.className = 'button-cluster';
+
+  listPresetTemplates(preset).forEach((template) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'cluster-button cluster-button--wide';
+    button.dataset.active = String(currentTemplateId() === template.id);
+    button.addEventListener('click', () => {
+      if (template.id === currentTemplateId()) {
+        return;
+      }
+
+      commitActiveEdit({ rerender: false });
+      resetActiveMoveState();
+      state.sessionDocument = activateDocumentTemplate(state.sessionDocument, preset, template.id);
+      ensureSelectedBlock(state.sessionDocument.layout);
+      renderApp();
+    });
+
+    const label = document.createElement('strong');
+    label.textContent = template.label;
+    const copy = document.createElement('small');
+    copy.textContent = template.description || template.label;
+    button.append(label, copy);
+    switcher.append(button);
+  });
+
+  body.append(switcher);
+  return section;
+}
+
+function createStyleControlsSection() {
+  const style = currentStyle();
+  const { section, body } = createConsoleSection({
+    eyebrow: 'Style',
+    title: '视觉风格',
+    description: '用现有 style state 驱动预览气质，让卡片版与经典版都能看到真实风格变化。',
+    bodyClassName: 'console-stack'
+  });
+
+  body.append(
+    createSegmentedOptionGroup({
+      field: 'accent',
+      label: '强调色',
+      options: STYLE_CONTROL_OPTIONS.accent,
+      value: style.accent,
+      onChange: (value) => updateStyleField('accent', value)
+    }),
+    createSegmentedOptionGroup({
+      field: 'density',
+      label: '信息密度',
+      options: STYLE_CONTROL_OPTIONS.density,
+      value: style.density,
+      onChange: (value) => updateStyleField('density', value)
+    }),
+    createSegmentedOptionGroup({
+      field: 'fontPair',
+      label: '字体系',
+      options: STYLE_CONTROL_OPTIONS.fontPair,
+      value: style.fontPair,
+      onChange: (value) => updateStyleField('fontPair', value)
+    }),
+    createSegmentedOptionGroup({
+      field: 'surface',
+      label: '预览底色',
+      options: STYLE_CONTROL_OPTIONS.surface,
+      value: style.surface,
+      onChange: (value) => updateStyleField('surface', value)
+    })
+  );
+
+  return section;
+}
+
+function createLayoutControlsSection(preset, activeTemplate) {
+  const selectedBlock = getBlock(state.sessionDocument.layout, state.selectedBlockId);
+  const { section, body } = createConsoleSection({
+    eyebrow: 'Layout',
+    title: '布局控制',
+    description: '拖动仍在右侧画布直接完成；这里聚合当前模板、zone 分配和尺寸策略。',
+    bodyClassName: 'console-stack'
+  });
+
+  const zoneSummary = preset.zones.map((zone) => {
+    const blockCount = state.sessionDocument.layout.blocks.filter((block) => block.zoneId === zone.id).length;
+    return [zone.label, `${blockCount} 个区块`];
+  });
+
+  const layoutCard = document.createElement('div');
+  layoutCard.className = 'console-summary-card';
+  layoutCard.append(createMetaList([
+    ['模板标识', activeTemplate.id],
+    ['可用 zone', String(preset.zones.length)],
+    ['拖动状态', state.activeMoveBlockId ? '拖动中' : '待命']
+  ], { compact: true }));
+
+  const zonesCard = document.createElement('div');
+  zonesCard.className = 'console-summary-card';
+  zonesCard.append(createMetaList(zoneSummary, { compact: true }));
+
+  const sizeCard = document.createElement('div');
+  sizeCard.className = 'console-summary-card';
+
+  const sizeTitle = document.createElement('strong');
+  sizeTitle.className = 'summary-card__title';
+  sizeTitle.textContent = selectedBlock
+    ? `${selectedBlock.title} · 尺寸档位`
+    : '先在画布里选中区块';
+
+  sizeCard.append(sizeTitle, createSizeInspectorGroup(selectedBlock, preset));
+  body.append(layoutCard, zonesCard, sizeCard);
+  return section;
+}
+
+function createSelectedBlockSection(selectedBlock, preset) {
+  const activeTemplate = currentTemplate();
+  const { section, body } = createConsoleSection({
+    eyebrow: 'Selected block',
+    title: '区块详情',
+    description: '保留必要信息与操作提示，避免原来那种偏调试面板的冗长输出。',
+    bodyClassName: 'console-stack'
+  });
+
+  if (!selectedBlock) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = '点击右侧任意区块后，这里会显示该模块的尺寸、可落位区域和直编状态。';
+    body.append(empty);
+    return section;
+  }
+
+  const status = selectedBlock.locked
+    ? '位置锁定'
+    : state.activeMoveBlockId === selectedBlock.id
+      ? '正在拖动'
+      : '可编辑 / 可排序';
+
+  const blockCard = document.createElement('div');
+  blockCard.className = 'console-summary-card';
+  blockCard.append(createMetaList([
+    ['区块名称', selectedBlock.title],
+    ['内容类型', selectedBlock.type],
+    ['当前 zone', preset.zones.find((zone) => zone.id === selectedBlock.zoneId)?.label || selectedBlock.zoneId],
+    ['尺寸档位', selectedBlock.size],
+    ['移动状态', status],
+    ['模板上下文', activeTemplate.label]
+  ]));
+
+  const movementCard = document.createElement('div');
+  movementCard.className = 'console-summary-card';
+
+  const movementTitle = document.createElement('strong');
+  movementTitle.className = 'summary-card__title';
+  movementTitle.textContent = '交互说明';
+
+  const movementCopy = document.createElement('p');
+  movementCopy.className = 'summary-card__copy';
+  movementCopy.textContent = selectedBlock.locked
+    ? '该区块固定在当前版式语义位置，仍可直编内容，但不参与换位和尺寸切换。'
+    : '右侧画布仍是主要操作面：点击文字进入直编，拖动手柄换位，尺寸档位写回当前模板布局。';
+
+  const allowedZones = document.createElement('div');
+  allowedZones.className = 'pill-row';
+  selectedBlock.allowedZoneIds.forEach((zoneId) => {
+    const pill = document.createElement('span');
+    pill.className = 'info-pill';
+    pill.textContent = preset.zones.find((zone) => zone.id === zoneId)?.label || zoneId;
+    allowedZones.append(pill);
+  });
+
+  movementCard.append(movementTitle, movementCopy, allowedZones);
+  body.append(blockCard, movementCard, createEditStatusGroup());
+  return section;
+}
+
 function createEditStatusGroup() {
   const group = document.createElement('div');
-  group.className = 'inspector-group';
+  group.className = 'console-summary-card';
 
   const label = document.createElement('span');
-  label.className = 'inspector-label';
+  label.className = 'console-section__eyebrow';
   label.textContent = '当前编辑目标';
 
   const title = document.createElement('strong');
+  title.className = 'summary-card__title';
   title.textContent = formatEditTarget(state.activeEditPath);
 
   const copy = document.createElement('small');
+  copy.className = 'console-hint';
   copy.textContent = state.activeEditPath
     ? 'Enter / 失焦提交，Esc 取消当前字段编辑。'
     : '点击右侧带描边的文字即可进入直编。';
 
   const hintList = document.createElement('ul');
-  hintList.className = 'inspector-list inspector-list--compact';
+  hintList.className = 'console-meta-list console-meta-list--compact';
 
   const hintEntries = [
     ['草稿值', state.activeEditPath ? state.draftValue || '（空值）' : '—'],
@@ -330,7 +691,7 @@ function createEditStatusGroup() {
   hintEntries.forEach(([term, value]) => {
     const item = document.createElement('li');
     const itemLabel = document.createElement('span');
-    const itemValue = document.createElement('code');
+    const itemValue = document.createElement('strong');
 
     itemLabel.textContent = term;
     itemValue.textContent = value;
@@ -363,10 +724,10 @@ function createSizeOptionButton(blockId, option, origin) {
 
 function createSizeInspectorGroup(selectedBlock, preset) {
   const group = document.createElement('div');
-  group.className = 'inspector-group';
+  group.className = 'size-console';
 
   const label = document.createElement('span');
-  label.className = 'inspector-label';
+  label.className = 'console-section__eyebrow';
   label.textContent = '尺寸档位';
 
   if (!selectedBlock) {
@@ -380,6 +741,7 @@ function createSizeInspectorGroup(selectedBlock, preset) {
   const activeOption = options.find((option) => option.state === 'active') || options[0];
 
   const title = document.createElement('strong');
+  title.className = 'summary-card__title';
   title.textContent = selectedBlock.locked
     ? `当前尺寸 ${selectedBlock.size}（锁定）`
     : `当前尺寸 ${activeOption?.label || selectedBlock.size}`;
@@ -393,10 +755,11 @@ function createSizeInspectorGroup(selectedBlock, preset) {
   });
 
   const description = document.createElement('small');
+  description.className = 'console-hint';
   description.textContent = activeOption?.description || '尺寸档位由 preset 约束，并写回当前 session layout。';
 
   const detailList = document.createElement('ul');
-  detailList.className = 'inspector-list inspector-list--compact';
+  detailList.className = 'console-meta-list console-meta-list--compact';
 
   [
     ['允许尺寸', options.map((option) => option.value).join(' / ')],
@@ -405,7 +768,7 @@ function createSizeInspectorGroup(selectedBlock, preset) {
   ].forEach(([term, value]) => {
     const item = document.createElement('li');
     const itemLabel = document.createElement('span');
-    const itemValue = document.createElement('code');
+    const itemValue = document.createElement('strong');
 
     itemLabel.textContent = term;
     itemValue.textContent = value;
@@ -415,70 +778,6 @@ function createSizeInspectorGroup(selectedBlock, preset) {
 
   group.append(label, title, controls, description, detailList);
   return group;
-}
-
-function createInspector(selectedBlock, preset, activeTemplate) {
-  const panel = document.createElement('section');
-  panel.className = 'inspector-panel';
-
-  const title = document.createElement('h2');
-  title.className = 'panel-title';
-  title.textContent = '区块检查器';
-
-  const description = document.createElement('p');
-  description.className = 'panel-copy';
-  description.textContent = 'Phase 2-C 在共享文档模型上加入 preset 驱动的尺寸档位、布局持久化与预览响应。';
-
-  const presetInfo = document.createElement('div');
-  presetInfo.className = 'inspector-group';
-  presetInfo.innerHTML = `<span class="inspector-label">当前版式</span><strong>${preset.label} · ${activeTemplate.label}</strong><small>${activeTemplate.description || preset.description}</small>`;
-
-  const blockInfo = document.createElement('div');
-  blockInfo.className = 'inspector-group';
-
-  if (selectedBlock) {
-    blockInfo.innerHTML = `
-      <span class="inspector-label">已选中区块</span>
-      <strong>${selectedBlock.title}</strong>
-      <ul class="inspector-list">
-        <li><span>Block ID</span><code>${selectedBlock.id}</code></li>
-        <li><span>Block Type</span><code>${selectedBlock.type}</code></li>
-        <li><span>Zone</span><code>${selectedBlock.zoneId}</code></li>
-        <li><span>Order</span><code>${selectedBlock.order}</code></li>
-        <li><span>Content Ref</span><code>${selectedBlock.contentRef}</code></li>
-        <li><span>Size</span><code>${selectedBlock.size}</code></li>
-        <li><span>Locked</span><code>${selectedBlock.locked ? '是' : '否'}</code></li>
-      </ul>
-    `;
-  } else {
-    blockInfo.innerHTML = '<span class="inspector-label">已选中区块</span><strong>尚未选择</strong>';
-  }
-
-  const movementInfo = document.createElement('div');
-  movementInfo.className = 'inspector-group';
-
-  if (selectedBlock) {
-    const movementStatus = state.activeMoveBlockId === selectedBlock.id
-      ? '正在拖动'
-      : selectedBlock.locked
-        ? '位置锁定'
-        : '可通过拖动手柄排序';
-
-    movementInfo.innerHTML = `
-      <span class="inspector-label">布局移动</span>
-      <strong>${movementStatus}</strong>
-      <ul class="inspector-list inspector-list--compact">
-        <li><span>允许 Zone</span><code>${selectedBlock.allowedZoneIds.join(' / ')}</code></li>
-        <li><span>当前状态</span><code>${state.activeMoveBlockId === selectedBlock.id ? '拖动进行中' : '手柄待命'}</code></li>
-        <li><span>交互范围</span><code>同区换位 / 合法跨区 / 非法回退</code></li>
-      </ul>
-    `;
-  } else {
-    movementInfo.innerHTML = '<span class="inspector-label">布局移动</span><strong>尚未选择</strong>';
-  }
-
-  panel.append(title, description, presetInfo, blockInfo, movementInfo, createSizeInspectorGroup(selectedBlock, preset), createEditStatusGroup());
-  return panel;
 }
 
 function changeBlockSize(blockId, nextSize) {
@@ -495,67 +794,6 @@ function changeBlockSize(blockId, nextSize) {
   state.sessionDocument = updateDocumentLayout(state.sessionDocument, nextLayout);
   state.selectedBlockId = blockId;
   renderApp();
-}
-
-function createPresetSwitcher() {
-  const wrap = document.createElement('div');
-  wrap.className = 'preset-switcher';
-
-  listPresets().forEach((preset) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'preset-button';
-    button.textContent = preset.label;
-    button.dataset.active = String(state.presetId === preset.id);
-    button.addEventListener('click', () => {
-      commitActiveEdit({ rerender: false });
-      resetActiveMoveState();
-      state.presetId = preset.id;
-      state.sessionDocument = activateDocumentPreset(state.sessionDocument, preset);
-      ensureSelectedBlock(state.sessionDocument.layout);
-      renderApp();
-    });
-    wrap.append(button);
-  });
-
-  return wrap;
-}
-
-function createTemplateSwitcher(preset) {
-  const wrap = document.createElement('div');
-  wrap.className = 'preset-switcher';
-
-  const label = document.createElement('span');
-  label.className = 'inspector-label';
-  label.textContent = '布局模板';
-
-  const copy = document.createElement('small');
-  copy.textContent = '模板切换只替换当前 preset 的布局层，内容编辑与该模板已保存的排序/尺寸会继续保留。';
-
-  wrap.append(label, copy);
-
-  listPresetTemplates(preset).forEach((template) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'preset-button';
-    button.textContent = template.label;
-    button.title = template.description || template.label;
-    button.dataset.active = String(currentTemplateId() === template.id);
-    button.addEventListener('click', () => {
-      if (template.id === currentTemplateId()) {
-        return;
-      }
-
-      commitActiveEdit({ rerender: false });
-      resetActiveMoveState();
-      state.sessionDocument = activateDocumentTemplate(state.sessionDocument, preset, template.id);
-      ensureSelectedBlock(state.sessionDocument.layout);
-      renderApp();
-    });
-    wrap.append(button);
-  });
-
-  return wrap;
 }
 
 function renderApp() {
@@ -577,12 +815,23 @@ function renderApp() {
   const masthead = document.createElement('header');
   masthead.className = 'sidebar-masthead';
   masthead.innerHTML = `
-    <p class="kicker">隔离工作区 · Phase 2-C</p>
-    <h1>约束式多版式编辑器原型</h1>
-    <p>共享文档模型驱动 cards / classic 与模板切换预览，当前实现直编、受约束拖动、尺寸档位与模板级布局持久化闭环。</p>
+    <p class="kicker">Editor Next Console</p>
+    <h1>文档控制台</h1>
+    <p>把左侧从调试式检查器重组为真实的编辑侧栏：文档、模板、风格、布局和区块操作都集中在这里。</p>
   `;
 
-  sidebar.append(masthead, createPresetSwitcher(), createTemplateSwitcher(preset), createInspector(selectedBlock, preset, activeTemplate));
+  const sidebarBody = document.createElement('div');
+  sidebarBody.className = 'sidebar-console';
+
+  sidebarBody.append(
+    createDocumentPresetSection(preset, activeTemplate),
+    createTemplateSection(preset),
+    createStyleControlsSection(),
+    createLayoutControlsSection(preset, activeTemplate),
+    createSelectedBlockSection(selectedBlock, preset)
+  );
+
+  sidebar.append(masthead, sidebarBody);
 
   const canvas = document.createElement('section');
   canvas.className = 'preview-stage';

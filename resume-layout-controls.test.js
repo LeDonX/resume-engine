@@ -159,8 +159,8 @@ test("layout control settings expose typography plus the bounded spacing/layout 
     });
 
     assert.deepEqual(RESUME_LAYOUT_CONTROL_SETTINGS.myResume3HeaderInfoLineHeightScale, {
-        min: 0.8,
-        max: 1.3,
+        min: 0,
+        max: 2,
         step: 0.01,
         defaultValue: 1
     });
@@ -184,6 +184,7 @@ test("layout control formatter keeps font %, spacing px, and line-height x seman
     assert.equal(formatResumeLayoutControlValue("bodyLineHeightScale", 1.12), "1.12x");
     assert.equal(formatResumeLayoutControlValue("myResume3HeaderInfoTopMarginScale", 1, { layout: "my-resume3" }), "48px");
     assert.equal(formatResumeLayoutControlValue("myResume3HeaderInfoBottomMarginScale", 1, { layout: "my-resume3" }), "31px");
+    assert.equal(formatResumeLayoutControlValue("myResume3HeaderInfoLineHeightScale", 0), "0x");
     assert.equal(formatResumeLayoutControlValue("myResume3HeaderInfoLineHeightScale", 1.18), "1.18x");
     assert.equal(formatResumeLayoutControlValue("myResume3AvatarSizeScale", 1, { layout: "my-resume3" }), "140px");
 });
@@ -234,7 +235,7 @@ test("normalization clamps new axis-specific controls and falls back from legacy
         bodyLineHeightScale: 0.72,
         myResume3HeaderInfoTopMarginScale: 1.52,
         myResume3HeaderInfoBottomMarginScale: -0.1,
-        myResume3HeaderInfoLineHeightScale: 1.42,
+        myResume3HeaderInfoLineHeightScale: 2.42,
         myResume3AvatarSizeScale: 0.72,
         lineHeightScale: 1.2,
         innerPaddingScale: 1.1,
@@ -262,7 +263,7 @@ test("normalization clamps new axis-specific controls and falls back from legacy
         bodyLineHeightScale: 0.8,
         myResume3HeaderInfoTopMarginScale: 1.4,
         myResume3HeaderInfoBottomMarginScale: 0,
-        myResume3HeaderInfoLineHeightScale: 1.3,
+        myResume3HeaderInfoLineHeightScale: 2,
         myResume3AvatarSizeScale: 0.8
     });
 
@@ -315,6 +316,11 @@ test("normalization clamps new axis-specific controls and falls back from legacy
     assert.equal(defaultControls.myResume3HeaderInfoBottomMarginScale, 1);
     assert.equal(defaultControls.myResume3HeaderInfoLineHeightScale, 1);
     assert.equal(defaultControls.myResume3AvatarSizeScale, 1);
+
+    const zeroGapControls = normalizeResumeLayoutControlsForLayout({
+        myResume3HeaderInfoLineHeightScale: -0.1
+    });
+    assert.equal(zeroGapControls.myResume3HeaderInfoLineHeightScale, 0);
 });
 
 test("buildResumeLayoutControlVars emits typography plus bounded spacing/layout vars", () => {

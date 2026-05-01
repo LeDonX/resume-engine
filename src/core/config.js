@@ -275,8 +275,8 @@ export const RESUME_LAYOUT_SPACING_CONTROL_FIELDS = [
     },
     {
         key: "myResume3HeaderInfoLineHeightScale",
-        label: "模板 2 个人信息行高",
-        hint: "仅控制模板 2 顶部个人信息文字行高",
+        label: "模板 2 个人信息行间距",
+        hint: "仅控制模板 2 顶部个人信息各行之间的纵向间距，不影响文字行高与条目高度",
         layouts: [RESUME_LAYOUT_MY_RESUME3]
     },
     {
@@ -314,7 +314,7 @@ export const sampleResumeData = {
     myResume3HeaderInfoBottomMarginScale: 1,
     myResume3HeaderInfoLineHeightScale: 1,
     myResume3AvatarSizeScale: 1,
-    showExperienceTimeline: false,
+    showExperienceTimeline: true,
     useFlatIcons: true,
     profileImage: "",
     avatarImageMeta: null,
