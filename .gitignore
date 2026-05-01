@@ -9,3 +9,4 @@ dist-static/
 .wrangler/
 .dev.vars*
 !.dev.vars.example
+.png
