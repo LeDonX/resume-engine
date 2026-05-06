@@ -291,7 +291,6 @@ export function createDraftStore({ getResumeData, normalizeResumeData, setStatus
             }
 
             const { draftData, hasAvatarSidecar, needsUpgrade } = parseDraftStoragePayload(raw);
-            const normalizedDraft = normalizeResumeData(draftData);
             let avatarRestored = false;
             let avatarRestoreWarning = "";
 
@@ -299,11 +298,8 @@ export function createDraftStore({ getResumeData, normalizeResumeData, setStatus
                 try {
                     const avatarValue = await readAvatarSidecar();
                     if (hasCustomAvatarImage(avatarValue)) {
-                        normalizedDraft.profileImage = avatarValue;
+                        draftData.profileImage = avatarValue;
                         avatarRestored = true;
-                        if (normalizedDraft.avatarImageMeta) {
-                            cacheAvatarImageMeta(avatarValue, normalizedDraft.avatarImageMeta);
-                        }
                     } else {
                         avatarRestoreWarning = "已恢复文本草稿，但头像缓存未找回；如需恢复头像，请重新上传或导入已导出的 JSON。";
                     }
@@ -311,6 +307,12 @@ export function createDraftStore({ getResumeData, normalizeResumeData, setStatus
                     console.warn("读取头像草稿缓存失败：", error);
                     avatarRestoreWarning = "已恢复文本草稿，但头像缓存未找回；如需恢复头像，请重新上传或导入已导出的 JSON。";
                 }
+            }
+
+            const normalizedDraft = normalizeResumeData(draftData);
+
+            if (avatarRestored && normalizedDraft.avatarImageMeta) {
+                cacheAvatarImageMeta(normalizedDraft.profileImage, normalizedDraft.avatarImageMeta);
             }
 
             await hydrateAvatarStateIfNeeded(normalizedDraft);

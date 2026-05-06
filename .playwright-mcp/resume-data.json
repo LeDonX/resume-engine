@@ -1,0 +1,105 @@
+{
+  "documentTitle": "Avatar roundtrip",
+  "resumeLayout": "my-resume3",
+  "resumeTheme": "pro_blue",
+  "basicInfoIconSet": "my-resume3",
+  "sectionTitleIconSet": "my-resume3",
+  "fontScale": 1,
+  "basicInfoScale": 1,
+  "titleScale": 1,
+  "nameScale": 1,
+  "roleScale": 1,
+  "basicInfoIconScale": 1,
+  "skillGroupNameScale": 1,
+  "skillTagScale": 1,
+  "workProjectMetaScale": 1,
+  "moduleMarginYScale": 1,
+  "moduleMarginXScale": 1,
+  "modulePaddingYScale": 1,
+  "modulePaddingXScale": 1,
+  "pagePaddingYScale": 1,
+  "pagePaddingXScale": 1,
+  "bodyLineHeightScale": 1,
+  "myResume3HeaderInfoTopMarginScale": 1,
+  "myResume3HeaderInfoBottomMarginScale": 1,
+  "myResume3HeaderInfoLineHeightScale": 1,
+  "myResume3AvatarSizeScale": 1,
+  "showExperienceTimeline": true,
+  "useThemeTimeline": false,
+  "useFlatIcons": true,
+  "iconPalette": "macaron",
+  "skillBadgeColor": "theme",
+  "professionalSkillsMode": "skills",
+  "sectionOrder": [
+    "skills",
+    "experiences",
+    "projects",
+    "education"
+  ],
+  "profileImage": "data:image/webp;base64,UklGRtwKAABXRUJQVlA4WAoAAAAgAAAAKwEA8wEASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDgg7ggAALBLAJ0BKiwB9AE+KRSJQyGhIRH8zCAYAoSzt3C68vcxAMX941PbtH5Fc7Nwb3N48o4vqb7Afm/uW9+Xqm8wD9N+kV5gP2i9YL+uf7D+6e6f+0/3f2AP5Z/n/SA9hP0AP5H/W///66H7w/CT+3P7s+1j//9Ze83f3Xty/wGNS6xRbrAG8nY+/tNtZmXf7H+8/mB7v/oj/h+4d+pH+z693oZfrcImoGYwxhjDGGMMYYwxhjDGGMMYYwxhjDGGMMYYwxhjDGGMMYYwxhjDGGMMYYwxhOu5SYI9d0auCBJ9z2WGTcm5NwWPnm3kyIhOh3cdAO/QgXjbuNYwxhjCaShzkckTV7XZ6iL/Q/qcQRkaaakqfA9D2YuPh0B8+bAHep2m/kiW0DMd1LevGYBHUcHWTJuTcEc/+3BeN4QVeHb0S3ogZjCg00tYi9o8l4ijlGy0ybk3JCmBU/uiBYvw1ffQEC7N2T0DC2zX78CLAkBIBngRYEZgTwV7un4A+S8Q+1rXB8h20wQcpmaPJeS8kxDJPkZHGGGbZwZ8xyXiwJARkXhZNHfGGMJ27/aSFfJeSK8yAZZ5LyXDhu/M0rwJ9wRpo8RKt/XQkBICMfYn4SO398kgiBbzuoGr/DGGMJovbGBaUknhQenkRYIFW4fBiDMYYWgBk3Jt/2k2APhyM4CBdktaeCNQr5i2APkgYQMYYusaRICQDBGcBAulUH3BGoV8xbAHw5GcBAuyWtPBGoV8xbAHyQMIGMMXWNIkBIBgjOAgXSFT2kE3aUGqnkR4W9ZigkjCfBAuzdm7N2bs3Zuzdm7N2bs3ZukAAP7/3AwAAAAAEndtt/8PPTHwLHI3hVL6r5bEH9rErqrNH7LcXh0vJQ1DKRVSxIuIWprmu419cJomVel1FbPpUD/3jjJ/nHjChreW5nT8oLsPJb8QbLDc/ik0C1c4h7J+5tdeppMasQRog0gkI3m0kZJnLrCI2IxGdXv2Z0dGCHroanMWlSv9NdvrT/DIRp2kVBdsZmx8UzKUGdfdaYlM56vSa3/HoaEcbo98Gn+yL86AmL2q4JpltvljKZuLQ6ZSabIZdqdCBuXE+frPx1eFEhAeYa+bl94SQSwjWW3dbPu0m/AvVUNtjAasfNSU5zeuHglzTECpxvlHnebF8Kfuti7F1e/gCNm13L7pYS24uZQW8C+6LxT/V/41+HrQrR/Q3YJWFf69prfVGfggq7s6wQ3yyYLiKAl94zUAGrQAD/WleI49k4djxo624ZuvoCGo7FH82doOD7Qf+K4Upbku1YveQ0KCJrbhl1CTMmH2jnTLOicdv0vaFhV5uYX1+w76V4yGrOjuJBlGnjPmZvBSr8XVD05RGrO3wfmFRh5U3QsvOEE3vAYLRateG954HPRAXfclrSinjjgLT2TCTg5TJFeeBYtnrfM5tFV3FZp+BUc+eOkL9N8h89r++fenQQEASXMaqnkf7ABgtWw0HEhA+IS1t3LikOhgL86bwqiXyGQxvGpQEV93j809mZ9znsTmuTuQlZPyDcNj1rl3egSPohzuDLhnzxnruv/8kzR57iCG6yNH+4IkaVFSPiHB1QlGqxIskhWYfX28hdV7H5Y1IW9pVv+CHaQginFJ3cldrJxXqabZRUMeZK8bkfV6XJRsHi9oO87xD7Lj2QZ2/PCm9bNJ6vS803bpzEoJZAQNZAjmkYf5sddsEvIlKPQedhJdhf/U/TJhLPb22CMnShr9N7IZ8JlenL16ZGySlDjj9K7bXrysn7cbdNJa5nQkK0lUUhNerpnwLy4nOtg2gCpsQ1WpjjaH8wXuMW/WGoydRHewtMIyAfH/JcGwAzliCxSIOUlp5DkK51uRns9RwekfM9lKf9TwhjLoiF+Mp1jiYjMVhzyiinR4gF6zVCCBBW0P6O15miRSFRDJqowQTDpv1VispJwlEJ+6u91rF/AF4EoQDVt5rYv5Qc50/SGEcz1x4h4E4fxtrM9qXJ2cf7YEeotQuHBhyYaqxKWpQxeFz5BgdUIhxXDA3NE4iFvZWOsM8k9Shi4zyZpe8XSdEo9lACMRd8xSQEpVC2eScklAQbS0mDvJa08MvIg+GAJGeEVAO8l8/wHD8IpX2hrRvUxx3pXcRUhQzrwQ0eEJYSqteS/GQWmkZoFiV1k76Je02u7MfnKDYYP9Svq00D0cA//N7ovdnC2giCVDAhNZHgMT1zLnOJlXY3uCKT3RITt6Ma9MSpcDZTIcskCpF0/uyypPMdAlZTs6rDfr9/vXKX4YT6SBpChRtWOdK24cwDHma6YQhEtWSiJEFwEphdwlOC5mn+3okdgqsjemvlLBXjymSLiVTLZhpefwQ3UJcXhwlXGJjf/OTW+EiqSqvR5avpgYXHmcni8j2LLKA7npbhh+KlfbcgftbhwuDoejxXD5LpLMmwkRPh/FayIW6o9XJ4/hHKeMjngCSAYqFF1LDHatfqFvXFhXdb4FPjKSA1sG3IwyCHaGpOtiP5NzkP2FSXdx/+WLh6dEmf2IaZR12o38k32KLeq2MDCxtD6i06Xm9ywkhgXjSVty9VJGQTGDkd3x8uCbDcCJUFal43yj6BG1j5tB1+7Ulqr2Rids5SAf664BdigLrxWHIHQLX2B80kzevapZPfOPmJwAMOJ6WYw0kShl9m41xLG/1OKHpc3TU4oygpmi4Ej0Z4tylfqRyaTRE/euNEPwNFGbiNfoBO36KAuqV+o7vdliqYgR1n3Ivv9KBu1QsZ0x2JLKqBJBEthZh2kWFvB8fXUytBtrIf5K+DrR7lkf/x9ZwHFgNHgA4ovV0dV/xjWULFpAyu8D/qIK/+DY3rxHBC8+y9yRZ6/m79hpNiYR81pzIYM9JAES3//ql6/+AA3v6vHvILT5GNhTAH/F70xyAJwvv8iAHhW6rKpNVRgFDEKACsHE4OAma56HgF+H7/qRx9J0SSVQk2nw1oV1Dnlb/2v06HZyVkZAB8xq6MN96QHBpYySTOC8QgNBG5jayyTO+ZlKfoN91OTJgpQAE2NsYfgsCnf/HUKc7djATNAAAAAAAA==",
+  "avatarImageMeta": {
+    "width": 300,
+    "height": 500
+  },
+  "avatarFrame": {
+    "zoom": 1.2,
+    "offsetX": 0,
+    "offsetY": -20
+  },
+  "avatarShape": "circle",
+  "name": "测试用户",
+  "role": "测试岗位",
+  "summary": "summary",
+  "professionalSkillsText": "",
+  "basicInfo": [
+    {
+      "id": "phone",
+      "label": "手机",
+      "value": "138-xxxx-xxxx",
+      "iconPreset": "phone",
+      "iconMode": "preset",
+      "customIcon": "",
+      "iconColor": "theme"
+    },
+    {
+      "id": "email",
+      "label": "邮箱",
+      "value": "zhangsan@qq.com",
+      "iconPreset": "email",
+      "iconMode": "preset",
+      "customIcon": "",
+      "iconColor": "theme"
+    },
+    {
+      "id": "github",
+      "label": "GitHub",
+      "value": "github.com/zhangsan",
+      "iconPreset": "github",
+      "iconMode": "preset",
+      "customIcon": "",
+      "iconColor": "theme"
+    },
+    {
+      "id": "birth",
+      "label": "出生年月",
+      "value": "1998.08",
+      "iconPreset": "birth",
+      "iconMode": "preset",
+      "customIcon": "",
+      "iconColor": "theme"
+    },
+    {
+      "id": "education",
+      "label": "学历",
+      "value": "硕士",
+      "iconPreset": "education",
+      "iconMode": "preset",
+      "customIcon": "",
+      "iconColor": "theme"
+    }
+  ],
+  "education": [],
+  "skills": [],
+  "experiences": [],
+  "projects": []
+}

@@ -30,7 +30,7 @@ import {
 import { renderFormHtml } from "./src/form/render.js";
 import { getAvatarImageSource } from "./src/avatar/avatar-utils.js";
 import { buildLayoutColumnBlocks } from "./src/preview/render.js";
-import { buildDraftStoragePayload, parseDraftStoragePayload } from "./src/persistence/draft-store.js";
+import { buildDraftStoragePayload, createDraftStore, parseDraftStoragePayload } from "./src/persistence/draft-store.js";
 
 function assertOrderedFragments(html, fragments) {
     let previousIndex = -1;
@@ -40,6 +40,102 @@ function assertOrderedFragments(html, fragments) {
         assert.ok(currentIndex >= 0, `Expected fragment to exist: ${fragment}`);
         assert.ok(currentIndex > previousIndex, `Expected ${fragment} to appear after the previous fragment`);
         previousIndex = currentIndex;
+    }
+}
+
+function createMockIndexedDb(profileImage) {
+    return {
+        open() {
+            const request = {
+                result: null,
+                error: null,
+                onupgradeneeded: null,
+                onsuccess: null,
+                onerror: null
+            };
+            const database = {
+                objectStoreNames: {
+                    contains: () => false
+                },
+                createObjectStore() {},
+                transaction() {
+                    const getRequest = {
+                        result: { profileImage },
+                        error: null,
+                        onsuccess: null,
+                        onerror: null
+                    };
+                    const transaction = {
+                        error: null,
+                        oncomplete: null,
+                        onabort: null,
+                        objectStore() {
+                            return {
+                                get() {
+                                    queueMicrotask(() => {
+                                        if (typeof getRequest.onsuccess === "function") {
+                                            getRequest.onsuccess();
+                                        }
+                                        queueMicrotask(() => {
+                                            if (typeof transaction.oncomplete === "function") {
+                                                transaction.oncomplete();
+                                            }
+                                        });
+                                    });
+                                    return getRequest;
+                                }
+                            };
+                        }
+                    };
+                    return transaction;
+                },
+                close() {}
+            };
+
+            queueMicrotask(() => {
+                request.result = database;
+                if (typeof request.onupgradeneeded === "function") {
+                    request.onupgradeneeded();
+                }
+                queueMicrotask(() => {
+                    if (typeof request.onsuccess === "function") {
+                        request.onsuccess();
+                    }
+                });
+            });
+
+            return request;
+        }
+    };
+}
+
+async function withMockedDraftRestoreEnvironment({ draftPayload, profileImage }, run) {
+    const previousLocalStorage = globalThis.localStorage;
+    const previousIndexedDB = globalThis.indexedDB;
+
+    globalThis.localStorage = {
+        getItem() {
+            return draftPayload;
+        },
+        setItem() {},
+        removeItem() {},
+        clear() {}
+    };
+    globalThis.indexedDB = createMockIndexedDb(profileImage);
+
+    try {
+        return await run();
+    } finally {
+        if (typeof previousLocalStorage === "undefined") {
+            delete globalThis.localStorage;
+        } else {
+            globalThis.localStorage = previousLocalStorage;
+        }
+        if (typeof previousIndexedDB === "undefined") {
+            delete globalThis.indexedDB;
+        } else {
+            globalThis.indexedDB = previousIndexedDB;
+        }
     }
 }
 
@@ -348,6 +444,43 @@ test("all preview layouts keep avatar preview data attributes while honoring ava
     }
 });
 
+test("template 2 avatar preview contract survives export/import round-trips", () => {
+    const profileImage = "data:image/png;base64,ZmFrZQ==";
+    const initialData = normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME3,
+        profileImage,
+        avatarImageMeta: { width: 300, height: 500 },
+        avatarFrame: { zoom: 1.2, offsetX: 0, offsetY: -20 },
+        avatarShape: AVATAR_SHAPE_CIRCLE
+    });
+    const exportedJson = JSON.stringify(initialData);
+    const importedData = normalizeResumeData(JSON.parse(exportedJson));
+
+    const beforeBlocks = buildLayoutColumnBlocks(initialData.resumeLayout, initialData, getAvatarImageSource(initialData.profileImage));
+    const afterBlocks = buildLayoutColumnBlocks(importedData.resumeLayout, importedData, getAvatarImageSource(importedData.profileImage));
+    const beforeHtml = `${beforeBlocks.leftBlocks.join("\n")}\n${beforeBlocks.rightBlocks.join("\n")}`;
+    const afterHtml = `${afterBlocks.leftBlocks.join("\n")}\n${afterBlocks.rightBlocks.join("\n")}`;
+
+    const extractAvatarPreviewContract = (html) => {
+        const imageTag = html.match(/<img[^>]*data-testid="avatar-preview-image"[^>]*>/)?.[0] || "";
+        const style = imageTag.match(/style="([^"]+)"/)?.[1] || "";
+        const zoom = imageTag.match(/data-avatar-zoom="([^"]+)"/)?.[1] || "";
+        const offsetX = imageTag.match(/data-avatar-offset-x="([^"]+)"/)?.[1] || "";
+        const offsetY = imageTag.match(/data-avatar-offset-y="([^"]+)"/)?.[1] || "";
+
+        assert.ok(imageTag, "expected template 2 avatar preview contract to exist");
+
+        return { style, zoom, offsetX, offsetY };
+    };
+
+    assert.deepEqual(JSON.parse(exportedJson).avatarImageMeta, { width: 300, height: 500 });
+    assert.deepEqual(JSON.parse(exportedJson).avatarFrame, { zoom: 1.2, offsetX: 0, offsetY: -20 });
+    assert.deepEqual(importedData.avatarImageMeta, initialData.avatarImageMeta);
+    assert.deepEqual(importedData.avatarFrame, initialData.avatarFrame);
+    assert.deepEqual(extractAvatarPreviewContract(afterHtml), extractAvatarPreviewContract(beforeHtml));
+});
+
 test("draft storage payload keeps the avatar sidecar sentinel contract", () => {
     const profileImage = "data:image/png;base64,ZmFrZQ==";
     const payload = buildDraftStoragePayload({
@@ -363,6 +496,39 @@ test("draft storage payload keeps the avatar sidecar sentinel contract", () => {
     assert.equal(parsed.hasAvatarSidecar, true);
     assert.equal(parsed.needsUpgrade, false);
     assert.equal(parsed.draftData.profileImage, "");
+});
+
+test("draft load restores avatar frame and meta after sidecar recovery", async () => {
+    const profileImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7X0Y0AAAAASUVORK5CYII=";
+    const expectedFrame = { zoom: 1.2, offsetX: 0, offsetY: -20 };
+    const expectedMeta = { width: 300, height: 500 };
+    const draftPayload = JSON.stringify(buildDraftStoragePayload(normalizeResumeData({
+        ...sampleResumeData,
+        resumeLayout: RESUME_LAYOUT_MY_RESUME3,
+        profileImage,
+        avatarImageMeta: expectedMeta,
+        avatarFrame: expectedFrame
+    })));
+
+    const draftStore = createDraftStore({
+        getResumeData: () => ({}),
+        normalizeResumeData,
+        setStatus() {},
+        setCleanSnapshot() {}
+    });
+
+    const result = await withMockedDraftRestoreEnvironment({
+        draftPayload,
+        profileImage
+    }, () => draftStore.loadDraft());
+
+    assert.equal(result.avatarRestored, true);
+    assert.equal(result.avatarRestoreWarning, "");
+    assert.equal(result.needsUpgrade, false);
+    assert.equal(result.data.resumeLayout, RESUME_LAYOUT_MY_RESUME3);
+    assert.equal(result.data.profileImage, profileImage);
+    assert.deepEqual(result.data.avatarImageMeta, expectedMeta);
+    assert.deepEqual(result.data.avatarFrame, expectedFrame);
 });
 
 test("draft storage payload round-trips sectionOrder", () => {
